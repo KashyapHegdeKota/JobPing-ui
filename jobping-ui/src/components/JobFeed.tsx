@@ -1,47 +1,86 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, MapPin, Building2, Clock } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function JobFeed({ jobs }: { jobs: Job[] }) {
+export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
   return (
-    <div className="flex-1 bg-white flex flex-col h-full font-mono">
-      <div className="border-b border-gray-200 p-4 flex items-center justify-between bg-gray-50">
-        <h2 className="text-sm font-semibold text-gray-800">All jobs (filters)</h2>
-        <div className="relative w-64">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+    <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
+      {/* Header */}
+      <div className="border-b border-zinc-800 p-6 flex items-center justify-between bg-zinc-950/80 backdrop-blur-md sticky top-0 z-10">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-zinc-100 tracking-tight">Live Feed</h2>
+          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-full">
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isConnected ? 'bg-cyan-400' : 'bg-red-500'}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? 'bg-cyan-500' : 'bg-red-500'}`}></span>
+            </span>
+            <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">{isConnected ? 'Connected' : 'Disconnected'}</span>
+          </div>
+        </div>
+        
+        <div className="relative w-72 group">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
           <input
             type="text"
-            placeholder="Search jobs..."
-            className="w-full pl-8 pr-3 py-2 bg-white border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+            placeholder="Search roles or companies..."
+            className="w-full pl-9 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all shadow-inner"
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+      {/* Feed */}
+      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
         {jobs.length === 0 ? (
-          <div className="text-sm text-gray-500 py-8 text-center">Waiting for live jobs...</div>
-        ) : (
-          jobs.map((job, idx) => (
-            <div key={job.id || idx} className="flex items-center justify-between border border-gray-200 rounded p-3 hover:border-red-300 hover:shadow-sm transition-all bg-white">
-              <div className="flex items-center gap-6">
-                <div className="font-semibold text-sm text-gray-900 w-48 truncate" title={job.title}>
-                  {job.title}
-                </div>
-                <div className="text-sm text-gray-600 w-32 truncate" title={job.company}>
-                  {job.company}
-                </div>
-                <div className="text-sm text-gray-500 w-32 truncate">
-                  {job.location}
-                </div>
-                <div className="text-xs text-gray-400">
-                  Listed {job.posted_at ? 'recently' : 'just now'}
-                </div>
-              </div>
-              <button className="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-1.5 rounded transition-colors font-semibold">
-                Details
-              </button>
+          <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-full"></div>
+              <Search className="h-10 w-10 text-zinc-600 relative z-10" />
             </div>
-          ))
+            <p className="font-mono text-sm">Listening for new opportunities...</p>
+          </div>
+        ) : (
+          <AnimatePresence>
+            {jobs.map((job, idx) => (
+              <motion.div
+                key={job.id || idx}
+                initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                className="group relative flex flex-col md:flex-row md:items-center justify-between border border-zinc-800 bg-zinc-900/50 rounded-xl p-5 hover:bg-zinc-900 hover:border-zinc-700 transition-all shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 overflow-hidden"
+              >
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500/0 group-hover:bg-cyan-500/100 transition-colors duration-300"></div>
+                
+                <div className="flex flex-col gap-3">
+                  <div className="font-semibold text-lg text-zinc-100 tracking-tight">
+                    {job.title}
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="h-4 w-4 text-zinc-500" />
+                      <span className="font-medium text-zinc-300">{job.company}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4 text-zinc-500" />
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 font-mono text-xs">
+                      <Clock className="h-3.5 w-3.5 text-zinc-500" />
+                      <span>{job.posted_at ? 'recently' : 'just now'}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 md:mt-0 flex items-center justify-end">
+                  <button className="relative bg-zinc-100 text-zinc-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all hover:bg-white overflow-hidden group/btn shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:text-cyan-950">
+                    <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10">Apply Now</span>
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
     </div>
