@@ -59,45 +59,62 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 font-mono">
-      <div className="relative flex w-full max-w-4xl overflow-hidden rounded-xl bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-sans">
+      <div className="relative flex w-full max-w-4xl overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl shadow-cyan-900/10">
         <button 
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 text-gray-500 hover:text-gray-900"
+          className="absolute right-4 top-4 z-10 text-zinc-500 hover:text-zinc-300 transition-colors bg-zinc-900/50 rounded-full p-1 backdrop-blur-md"
         >
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5" />
         </button>
 
-        <div className="hidden w-1/2 flex-col justify-center bg-red-500 p-12 text-white md:flex">
-          <h2 className="text-4xl font-bold leading-tight">
+        <div className="hidden w-1/2 flex-col justify-center bg-gradient-to-br from-zinc-900 via-cyan-950/20 to-zinc-950 p-12 md:flex border-r border-zinc-800 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent opacity-50"></div>
+          <h2 className="text-4xl font-bold leading-tight tracking-tight text-zinc-100 relative z-10">
             Real-time alerts for jobs from 3,000+ companies.
           </h2>
+          <div className="mt-8 relative z-10">
+            <div className="flex -space-x-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 w-8 rounded-full border-2 border-zinc-900 bg-zinc-800 flex items-center justify-center text-xs font-medium text-zinc-400">
+                  {String.fromCharCode(64 + i)}
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-zinc-500 font-mono">Join 10,000+ developers.</p>
+          </div>
         </div>
 
-        <div className="w-full p-8 md:w-1/2 md:p-12">
-          <div className="mb-8 flex space-x-4 border-b border-gray-200">
+        <div className="w-full p-8 md:w-1/2 md:p-12 bg-zinc-950">
+          <div className="mb-8 flex space-x-6 border-b border-zinc-800">
             <button
-              className={`pb-2 text-lg font-medium transition-colors ${
-                !isSignUp ? "border-b-2 border-red-500 text-gray-900" : "text-gray-500 hover:text-gray-700"
+              className={`pb-3 text-sm font-medium transition-all duration-300 relative ${
+                !isSignUp ? "text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
               }`}
               onClick={() => setIsSignUp(false)}
             >
               Sign in
+              {!isSignUp && (
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-400 rounded-t-full shadow-[0_-2px_10px_rgba(34,211,238,0.5)]" />
+              )}
             </button>
             <button
-              className={`pb-2 text-lg font-medium transition-colors ${
-                isSignUp ? "border-b-2 border-red-500 text-gray-900" : "text-gray-500 hover:text-gray-700"
+              className={`pb-3 text-sm font-medium transition-all duration-300 relative ${
+                isSignUp ? "text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
               }`}
               onClick={() => setIsSignUp(true)}
             >
               Sign up
+              {isSignUp && (
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-cyan-400 rounded-t-full shadow-[0_-2px_10px_rgba(34,211,238,0.5)]" />
+              )}
             </button>
           </div>
 
           <button
             onClick={handleGoogleAuth}
             disabled={loading}
-            className="mb-6 flex w-full items-center justify-center space-x-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+            className="mb-6 flex w-full items-center justify-center space-x-3 rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-zinc-300 transition-all hover:bg-zinc-800 hover:border-zinc-700 disabled:opacity-50 text-sm font-medium"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
@@ -121,43 +138,43 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </button>
 
           <div className="mb-6 flex items-center justify-center space-x-4">
-            <div className="h-px flex-1 bg-gray-200"></div>
-            <span className="text-sm text-gray-500">or</span>
-            <div className="h-px flex-1 bg-gray-200"></div>
+            <div className="h-px flex-1 bg-zinc-800"></div>
+            <span className="text-xs text-zinc-500 uppercase tracking-widest font-mono">or email</span>
+            <div className="h-px flex-1 bg-zinc-800"></div>
           </div>
 
           <form onSubmit={handleEmailAuth} className="space-y-4">
             {error && (
-              <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              <div className="rounded-lg border border-red-900/50 bg-red-950/20 p-3 text-sm text-red-400">
                 {error}
               </div>
             )}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">Email</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-gray-900"
-                placeholder="you@example.com"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-zinc-100 placeholder-zinc-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm"
+                placeholder="developer@example.com"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-400 uppercase tracking-wider">Password</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-gray-900"
+                className="w-full rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-zinc-100 placeholder-zinc-600 focus:border-cyan-500/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-md bg-red-500 px-4 py-2 font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50"
+              className="mt-2 w-full rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-cyan-950 transition-all hover:bg-cyan-400 disabled:opacity-50 shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)]"
             >
               {loading ? "Please wait..." : isSignUp ? "Create account" : "Sign in"}
             </button>
