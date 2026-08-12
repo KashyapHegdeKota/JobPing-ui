@@ -34,7 +34,7 @@ export default function JobFeed({ jobs }: { jobs: Job[] }) {
                   {job.location}
                 </div>
                 <div className="text-xs text-gray-400">
-                  Listed {job.posted_at ? 'recently' : 'just now'}
+                  Listed 5m ago
                 </div>
               </div>
               <button className="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-1.5 rounded transition-colors font-semibold">
