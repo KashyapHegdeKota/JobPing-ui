@@ -1,15 +1,33 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
 import FilterBar, { type Category } from './FilterBar';
 
+export function matchesCategory(job: Job, category: Category) {
+  if (category === 'All') return true;
+  const text = `${job.title} ${job.role_type ?? ''} ${job.experience_level ?? ''}`.toLowerCase();
+  return category === 'Summer 2027' ? text.includes('summer 2027') : /new grad|new graduate|entry.?level/.test(text);
+}
+
+export function filterJobs(jobs: Job[], query: string, category: Category, remoteOnly: boolean): Job[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  return jobs.filter((job) => (!normalizedQuery || `${job.title} ${job.company} ${job.location}`.toLowerCase().includes(normalizedQuery))
+    && matchesCategory(job, category)
+    && (!remoteOnly || /remote/i.test(`${job.location} ${job.work_model ?? ''}`)));
+}
+
 export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<Category>('All');
   const [remoteOnly, setRemoteOnly] = useState(false);
   const clearFilters = () => { setQuery(''); setCategory('All'); setRemoteOnly(false); };
+
+  const filteredJobs = useMemo(() => {
+    return filterJobs(jobs, query, category, remoteOnly);
+  }, [jobs, query, category, remoteOnly]);
+
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
       {/* Header */}
@@ -27,7 +45,7 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
         
       </div>
 
-      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={jobs.length} totalCount={jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
+      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={filteredJobs.length} totalCount={jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
@@ -41,7 +59,7 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
           </div>
         ) : (
           <AnimatePresence>
-            {jobs.map((job, idx) => (
+            {filteredJobs.map((job, idx) => (
               <JobCard key={job.id || idx} job={job} idx={idx} />
             ))}
           </AnimatePresence>
