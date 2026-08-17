@@ -3,10 +3,12 @@ import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
-import FilterBar from './FilterBar';
+import FilterBar, { type Category } from './FilterBar';
 
 export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<Category>('All');
+  const [remoteOnly, setRemoteOnly] = useState(false);
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
       {/* Header */}
@@ -24,7 +26,7 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
         
       </div>
 
-      <FilterBar query={query} onQueryChange={(e) => setQuery(e.target.value)} />
+      <FilterBar query={query} category={category} remoteOnly={remoteOnly} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} />
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
