@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
@@ -19,14 +19,27 @@ export function filterJobs(jobs: Job[], query: string, category: Category, remot
 }
 
 export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<Category>('All');
-  const [remoteOnly, setRemoteOnly] = useState(false);
-  const clearFilters = () => { setQuery(''); setCategory('All'); setRemoteOnly(false); };
+  const initialParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const initialQuery = initialParams.get('q') ?? '';
+  const initialCategory = initialParams.get('category');
+  const [query, setQuery] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  const [category, setCategory] = useState<Category>(initialCategory === 'Summer 2027' || initialCategory === 'New Grad' ? initialCategory : 'All');
+  const [remoteOnly, setRemoteOnly] = useState(initialParams.get('remote') === 'true');
+
+  useEffect(() => { const timer = window.setTimeout(() => setDebouncedQuery(query), 250); return () => window.clearTimeout(timer); }, [query]);
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedQuery) params.set('q', debouncedQuery);
+    if (category !== 'All') params.set('category', category);
+    if (remoteOnly) params.set('remote', 'true');
+    window.history.replaceState({}, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}`);
+  }, [debouncedQuery, category, remoteOnly]);
 
   const filteredJobs = useMemo(() => {
-    return filterJobs(jobs, query, category, remoteOnly);
-  }, [jobs, query, category, remoteOnly]);
+    return filterJobs(jobs, debouncedQuery, category, remoteOnly);
+  }, [jobs, debouncedQuery, category, remoteOnly]);
+  const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); };
 
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
