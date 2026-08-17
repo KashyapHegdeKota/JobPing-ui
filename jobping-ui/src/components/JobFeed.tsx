@@ -62,7 +62,9 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-        {jobs.length === 0 ? (
+        {jobs.length > 0 && filteredJobs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4"><Search className="h-10 w-10 text-zinc-600" /><p className="font-mono text-sm">No jobs match your filters.</p><button onClick={clearFilters} className="text-sm text-cyan-400 hover:text-cyan-300">Clear all filters</button></div>
+        ) : jobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
             <div className="relative">
               <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-full"></div>
