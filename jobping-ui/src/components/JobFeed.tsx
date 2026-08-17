@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
+import FilterBar from './FilterBar';
 
 export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
+  const [query, setQuery] = useState('');
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
       {/* Header */}
@@ -20,15 +22,9 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
           </div>
         </div>
         
-        <div className="relative w-72 group">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
-          <input
-            type="text"
-            placeholder="Search roles or companies..."
-            className="w-full pl-9 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all shadow-inner"
-          />
-        </div>
       </div>
+
+      <FilterBar query={query} onQueryChange={(e) => setQuery(e.target.value)} />
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
