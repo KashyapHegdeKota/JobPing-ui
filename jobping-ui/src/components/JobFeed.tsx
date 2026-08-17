@@ -9,6 +9,7 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<Category>('All');
   const [remoteOnly, setRemoteOnly] = useState(false);
+  const clearFilters = () => { setQuery(''); setCategory('All'); setRemoteOnly(false); };
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
       {/* Header */}
@@ -26,7 +27,7 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
         
       </div>
 
-      <FilterBar query={query} category={category} remoteOnly={remoteOnly} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} />
+      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={jobs.length} totalCount={jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
