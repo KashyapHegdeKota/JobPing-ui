@@ -1,5 +1,24 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Email notifications
+
+`/profile` manages verified-email opt-in, saved job types/seasons, the 8 PM recap
+timezone, and optional Resend BYOK credentials. `/profile/recaps/[id]` displays a
+complete authenticated recap when it is too large for the email template.
+
+Set `NEXT_PUBLIC_API_URL` to the JobPing FastAPI origin and use the same Firebase
+project as the backend. Allow this UI origin in backend `CORS_ORIGINS`. Resend keys
+and encryption keys belong only on the backend; never set them as `NEXT_PUBLIC_*`.
+The backend setup guide is `JobPing/docs/notifications.md` in the sibling repository.
+
+Users must verify their Firebase email before opting in. BYOK requires a verified
+sender domain in their own Resend account and an explicit test-email action. The
+connection form clears secrets after submitting them. It never reads credentials
+back or stores them in browser storage.
+
+Validation: `npm run lint`, `npm run test`, and `npm run build`. The notification
+component tests mock Firebase and the backend; they never send live emails.
+
 ## Getting Started
 
 First, run the development server:
