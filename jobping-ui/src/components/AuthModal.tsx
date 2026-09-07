@@ -36,8 +36,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         await signInWithEmailAndPassword(auth, email, password);
       }
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Authentication failed");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -51,8 +51,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       await signInWithPopup(auth, provider);
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Google authentication failed");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Google authentication failed");
     } finally {
       setLoading(false);
     }

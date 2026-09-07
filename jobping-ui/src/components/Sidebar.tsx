@@ -37,7 +37,11 @@ export default function Sidebar() {
 
   return (
     <>
-      <div className="flex h-screen w-64 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-md font-sans">
+      <nav aria-label="Mobile navigation" className="flex items-center justify-between gap-4 border-b border-zinc-800 px-5 py-4 sm:hidden">
+        <Link href="/" className="text-lg font-bold tracking-tight">JobPing<span className="text-cyan-400">.</span></Link>
+        <div className="flex items-center gap-4 text-sm text-zinc-300"><Link href="/profile">Profile</Link><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div>
+      </nav>
+      <div className="hidden h-screen w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-md font-sans sm:flex">
         <div className="flex h-16 items-center px-6 border-b border-zinc-800">
           <Link href="/" className="text-xl font-bold tracking-tighter text-zinc-100 flex items-center gap-2">
             JobPing<span className="text-cyan-400">.</span>
