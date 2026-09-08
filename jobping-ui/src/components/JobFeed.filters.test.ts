@@ -8,5 +8,14 @@ const jobs: Job[] = [
 ];
 describe('job feed filtering', () => {
   it('filters search, category, remote, and accepts newly appended raw jobs', () => { expect(filterJobs(jobs, 'software', 'All', false)).toHaveLength(1); expect(filterJobs(jobs, '', 'Summer 2027', false)[0].id).toBe(2); expect(filterJobs(jobs, '', 'All', true)[0].id).toBe(3); const appended = [...jobs, { ...jobs[0], id: 4, title: 'Software Intern' }]; expect(filterJobs(appended, 'software', 'All', false).map((j) => j.id)).toEqual([3, 4]); });
-  it('protects newest-first ordering', () => { expect(jobs.map((j) => j.id)).toEqual([3, 2, 1]); });
+  it('filters by date', () => {
+    const nowMs = new Date('2027-03-03T12:00:00Z').getTime();
+    expect(filterJobs(jobs, '', 'All', false, 'All Time', nowMs)).toHaveLength(3);
+    
+    // id 3 is 12 hours ago
+    expect(filterJobs(jobs, '', 'All', false, 'Past 24 hours', nowMs).map(j => j.id)).toEqual([3]);
+    
+    // ids 3, 2, 1 are all within the past week
+    expect(filterJobs(jobs, '', 'All', false, 'Past Week', nowMs).map(j => j.id)).toEqual([3, 2, 1]);
+  });
 });

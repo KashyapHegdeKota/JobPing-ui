@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
-import FilterBar, { type Category } from './FilterBar';
+import FilterBar, { type Category, type DateFilter } from './FilterBar';
 
 export function matchesCategory(job: Job, category: Category) {
   if (category === 'All') return true;
@@ -11,11 +11,23 @@ export function matchesCategory(job: Job, category: Category) {
   return category === 'Summer 2027' ? text.includes('summer 2027') : /new grad|new graduate|entry.?level/.test(text);
 }
 
-export function filterJobs(jobs: Job[], query: string, category: Category, remoteOnly: boolean): Job[] {
+export function matchesDateFilter(job: Job, dateFilter: DateFilter, nowMs: number) {
+  if (dateFilter === 'All Time') return true;
+  const jobDateMs = new Date(job.posted_at || job.discovered_at).getTime();
+  if (isNaN(jobDateMs)) return true;
+  const diffMs = nowMs - jobDateMs;
+  if (dateFilter === 'Past 24 hours') return diffMs <= 24 * 60 * 60 * 1000;
+  if (dateFilter === 'Past Week') return diffMs <= 7 * 24 * 60 * 60 * 1000;
+  if (dateFilter === 'Past Month') return diffMs <= 30 * 24 * 60 * 60 * 1000;
+  return true;
+}
+
+export function filterJobs(jobs: Job[], query: string, category: Category, remoteOnly: boolean, dateFilter: DateFilter = 'All Time', nowMs: number = Date.now()): Job[] {
   const normalizedQuery = query.trim().toLowerCase();
   return jobs.filter((job) => (!normalizedQuery || `${job.title} ${job.company} ${job.location}`.toLowerCase().includes(normalizedQuery))
     && matchesCategory(job, category)
-    && (!remoteOnly || /remote/i.test(`${job.location} ${job.work_model ?? ''}`)));
+    && (!remoteOnly || /remote/i.test(`${job.location} ${job.work_model ?? ''}`))
+    && matchesDateFilter(job, dateFilter, nowMs));
 }
 
 export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void }) {
@@ -34,10 +46,13 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
   const initialParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const initialQuery = initialParams.get('q') ?? '';
   const initialCategory = initialParams.get('category');
+  const initialDateFilter = initialParams.get('dateFilter') as DateFilter;
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [category, setCategory] = useState<Category>(initialCategory === 'Summer 2027' || initialCategory === 'New Grad' ? initialCategory : 'All');
   const [remoteOnly, setRemoteOnly] = useState(initialParams.get('remote') === 'true');
+  const validDateFilters = ['All Time', 'Past 24 hours', 'Past Week', 'Past Month'];
+  const [dateFilter, setDateFilter] = useState<DateFilter>(validDateFilters.includes(initialDateFilter) ? initialDateFilter : 'All Time');
 
   useEffect(() => { const timer = window.setTimeout(() => setDebouncedQuery(query), 250); return () => window.clearTimeout(timer); }, [query]);
   useEffect(() => {
@@ -45,13 +60,14 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
     if (debouncedQuery) params.set('q', debouncedQuery);
     if (category !== 'All') params.set('category', category);
     if (remoteOnly) params.set('remote', 'true');
+    if (dateFilter !== 'All Time') params.set('dateFilter', dateFilter);
     window.history.replaceState({}, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}`);
-  }, [debouncedQuery, category, remoteOnly]);
+  }, [debouncedQuery, category, remoteOnly, dateFilter]);
 
   const filteredJobs = useMemo(() => {
-    return filterJobs(jobs, debouncedQuery, category, remoteOnly);
-  }, [jobs, debouncedQuery, category, remoteOnly]);
-  const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); };
+    return filterJobs(jobs, debouncedQuery, category, remoteOnly, dateFilter);
+  }, [jobs, debouncedQuery, category, remoteOnly, dateFilter]);
+  const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); setDateFilter('All Time'); };
 
   return (
     <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
@@ -70,7 +86,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
         
       </div>
 
-      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={filteredJobs.length} totalCount={total ?? jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
+      <FilterBar query={query} category={category} remoteOnly={remoteOnly} dateFilter={dateFilter} resultCount={filteredJobs.length} totalCount={total ?? jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onDateFilterChange={setDateFilter} onClear={clearFilters} />
 
       {/* Feed */}
       <div ref={feedRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
