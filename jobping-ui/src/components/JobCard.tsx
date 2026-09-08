@@ -44,10 +44,17 @@ export default function JobCard({ job }: { job: Job }) {
       </div>
       
       <div className="mt-4 md:mt-0 flex items-center justify-end">
-        <button className="relative bg-zinc-100 text-zinc-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all hover:bg-white overflow-hidden group/btn shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:text-cyan-950">
-          <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-          <span className="relative z-10">Apply Now</span>
-        </button>
+        {job.apply_url && (
+          <a
+            href={job.apply_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative bg-zinc-100 text-zinc-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all hover:bg-white overflow-hidden group/btn shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:text-cyan-950 inline-block text-center"
+          >
+            <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+            <span className="relative z-10">Apply Now</span>
+          </a>
+        )}
       </div>
     </motion.div>
   );
