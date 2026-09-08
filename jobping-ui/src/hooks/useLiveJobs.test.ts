@@ -9,9 +9,9 @@ class FakeWebSocket {
   close() { this.onclose?.(); }
 }
 
-const apiJob = (id: number) => ({ id, title: `Job ${id}`, company: { name: 'Acme' }, location: 'Remote', created_at: '2027-01-01', apply_url: 'https://example.com', job_type: 'Internship' });
+const apiJob = (id: number) => ({ id, title: `Job ${id}`, company: { name: 'Acme' }, location: 'Remote', created_at: '2027-01-01T12:00:00Z', posted_at: '2027-01-01T10:00:00Z', apply_url: 'https://example.com', job_type: 'Internship' });
 
-describe('useLiveJobs pagination', () => {
+describe('useLiveJobs pagination and mapping', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.stubGlobal('WebSocket', FakeWebSocket);
@@ -49,5 +49,40 @@ describe('useLiveJobs pagination', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     resolvePage(new Response(JSON.stringify({ items: [apiJob(2)], total: 2, page_size: 1 })));
     await act(async () => { await first; });
+  });
+  it('maps dates from API correctly', async () => {
+    const fetchMock = vi.fn(() => Promise.resolve(new Response(JSON.stringify({ items: [apiJob(1)], total: 1, page_size: 1 }), { status: 200 })));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result } = renderHook(() => useLiveJobs());
+    await waitFor(() => expect(result.current.jobs).toHaveLength(1));
+    const job = result.current.jobs[0];
+    expect(job.posted_at).toBe('2027-01-01T10:00:00Z');
+    expect(job.discovered_at).toBe('2027-01-01T12:00:00Z');
+  });
+
+  it('maps dates from WebSocket live event correctly', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
+    let socket!: FakeWebSocket;
+    vi.stubGlobal('WebSocket', function() {
+      socket = new FakeWebSocket();
+      return socket;
+    });
+    const { result } = renderHook(() => useLiveJobs());
+    await waitFor(() => { if (!socket) throw new Error(); });
+    
+    act(() => {
+      socket.onopen?.();
+      socket.onmessage?.({
+        data: JSON.stringify({
+          occurred_at: '2027-01-01T12:05:00Z',
+          job: { id: 99, title: 'WS Job', location: 'Remote', company: 'Acme', posted_at: '2027-01-01T10:05:00Z' }
+        })
+      });
+    });
+    
+    await waitFor(() => expect(result.current.jobs).toHaveLength(1));
+    const job = result.current.jobs[0];
+    expect(job.posted_at).toBe('2027-01-01T10:05:00Z');
+    expect(job.discovered_at).toBe('2027-01-01T12:05:00Z');
   });
 });

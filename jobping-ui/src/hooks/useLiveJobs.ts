@@ -5,7 +5,8 @@ export interface Job {
   title: string;
   company: string;
   location: string;
-  posted_at: string; // ISO format or timestamp
+  posted_at?: string; // ISO format or timestamp
+  discovered_at: string;
   apply_url?: string;
   work_model?: string;
   role_type?: string;
@@ -17,6 +18,7 @@ interface ApiJob {
   company: { name: string };
   location: string;
   created_at: string;
+  posted_at?: string;
   apply_url: string;
   job_type: string;
 }
@@ -27,7 +29,6 @@ interface PaginatedJobsResponse {
   page?: number;
   page_size?: number;
 }
-
 interface LiveJobEvent {
   occurred_at?: string;
   job?: {
@@ -38,6 +39,7 @@ interface LiveJobEvent {
     location?: string;
     apply_url?: string;
     job_type?: string;
+    posted_at?: string;
   };
 }
 
@@ -58,9 +60,10 @@ function fromApiJob(job: ApiJob): Job {
   return {
     id: job.id,
     title: job.title,
-    company: job.company.name,
+    company: job.company?.name || 'Unknown',
     location: job.location,
-    posted_at: job.created_at,
+    posted_at: job.posted_at,
+    discovered_at: job.created_at,
     apply_url: job.apply_url,
     role_type: job.job_type,
   };
@@ -76,7 +79,8 @@ function fromLiveEvent(value: unknown): Job | null {
     title: job.title,
     company: job.company ?? (job.company_id ? `Company #${job.company_id}` : 'Unknown company'),
     location: job.location,
-    posted_at: event.occurred_at ?? new Date().toISOString(),
+    posted_at: job.posted_at,
+    discovered_at: event.occurred_at ?? new Date().toISOString(),
     apply_url: job.apply_url,
     role_type: job.job_type,
   };

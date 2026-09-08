@@ -3,7 +3,14 @@ import { MapPin, Building2, Clock } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { motion } from 'framer-motion';
 
-export default function JobCard({ job, idx }: { job: Job, idx: number }) {
+import { formatJobDate } from '../lib/jobDates';
+
+export default function JobCard({ job }: { job: Job }) {
+  const dateText = formatJobDate(job);
+  const absoluteDate = job.posted_at 
+    ? new Date(job.posted_at).toLocaleString() 
+    : (job.discovered_at ? new Date(job.discovered_at).toLocaleString() : 'Unknown date');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15, scale: 0.98 }}
@@ -29,7 +36,9 @@ export default function JobCard({ job, idx }: { job: Job, idx: number }) {
           </div>
           <div className="flex items-center gap-1.5 font-mono text-xs">
             <Clock className="h-3.5 w-3.5 text-zinc-500" />
-            <span>{job.posted_at ? 'recently' : 'just now'}</span>
+            <time title={absoluteDate} dateTime={job.posted_at || job.discovered_at || undefined}>
+              {dateText}
+            </time>
           </div>
         </div>
       </div>
