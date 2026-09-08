@@ -1,31 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface Job {
   id: string | number;
   title: string;
   company: string;
   location: string;
-  posted_at: string; // ISO format or timestamp
+  posted_at?: string; // ISO format or timestamp
+  discovered_at: string;
   apply_url?: string;
   work_model?: string;
   role_type?: string;
   experience_level?: string;
 }
-
 interface ApiJob {
   id: number;
   title: string;
   company: { name: string };
   location: string;
   created_at: string;
+  posted_at?: string;
   apply_url: string;
   job_type: string;
 }
 
 interface PaginatedJobsResponse {
   items: ApiJob[];
+  total?: number;
+  page?: number;
+  page_size?: number;
 }
-
 interface LiveJobEvent {
   occurred_at?: string;
   job?: {
@@ -36,6 +39,7 @@ interface LiveJobEvent {
     location?: string;
     apply_url?: string;
     job_type?: string;
+    posted_at?: string;
   };
 }
 
@@ -56,9 +60,10 @@ function fromApiJob(job: ApiJob): Job {
   return {
     id: job.id,
     title: job.title,
-    company: job.company.name,
+    company: job.company?.name || 'Unknown',
     location: job.location,
-    posted_at: job.created_at,
+    posted_at: job.posted_at,
+    discovered_at: job.created_at,
     apply_url: job.apply_url,
     role_type: job.job_type,
   };
@@ -74,7 +79,8 @@ function fromLiveEvent(value: unknown): Job | null {
     title: job.title,
     company: job.company ?? (job.company_id ? `Company #${job.company_id}` : 'Unknown company'),
     location: job.location,
-    posted_at: event.occurred_at ?? new Date().toISOString(),
+    posted_at: job.posted_at,
+    discovered_at: event.occurred_at ?? new Date().toISOString(),
     apply_url: job.apply_url,
     role_type: job.job_type,
   };
@@ -83,25 +89,47 @@ function fromLiveEvent(value: unknown): Job | null {
 export function useLiveJobs() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const hasMoreRef = useRef(true);
+  const pageRef = useRef(1);
+  const loadMoreInFlightRef = useRef(false);
+  const pageSize = 50;
+
+  const loadPage = useCallback(async (nextPage: number, signal?: AbortSignal) => {
+    const response = await fetch(`${API_URL}/api/v1/jobs?page=${nextPage}&page_size=${pageSize}`, { signal });
+    if (!response.ok) throw new Error(`Job API returned HTTP ${response.status}`);
+    const payload = (await response.json()) as PaginatedJobsResponse;
+    const nextJobs = Array.isArray(payload.items) ? payload.items.map(fromApiJob) : [];
+    setJobs((current) => mergeUnique(current, nextJobs));
+    if (typeof payload.total === 'number') setTotal(payload.total);
+    const reportedSize = payload.page_size || pageSize;
+    hasMoreRef.current = typeof payload.total === 'number'
+      ? nextPage * reportedSize < payload.total
+      : nextJobs.length === reportedSize;
+    setHasMore(hasMoreRef.current);
+    pageRef.current = nextPage;
+    setPage(nextPage);
+  }, []);
 
   useEffect(() => {
     const abortController = new AbortController();
-    void fetch(`${API_URL}/api/v1/jobs?page=1&page_size=50`, {
-      signal: abortController.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Job API returned HTTP ${response.status}`);
-        return (await response.json()) as PaginatedJobsResponse;
-      })
-      .then((response) => {
-        const existingJobs = Array.isArray(response.items) ? response.items.map(fromApiJob) : [];
-        // Preserve any WebSocket events received while the initial request was in flight.
-        setJobs((liveJobs) => mergeUnique(liveJobs, existingJobs));
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        console.error('Failed to fetch existing jobs', error);
-      });
+    const initialLoad = window.setTimeout(() => {
+      void loadPage(1, abortController.signal)
+        .then(() => setError(null))
+        .catch((error: unknown) => {
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          console.error('Failed to fetch existing jobs', error);
+          setError(error instanceof Error ? error.message : 'Failed to load jobs');
+        })
+        .finally(() => {
+          if (!abortController.signal.aborted) setIsLoading(false);
+        });
+    }, 0);
 
     const ws = new WebSocket(`${WEBSOCKET_URL}/api/v1/ws/live`);
 
@@ -124,9 +152,26 @@ export function useLiveJobs() {
 
     return () => {
       abortController.abort();
+      window.clearTimeout(initialLoad);
       ws.close();
     };
-  }, []);
+  }, [loadPage]);
 
-  return { jobs, isConnected };
+  const loadMore = useCallback(async () => {
+    if (isLoading || isLoadingMore || loadMoreInFlightRef.current || !hasMoreRef.current) return;
+    loadMoreInFlightRef.current = true;
+    setIsLoadingMore(true);
+    try {
+      await loadPage(pageRef.current + 1);
+      setError(null);
+    } catch (loadError: unknown) {
+      console.error('Failed to fetch more jobs', loadError);
+      setError(loadError instanceof Error ? loadError.message : 'Failed to load more jobs');
+    } finally {
+      loadMoreInFlightRef.current = false;
+      setIsLoadingMore(false);
+    }
+  }, [isLoading, isLoadingMore, loadPage]);
+
+  return { jobs, isConnected, isLoading, isLoadingMore, error, total, page, hasMore, loadMore };
 }

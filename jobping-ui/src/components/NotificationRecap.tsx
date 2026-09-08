@@ -73,7 +73,7 @@ export default function NotificationRecap({ id }: { id: string }) {
                 <h2 className="mt-2 text-lg font-medium">{job.title}</h2>
                 <p className="mt-2 text-sm text-zinc-400">
                   {job.location || "Location not listed"} · {job.job_type} ·{" "}
-                  {job.season}
+                  {job.season} · {job.date_text}
                 </p>
                 {job.closed ? (
                   <p className="mt-4 text-sm text-zinc-500">

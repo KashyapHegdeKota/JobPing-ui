@@ -7,6 +7,7 @@ import { Home, List, UserPlus, User, LogOut } from "lucide-react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import AuthModal from "./AuthModal";
+import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
@@ -39,7 +40,7 @@ export default function Sidebar() {
     <>
       <nav aria-label="Mobile navigation" className="flex items-center justify-between gap-4 border-b border-zinc-800 px-5 py-4 sm:hidden">
         <Link href="/" className="text-lg font-bold tracking-tight">JobPing<span className="text-cyan-400">.</span></Link>
-        <div className="flex items-center gap-4 text-sm text-zinc-300"><Link href="/profile">Profile</Link><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div>
+        <div className="flex items-center gap-3 text-sm text-zinc-300"><ThemeToggle /><Link href="/profile">Profile</Link><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div>
       </nav>
       <div className="hidden h-screen w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-md font-sans sm:flex">
         <div className="flex h-16 items-center px-6 border-b border-zinc-800">
@@ -70,6 +71,7 @@ export default function Sidebar() {
         </nav>
 
         <div className="border-t border-zinc-800 p-4">
+          <div className="mb-3"><ThemeToggle /></div>
           {user ? (
             <div className="flex flex-col space-y-3">
               <div className="flex items-center space-x-3 rounded-lg p-2 bg-zinc-900 border border-zinc-800">

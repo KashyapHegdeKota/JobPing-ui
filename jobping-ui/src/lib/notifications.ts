@@ -30,17 +30,18 @@ export interface Recap {
   id: string;
   window_start: string;
   window_end: string;
-  jobs: {
-    id: number;
-    title: string;
-    company: string;
-    location: string;
-    job_type: string;
-    season: number;
-    closed: boolean;
-    apply_url: string;
-  }[];
-}
+    jobs: {
+      id: number;
+      title: string;
+      company: string;
+      location: string;
+      job_type: string;
+      season: number;
+      closed: boolean;
+      apply_url: string;
+      date_text: string;
+    }[];
+  }
 
 export async function notificationRequest<T>(
   user: User,
