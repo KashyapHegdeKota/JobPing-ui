@@ -87,7 +87,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
         ) : (
           <AnimatePresence>
             {filteredJobs.map((job, idx) => (
-              <JobCard key={job.id || idx} job={job} idx={idx} />
+              <JobCard key={job.id || idx} job={job} />
             ))}
           </AnimatePresence>
         )}
