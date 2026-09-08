@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
@@ -18,7 +18,19 @@ export function filterJobs(jobs: Job[], query: string, category: Category, remot
     && (!remoteOnly || /remote/i.test(`${job.location} ${job.work_model ?? ''}`)));
 }
 
-export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnected: boolean }) {
+export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void }) {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const feedRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const root = feedRef.current;
+    if (!sentinel || !root || !loadMore) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) loadMore();
+    }, { root, rootMargin: '500px 0px' });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore]);
   const initialParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
   const initialQuery = initialParams.get('q') ?? '';
   const initialCategory = initialParams.get('category');
@@ -58,10 +70,10 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
         
       </div>
 
-      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={filteredJobs.length} totalCount={jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
+      <FilterBar query={query} category={category} remoteOnly={remoteOnly} resultCount={filteredJobs.length} totalCount={total ?? jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onClear={clearFilters} />
 
       {/* Feed */}
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+      <div ref={feedRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
         {jobs.length > 0 && filteredJobs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4"><Search className="h-10 w-10 text-zinc-600" /><p className="font-mono text-sm">No jobs match your filters.</p><button onClick={clearFilters} className="text-sm text-cyan-400 hover:text-cyan-300">Clear all filters</button></div>
         ) : jobs.length === 0 ? (
@@ -79,6 +91,10 @@ export default function JobFeed({ jobs, isConnected }: { jobs: Job[], isConnecte
             ))}
           </AnimatePresence>
         )}
+        {error && <p className="text-center text-sm text-red-400">{error}</p>}
+        {isLoadingMore && <p className="py-3 text-center text-xs font-mono text-zinc-500">Loading more jobs…</p>}
+        {!isLoading && !isLoadingMore && hasMore && <div ref={sentinelRef} className="h-2 shrink-0" aria-hidden="true" />}
+        {!isLoading && !isLoadingMore && !hasMore && jobs.length > 0 && <p className="py-3 text-center text-xs font-mono text-zinc-600">You’ve reached the end of the feed.</p>}
       </div>
     </div>
   );

@@ -6,13 +6,13 @@ import JobFeed from '../components/JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
 
 export default function Home() {
-  const { jobs, isConnected } = useLiveJobs();
+  const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs();
 
   return (
     <div className="flex h-screen w-full bg-zinc-950 font-sans">
       <div className="flex w-full h-full mx-auto overflow-hidden bg-zinc-950">
         <Filters />
-        <JobFeed jobs={jobs} isConnected={isConnected} />
+        <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} />
       </div>
       
       {!isConnected && (
