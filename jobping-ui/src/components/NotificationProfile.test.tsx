@@ -79,7 +79,7 @@ describe("Notification profile", () => {
 
   it("saves only the selected preferences with a Firebase bearer token", async () => {
     render(<NotificationProfile />);
-    fireEvent.click(await screen.findByLabelText("New job alerts"));
+    fireEvent.click(await screen.findByLabelText("Job alerts"));
     fireEvent.click(screen.getByLabelText("Daily recap"));
     fireEvent.click(screen.getByLabelText("2026"));
     fireEvent.click(screen.getByRole("button", { name: "Save preferences" }));
@@ -103,7 +103,7 @@ describe("Notification profile", () => {
       json: async () => ({ ...defaults(), verified: false }),
     } as Response);
     render(<NotificationProfile />);
-    expect(await screen.findByLabelText("New job alerts")).toBeDisabled();
+    expect(await screen.findByLabelText("Job alerts")).toBeDisabled();
     expect(screen.getByLabelText("Daily recap")).toBeDisabled();
     fireEvent.click(
       screen.getByRole("button", { name: "Send verification email" }),
@@ -115,7 +115,7 @@ describe("Notification profile", () => {
 
   it("submits BYOK credentials once and clears the secret inputs", async () => {
     render(<NotificationProfile />);
-    await screen.findByLabelText("New job alerts");
+    await screen.findByLabelText("Job alerts");
     fireEvent.click(
       screen.getByText("Use your own Resend account", { exact: false }),
     );
@@ -160,5 +160,21 @@ describe("Notification profile", () => {
     expect(
       screen.queryByText("Your notification preferences are saved."),
     ).not.toBeInTheDocument();
+  });
+
+  it("explains that alerts include reposts and recaps group reposted roles", async () => {
+    render(<NotificationProfile />);
+
+    expect(await screen.findByLabelText("Job alerts")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Get an email when a matching opportunity is newly discovered or reposted, while your sending allowance is available.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "All matching opportunities since your previous recap, with reposted roles grouped separately. They arrive together in one email at 8 PM, including opportunities already sent as alerts.",
+      ),
+    ).toBeInTheDocument();
   });
 });

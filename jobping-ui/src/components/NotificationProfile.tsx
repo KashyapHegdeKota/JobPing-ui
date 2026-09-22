@@ -272,15 +272,16 @@ export default function NotificationProfile() {
                 <Bell className="mt-1 shrink-0 text-cyan-400" size={20} />
                 <span className="flex-1">
                   <span className="block text-sm font-medium">
-                    New job alerts
+                    Job alerts
                   </span>
                   <span className="mt-1 block text-sm leading-6 text-zinc-400">
-                    One email for each new match, while your sending allowance
-                    is available.
+                    Get an email when a matching opportunity is newly
+                    discovered or reposted, while your sending allowance is
+                    available.
                   </span>
                 </span>
                 <input
-                  aria-label="New job alerts"
+                  aria-label="Job alerts"
                   type="checkbox"
                   className="mt-1 h-4 w-4 accent-cyan-400"
                   checked={settings.alerts}
@@ -296,8 +297,10 @@ export default function NotificationProfile() {
                 <span className="flex-1">
                   <span className="block text-sm font-medium">Daily recap</span>
                   <span className="mt-1 block text-sm leading-6 text-zinc-400">
-                    All matching jobs since your previous recap, together in one
-                    email at 8 PM. Includes jobs already sent as alerts.
+                    All matching opportunities since your previous recap, with
+                    reposted roles grouped separately. They arrive together in
+                    one email at 8 PM, including opportunities already sent as
+                    alerts.
                   </span>
                 </span>
                 <input
