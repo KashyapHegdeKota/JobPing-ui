@@ -26,22 +26,31 @@ export interface NotificationSettings {
   sending_enabled: boolean;
 }
 
+export type RecapJobKind = "discovered" | "reposted";
+
+export interface RecapJob {
+  id: number;
+  occurrence_id: number;
+  kind: RecapJobKind;
+  title: string;
+  company: string;
+  location: string;
+  job_type: string;
+  season: number;
+  closed: boolean;
+  apply_url: string;
+  date_text: string;
+}
+
 export interface Recap {
   id: string;
   window_start: string;
   window_end: string;
-    jobs: {
-      id: number;
-      title: string;
-      company: string;
-      location: string;
-      job_type: string;
-      season: number;
-      closed: boolean;
-      apply_url: string;
-      date_text: string;
-    }[];
-  }
+  total_matches: number;
+  new_count: number;
+  reposted_count: number;
+  jobs: RecapJob[];
+}
 
 export async function notificationRequest<T>(
   user: User,
