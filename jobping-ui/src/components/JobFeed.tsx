@@ -25,7 +25,8 @@ export function matchesDateFilter(job: Job, dateFilter: DateFilter, nowMs: numbe
 
 export function filterJobs(jobs: Job[], query: string, category: Category, remoteOnly: boolean, dateFilter: DateFilter = 'All Time', companyFilter: string = 'All', nowMs: number = Date.now()): Job[] {
   const normalizedQuery = query.trim().toLowerCase();
-  return jobs.filter((job) => (!normalizedQuery || `${job.title} ${job.company} ${job.location}`.toLowerCase().includes(normalizedQuery))
+  return jobs.filter((job) => !job.is_closed
+    && (!normalizedQuery || `${job.title} ${job.company} ${job.location}`.toLowerCase().includes(normalizedQuery))
     && matchesCategory(job, category)
     && (!remoteOnly || /remote/i.test(`${job.location} ${job.work_model ?? ''}`))
     && matchesDateFilter(job, dateFilter, nowMs)

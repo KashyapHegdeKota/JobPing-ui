@@ -44,7 +44,7 @@ export default function JobCard({ job }: { job: Job }) {
       </div>
       
       <div className="mt-4 md:mt-0 flex items-center justify-end">
-        {job.apply_url && (
+        {job.apply_url && !job.is_closed && (
           <a
             href={job.apply_url}
             target="_blank"
