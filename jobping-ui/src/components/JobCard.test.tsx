@@ -12,6 +12,7 @@ describe('JobCard', () => {
       location: 'Remote',
       posted_at: '2026-05-15T12:00:00Z',
       discovered_at: '2026-05-15T12:00:00Z',
+      is_closed: false,
     };
 
     // Inject fixed time into jobDates formatter logic by mocking Date.now
@@ -31,5 +32,20 @@ describe('JobCard', () => {
     expect(timeEl?.getAttribute('title')).toBe(new Date('2026-05-15T12:00:00Z').toLocaleString());
 
     vi.restoreAllMocks();
+  });
+
+  it('does not show an apply action for a closed role', () => {
+    const job = {
+      id: 2,
+      title: 'Closed Engineer',
+      company: 'Acme',
+      location: 'Remote',
+      discovered_at: '2026-05-15T12:00:00Z',
+      apply_url: 'https://example.com/apply',
+      is_closed: true,
+    };
+
+    const { queryByRole } = render(<JobCard job={job} />);
+    expect(queryByRole('link', { name: 'Apply Now' })).toBeNull();
   });
 });

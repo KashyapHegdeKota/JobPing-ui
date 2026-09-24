@@ -1,0 +1,43 @@
+name: UI CI
+
+on:
+  pull_request:
+    paths:
+      - "jobping-ui/**"
+      - ".github/workflows/ui-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "jobping-ui/**"
+      - ".github/workflows/ui-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: jobping-ui
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: test-api-key
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: test.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: test-project
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: test-project.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "123456789"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:123456789:web:test"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: jobping-ui/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
