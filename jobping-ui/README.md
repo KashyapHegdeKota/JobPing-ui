@@ -1,6 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Email notifications
+## Analytics
+
+Signed-in users have a private `/activity` page for their own page views, filter
+usage, job-link clicks, matching occurrences and email totals. Administrators have
+an aggregate-only `/admin/analytics` page. The backend authorizes admins using
+server-side `ANALYTICS_ADMIN_UIDS`; do not expose that configuration in this app.
+Apply backend migration `0008_analytics` and restart the API before using analytics.
+
+Tracking is first party and best effort: only signed-in visits are counted,
+hidden tabs do not send heartbeats, and raw search text and URL parameters are
+not recorded. Activity begins with deployment; job/email totals include existing
+database records. Sent email totals mean provider acceptance, not guaranteed inbox
+delivery, and job-link clicks do not mean a submitted application.
+
+## Email preferences
 
 `/profile` manages verified-email opt-in, saved job types/seasons, the 8 PM recap
 timezone, and optional Resend BYOK credentials. `/profile/recaps/[id]` displays a
