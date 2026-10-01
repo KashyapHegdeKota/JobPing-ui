@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
 import FilterBar, { type Category, type DateFilter } from './FilterBar';
 import { useCompanies } from '../hooks/useCompanies';
+import { trackActivity } from '../lib/analytics';
 
 export function matchesCategory(job: Job, category: Category) {
   if (category === 'All') return true;
@@ -61,6 +62,16 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
   const validDateFilters = ['All Time', 'Past 24 hours', 'Past Week', 'Past Month'];
   const [dateFilter, setDateFilter] = useState<DateFilter>(validDateFilters.includes(initialDateFilter) ? initialDateFilter : 'All Time');
   const [companyFilter, setCompanyFilter] = useState<string>(initialCompanyFilter);
+  const previousFilters = useRef<string | null>(null);
+  useEffect(() => {
+    const filters = { category, remote_only: remoteOnly, date_filter: dateFilter,
+      company: companyFilter === 'All' ? null : companyFilter, search_used: Boolean(debouncedQuery.trim()) };
+    const signature = JSON.stringify(filters);
+    if (previousFilters.current !== null && previousFilters.current !== signature) {
+      void trackActivity('filter_change', '/', { filters });
+    }
+    previousFilters.current = signature;
+  }, [category, remoteOnly, dateFilter, companyFilter, debouncedQuery]);
 
   useEffect(() => { const timer = window.setTimeout(() => setDebouncedQuery(query), 250); return () => window.clearTimeout(timer); }, [query]);
   useEffect(() => {
