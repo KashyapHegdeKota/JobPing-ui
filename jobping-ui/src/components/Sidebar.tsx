@@ -8,6 +8,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import AuthModal from "./AuthModal";
 import ThemeToggle from "./ThemeToggle";
+import AnalyticsNav from "./AnalyticsNav";
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
@@ -42,6 +43,7 @@ export default function Sidebar() {
         <Link href="/" className="text-lg font-bold tracking-tight">JobPing<span className="text-cyan-400">.</span></Link>
         <div className="flex items-center gap-3 text-sm text-zinc-300"><ThemeToggle /><Link href="/profile">Profile</Link><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div>
       </nav>
+      <div className="sm:hidden"><AnalyticsNav user={user} /></div>
       <div className="hidden h-screen w-64 shrink-0 flex-col border-r border-zinc-800 bg-zinc-950/80 backdrop-blur-md font-sans sm:flex">
         <div className="flex h-16 items-center px-6 border-b border-zinc-800">
           <Link href="/" className="text-xl font-bold tracking-tighter text-zinc-100 flex items-center gap-2">
@@ -69,6 +71,8 @@ export default function Sidebar() {
             );
           })}
         </nav>
+
+        <AnalyticsNav user={user} />
 
         <div className="border-t border-zinc-800 p-4">
           <div className="mb-3"><ThemeToggle /></div>
