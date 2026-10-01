@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
+import ActivityTracker from "@/components/ActivityTracker";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,6 +40,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col sm:flex-row bg-zinc-950 text-zinc-50 font-sans antialiased">
         <Sidebar />
+        <ActivityTracker />
         <main className="min-w-0 flex-1 overflow-auto">
           {children}
         </main>
