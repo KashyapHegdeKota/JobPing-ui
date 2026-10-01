@@ -4,6 +4,7 @@ import { Job } from '../hooks/useLiveJobs';
 import { motion } from 'framer-motion';
 
 import { formatJobDate } from '../lib/jobDates';
+import { trackActivity } from '../lib/analytics';
 
 export default function JobCard({ job }: { job: Job }) {
   const dateText = formatJobDate(job);
@@ -47,6 +48,10 @@ export default function JobCard({ job }: { job: Job }) {
         {job.apply_url && (
           <a
             href={job.apply_url}
+            onClick={() => {
+              const jobId = Number(job.id);
+              if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity('job_click', '/', { job_id: jobId });
+            }}
             target="_blank"
             rel="noopener noreferrer"
             className="relative bg-zinc-100 text-zinc-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all hover:bg-white overflow-hidden group/btn shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:text-cyan-950 inline-block text-center"
