@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
@@ -49,7 +50,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
     return () => observer.disconnect();
   }, [loadMore]);
   
-  const initialParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const initialParams = useSearchParams();
   const initialQuery = initialParams.get('q') ?? '';
   const initialCategory = initialParams.get('category');
   const initialDateFilter = initialParams.get('dateFilter') as DateFilter;
