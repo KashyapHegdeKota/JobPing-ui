@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { filterJobs } from './JobFeed';
 import type { Job } from '../hooks/useLiveJobs';
 const jobs: Job[] = [
-  { id: 3, title: 'New Grad Software Engineer', company: 'A', location: 'Remote', posted_at: '2027-03-03', discovered_at: '2027-03-03T12:00:00Z', role_type: 'New Grad' },
-  { id: 2, title: 'Summer 2027 Analyst', company: 'B', location: 'New York', posted_at: '2027-03-02', discovered_at: '2027-03-02T12:00:00Z' },
-  { id: 1, title: 'Designer', company: 'C', location: 'Boston', posted_at: '2027-03-01', discovered_at: '2027-03-01T12:00:00Z' },
+  { id: 3, title: 'New Grad Software Engineer', company: 'A', location: 'Remote', posted_at: '2027-03-03', discovered_at: '2027-03-03T12:00:00Z', role_type: 'New Grad', is_closed: false },
+  { id: 2, title: 'Summer 2027 Analyst', company: 'B', location: 'New York', posted_at: '2027-03-02', discovered_at: '2027-03-02T12:00:00Z', is_closed: false },
+  { id: 1, title: 'Designer', company: 'C', location: 'Boston', posted_at: '2027-03-01', discovered_at: '2027-03-01T12:00:00Z', is_closed: false },
 ];
 describe('job feed filtering', () => {
   it('filters search, category, remote, and accepts newly appended raw jobs', () => { expect(filterJobs(jobs, 'software', 'All', false)).toHaveLength(1); expect(filterJobs(jobs, '', 'Summer 2027', false)[0].id).toBe(2); expect(filterJobs(jobs, '', 'All', true)[0].id).toBe(3); const appended = [...jobs, { ...jobs[0], id: 4, title: 'Software Intern' }]; expect(filterJobs(appended, 'software', 'All', false).map((j) => j.id)).toEqual([3, 4]); });
@@ -24,5 +24,9 @@ describe('job feed filtering', () => {
     expect(filterJobs(jobs, '', 'All', false, 'All Time', 'B')[0].id).toBe(2);
     expect(filterJobs(jobs, '', 'All', false, 'All Time', 'C')[0].id).toBe(1);
     expect(filterJobs(jobs, '', 'All', false, 'All Time', 'D')).toHaveLength(0);
+  });
+
+  it('never returns closed jobs in the active feed', () => {
+    expect(filterJobs([{ ...jobs[0], is_closed: true }], '', 'All', false)).toEqual([]);
   });
 });
