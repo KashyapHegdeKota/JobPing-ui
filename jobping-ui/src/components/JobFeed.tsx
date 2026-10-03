@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
@@ -50,7 +51,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
     return () => observer.disconnect();
   }, [loadMore]);
   
-  const initialParams = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+  const initialParams = useSearchParams();
   const initialQuery = initialParams.get('q') ?? '';
   const initialCategory = initialParams.get('category');
   const initialDateFilter = initialParams.get('dateFilter') as DateFilter;
@@ -128,9 +129,9 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
             ))}
           </AnimatePresence>
         )}
-        {error && <p className="text-center text-sm text-red-400">{error}</p>}
+        {error && <div role="alert" className="text-center text-sm text-red-400"><p>{error}</p><button type="button" onClick={() => window.location.reload()} className="mt-2 text-cyan-400 hover:text-cyan-300">Reload jobs</button></div>}
         {isLoadingMore && <p className="py-3 text-center text-xs font-mono text-zinc-500">Loading more jobs…</p>}
-        {!isLoading && !isLoadingMore && hasMore && <div ref={sentinelRef} className="h-2 shrink-0" aria-hidden="true" />}
+        {!isLoading && !isLoadingMore && !error && hasMore && <div ref={sentinelRef} className="h-2 shrink-0" aria-hidden="true" />}
         {!isLoading && !isLoadingMore && !hasMore && jobs.length > 0 && <p className="py-3 text-center text-xs font-mono text-zinc-600">You’ve reached the end of the feed.</p>}
       </div>
     </div>

@@ -1,11 +1,15 @@
 "use client";
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Filters from '../components/Filters';
 import JobFeed from '../components/JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
 
 export default function Home() {
+  return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}><LiveFeed /></Suspense>;
+}
+
+function LiveFeed() {
   const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs();
 
   return (

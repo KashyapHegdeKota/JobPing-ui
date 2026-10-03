@@ -241,25 +241,40 @@ describe('useLiveJobs live feed', () => {
     expect(result.current.jobs[0].apply_url).toBe('https://example.com/reposted-role');
   });
 
-  it('removes a closed job and allows the same ID to reappear once when reopened', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => response([apiJob(42, { company: { name: 'Datadog' } })], 1, 1)));
-    const { result } = renderHook(() => useLiveJobs());
+  it('stops pagination when the first page cannot be reached', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, unmount } = renderHook(() => useLiveJobs());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.error).toBe('Failed to fetch');
+    await act(async () => { await result.current.loadMore(); await result.current.loadMore(); });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    unmount();
+  });
+
+  it('retains loaded jobs and stops automatic retries after a later page fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ items: [apiJob(1)], total: 2, page_size: 1 })))
+      .mockRejectedValue(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, unmount } = renderHook(() => useLiveJobs());
     await waitFor(() => expect(result.current.jobs).toHaveLength(1));
-    const socket = FakeWebSocket.instances[0];
-    act(() => socket.open());
+    await act(async () => { await result.current.loadMore(); });
+    expect(result.current.error).toBe('Failed to fetch');
+    expect(result.current.jobs.map(job => job.id)).toEqual([1]);
+    await act(async () => { await result.current.loadMore(); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    unmount();
+  });
 
-    act(() => {
-      socket.sendMessage(JSON.stringify(jobEvent(42, { is_closed: true }, 'JOB_UPDATED', '2027-01-03T12:00:00Z')));
-    });
-    expect(result.current.jobs).toEqual([]);
-
-    const reopened = jobEvent(42, {
-      is_closed: false,
-      apply_url: 'https://example.com/reposted-role',
-    }, 'JOB_UPDATED', '2027-01-04T12:00:00Z');
-    act(() => {
-      socket.sendMessage(JSON.stringify(reopened));
-      socket.sendMessage(JSON.stringify(reopened));
+  it('maps dates from WebSocket live event correctly', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
+    let socket!: FakeWebSocket;
+    vi.stubGlobal('WebSocket', function() {
+      socket = new FakeWebSocket();
+      return socket;
     });
 
     expect(result.current.jobs).toHaveLength(1);

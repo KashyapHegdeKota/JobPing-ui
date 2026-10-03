@@ -419,7 +419,7 @@ export function useLiveJobs() {
   }, [applyJobs, loadPage]);
 
   const loadMore = useCallback(async () => {
-    if (isLoading || isLoadingMore || loadMoreInFlightRef.current || !hasMoreRef.current) return;
+    if (error || isLoading || isLoadingMore || loadMoreInFlightRef.current || !hasMoreRef.current) return;
     loadMoreInFlightRef.current = true;
     setIsLoadingMore(true);
     try {
@@ -433,7 +433,7 @@ export function useLiveJobs() {
       loadMoreInFlightRef.current = false;
       if (mountedRef.current) setIsLoadingMore(false);
     }
-  }, [isLoading, isLoadingMore, loadPage]);
+  }, [error, isLoading, isLoadingMore, loadPage]);
 
   return { jobs, isConnected, isLoading, isLoadingMore, error, total, page, hasMore, loadMore };
 }

@@ -49,6 +49,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+Keep the FastAPI backend running in a separate terminal. For local development,
+`NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` is supported; restart `npm run dev`
+after changing frontend environment variables. The backend must allow
+`http://localhost:3000` in `CORS_ORIGINS`.
+
+If the feed reports a fetch error, check that the backend jobs endpoint is reachable,
+then choose **Reload jobs**. Pagination pauses after a failed request rather than
+repeatedly retrying. URL filters use Next.js search parameters inside a Suspense
+boundary so filtered links hydrate consistently. The theme bootstrap uses
+`next/script` with `beforeInteractive`; hard-refresh existing tabs after updating it.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
