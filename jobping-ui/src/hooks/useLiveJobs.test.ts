@@ -60,6 +60,34 @@ describe('useLiveJobs pagination and mapping', () => {
     expect(job.discovered_at).toBe('2027-01-01T12:00:00Z');
   });
 
+  it('stops pagination when the first page cannot be reached', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, unmount } = renderHook(() => useLiveJobs());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.error).toBe('Failed to fetch');
+    await act(async () => { await result.current.loadMore(); await result.current.loadMore(); });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    unmount();
+  });
+
+  it('retains loaded jobs and stops automatic retries after a later page fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ items: [apiJob(1)], total: 2, page_size: 1 })))
+      .mockRejectedValue(new TypeError('Failed to fetch'));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, unmount } = renderHook(() => useLiveJobs());
+    await waitFor(() => expect(result.current.jobs).toHaveLength(1));
+    await act(async () => { await result.current.loadMore(); });
+    expect(result.current.error).toBe('Failed to fetch');
+    expect(result.current.jobs.map(job => job.id)).toEqual([1]);
+    await act(async () => { await result.current.loadMore(); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    unmount();
+  });
+
   it('maps dates from WebSocket live event correctly', async () => {
     vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
     let socket!: FakeWebSocket;
