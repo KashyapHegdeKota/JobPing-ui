@@ -14,7 +14,7 @@ function LiveFeed() {
   const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs();
 
   return (
-    <div className={`${styles.shell} flex h-screen w-full font-sans`}>
+    <div className={`${styles.shell} flex w-full font-sans`}>
       <div className="flex h-full w-full overflow-hidden">
         <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} />
         <Filters />
@@ -32,4 +32,5 @@ function LiveFeed() {
     </div>
   );
 }
+
 
