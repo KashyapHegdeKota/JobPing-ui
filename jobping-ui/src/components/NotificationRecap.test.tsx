@@ -114,6 +114,12 @@ describe("NotificationRecap", () => {
     expect(screen.getAllByText("REPOSTED", { exact: true })).toHaveLength(2);
   });
 
+  it("keeps the digest preview grouped by occurrence sections", async () => {
+    renderRecap(makeRecap([makeJob()]));
+    expect(await screen.findByRole("heading", { name: "Your daily recap" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "NEW JOBS · 1" })).toBeInTheDocument();
+  });
+
   it("renders distinct occurrences of the same logical job as separate cards", async () => {
     const duplicateKeyWarning = vi
       .spyOn(console, "error")
