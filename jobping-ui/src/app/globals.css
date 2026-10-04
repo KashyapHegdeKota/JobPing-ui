@@ -86,6 +86,14 @@ input, select, textarea { accent-color: var(--jp-accent); }
 .table-wrap th, .table-wrap td { padding: 12px 14px; }
 .table-wrap td { color: var(--jp-text); border-top: 1px solid var(--jp-border); }
 .table-wrap td:not(:first-child) { color: var(--jp-accent); font-weight: 700; }
+.filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.filter-card { min-height: 112px; border: 1px solid var(--jp-border); border-radius: 14px; background: var(--jp-soft); padding: 18px; }
+.filter-card h3 { margin: 0 0 14px; color: var(--jp-text); font-size: 14px; }
+.filter-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--jp-border); color: var(--jp-muted); font-size: 13px; }
+.filter-row strong { color: var(--jp-accent); }
+.empty-copy { margin: 0; color: var(--jp-muted); font-size: 12px; }
+@media (max-width: 760px) { .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 500px) { .filter-grid { grid-template-columns: 1fr; } }
 @media (max-width: 900px) { .analytics-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 500px) { .analytics-card-grid { grid-template-columns: 1fr; } }
 
