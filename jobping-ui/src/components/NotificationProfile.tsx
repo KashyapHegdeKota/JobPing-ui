@@ -349,10 +349,10 @@ export default function NotificationProfile() {
               disabled={busy}
               className={styles.preferenceCard}
             >
-              <legend className="px-2 text-sm font-medium">
+              <legend className={styles.sectionTitle}>
                 Jobs you want to hear about
               </legend>
-              <p className="mb-5 text-sm text-zinc-400">
+              <p className={styles.sectionCopy}>
                 These saved preferences apply to email, independently of your
                 feed filters.
               </p>
@@ -413,14 +413,16 @@ export default function NotificationProfile() {
                 </div>
               </div>
             </fieldset>
-            <button
-              className={button}
-              disabled={
-                busy || !settings.job_types.length || !settings.seasons.length
-              }
-            >
-              Save preferences
-            </button>
+            <div className={styles.actions}>
+              <button
+                className={button}
+                disabled={
+                  busy || !settings.job_types.length || !settings.seasons.length
+                }
+              >
+                Save preferences
+              </button>
+            </div>
           </form>
           <details className={styles.byokCard}>
             <summary className="cursor-pointer text-sm font-medium">
