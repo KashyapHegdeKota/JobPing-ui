@@ -470,7 +470,7 @@ export default function NotificationProfile() {
                 });
               }}
             >
-              <label className="block text-sm">
+              <label className={styles.byokLabel}>
                 Verified sender address
                 <input
                   required
@@ -482,7 +482,7 @@ export default function NotificationProfile() {
                   disabled={busy}
                 />
               </label>
-              <label className="block text-sm">
+              <label className={styles.byokLabel}>
                 Resend API key
                 <input
                   required
@@ -498,7 +498,7 @@ export default function NotificationProfile() {
                   disabled={busy}
                 />
               </label>
-              <label className="block text-sm">
+              <label className={styles.byokLabel}>
                 Webhook signing secret{" "}
                 <span className="text-zinc-500">(optional)</span>
                 <input
