@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import Sidebar from "@/components/Sidebar";
 import ActivityTracker from "@/components/ActivityTracker";
+import WorkspaceHeader from "@/components/WorkspaceHeader";
+import "./design-tokens.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
@@ -37,17 +39,19 @@ export default function RootLayout({
           id="jobping-theme-bootstrap"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("jobping-theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem("jobping-theme");if(t!=="light"&&t!=="dark")t="light";document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}})()`,
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col sm:flex-row bg-zinc-950 text-zinc-50 font-sans antialiased">
+      <body className="jp-app min-h-full flex flex-col md:flex-row font-sans antialiased">
         <Sidebar />
         <ActivityTracker />
-        <main className="min-w-0 flex-1 overflow-auto">
+        <main className="jp-main min-w-0 flex-1">
+          <WorkspaceHeader />
           {children}
         </main>
       </body>
     </html>
   );
 }
+
