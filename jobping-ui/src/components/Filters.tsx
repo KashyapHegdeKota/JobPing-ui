@@ -3,14 +3,15 @@ import { Search } from 'lucide-react';
 
 export default function Filters() {
   return (
-    <div className="w-64 bg-zinc-950/50 border-r border-zinc-800 p-6 h-full flex flex-col gap-8 overflow-y-auto font-sans backdrop-blur-md">
+    <aside className="hidden lg:flex w-56 shrink-0 flex-col gap-7 border-r border-[#e2e7ed] bg-white/70 p-5 h-full overflow-y-auto" aria-label="Job discovery context">
       <div>
         <div className="relative group">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#8793a4] group-focus-within:text-[#206653] transition-colors" />
           <input
             type="text"
             placeholder="Search filters..."
-            className="w-full pl-9 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all shadow-inner"
+            aria-label="Search filters"
+            className="w-full rounded-lg border border-[#e2e7ed] bg-[#f5f7fa] py-2 pl-9 pr-3 text-sm text-[#17243a] placeholder-[#98a3b2] outline-none transition-all focus:border-[#b7dcca] focus:ring-2 focus:ring-[#b7f1d7]/60"
           />
         </div>
       </div>
@@ -21,27 +22,27 @@ export default function Filters() {
         <FilterSection title="Role Type" options={['Full-time', 'Contract', 'Freelance']} />
         <FilterSection title="Experience Level" options={['Entry', 'Mid', 'Senior', 'Lead']} />
       </div>
-    </div>
+    </aside>
   );
 }
 
 function FilterSection({ title, options }: { title: string; options: string[] }) {
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{title}</h3>
+      <h3 className="text-[10px] font-bold text-[#8793a4] uppercase tracking-widest">{title}</h3>
       <div className="flex flex-col gap-2.5">
         {options.map((opt) => (
           <label key={opt} className="flex items-center gap-3 cursor-pointer group">
             <div className="relative flex items-center justify-center">
               <input
                 type="checkbox"
-                className="peer appearance-none w-4 h-4 border border-zinc-700 rounded bg-zinc-900 checked:bg-cyan-500 checked:border-cyan-500 transition-all cursor-pointer shadow-inner"
+                className="peer h-4 w-4 cursor-pointer appearance-none rounded border border-[#d5dde4] bg-white transition-all checked:border-[#206653] checked:bg-[#206653]"
               />
               <svg className="absolute w-3 h-3 text-cyan-950 pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none">
                 <path d="M1 5L5 9L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-sm text-zinc-400 group-hover:text-zinc-200 transition-colors">{opt}</span>
+            <span className="text-sm text-[#657389] transition-colors group-hover:text-[#17243a]">{opt}</span>
           </label>
         ))}
       </div>
