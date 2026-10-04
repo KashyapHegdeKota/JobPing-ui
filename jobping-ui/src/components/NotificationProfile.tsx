@@ -177,7 +177,7 @@ export default function NotificationProfile() {
       ) : settings ? (
         <>
           <div className={styles.statusCard}>
-            <div>
+            <div className={styles.statusMeta}>
               <p className={styles.statusEmail}>{settings.email}</p>
               <p className={styles.statusText}>
                 {settings.verified
@@ -216,20 +216,20 @@ export default function NotificationProfile() {
             )}
           </div>
           {!settings.sending_enabled && (
-            <p className="mt-4 text-sm text-amber-200">
+            <p className={styles.warning}>
               Email sending is not yet enabled by JobPing. You can save your
               preferences now.
             </p>
           )}
           {settings.paused_until &&
             new Date(settings.paused_until) > new Date() && (
-              <p role="status" className="mt-4 text-sm text-amber-200">
+              <p role="status" className={styles.warning}>
                 Email quota reached. Sending can resume after{" "}
                 {new Date(settings.paused_until).toLocaleString()}.
               </p>
             )}
           {settings.last_error && (
-            <p className="mt-3 text-sm text-amber-200">
+            <p className={styles.warning}>
               {statusText(settings.last_error)}
             </p>
           )}
