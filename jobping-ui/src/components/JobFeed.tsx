@@ -8,6 +8,7 @@ import FilterBar, { type Category, type DateFilter } from './FilterBar';
 import { useCompanies } from '../hooks/useCompanies';
 import { trackActivity } from '../lib/analytics';
 import styles from '../app/jobs-page.module.css';
+import FeedOverview from './FeedOverview';
 
 export function matchesCategory(job: Job, category: Category) {
   if (category === 'All') return true;
@@ -104,6 +105,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
         <div className={styles.connection} role="status"><span className={`${styles.dot} ${!isConnected ? styles.dotOffline : ''}`} />{isConnected ? 'Live feed connected' : 'Reconnecting to live feed'}</div>
       </header>
 
+      <FeedOverview total={total} loaded={jobs.length} loading={isLoading} />
       <FilterBar query={query} category={category} remoteOnly={remoteOnly} dateFilter={dateFilter} companyFilter={companyFilter} companies={companies} resultCount={filteredJobs.length} totalCount={total ?? jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onDateFilterChange={setDateFilter} onCompanyFilterChange={setCompanyFilter} onClear={clearFilters} />
 
       {/* Feed */}
@@ -126,3 +128,4 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
     </div>
   );
 }
+
