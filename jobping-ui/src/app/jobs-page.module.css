@@ -1,7 +1,7 @@
 .shell {
   min-height: 100%;
-  background: #f5f6fa;
-  color: #17243a;
+  background: var(--jp-canvas);
+  color: var(--jp-text);
 }
 
 .content {
@@ -15,7 +15,7 @@
 
 .header {
   padding: 2.25rem 2.5rem 1.5rem;
-  background: #f5f6fa;
+  background: var(--jp-canvas);
 }
 
 .eyebrow {
@@ -29,7 +29,7 @@
 
 .title {
   margin: 0;
-  color: #17243a;
+  color: var(--jp-text);
   font-size: clamp(2rem, 3.3vw, 3.15rem);
   font-weight: 750;
   letter-spacing: -.055em;
@@ -39,7 +39,7 @@
 .subtitle {
   max-width: 42rem;
   margin: .85rem 0 0;
-  color: #667287;
+  color: var(--jp-muted);
   font-size: .95rem;
   line-height: 1.55;
 }
@@ -49,11 +49,11 @@
   align-items: center;
   gap: .45rem;
   margin-top: 1rem;
-  border: 1px solid #dce3e7;
+  border: 1px solid var(--jp-border);
   border-radius: 999px;
   padding: .4rem .7rem;
-  background: rgba(255, 255, 255, .7);
-  color: #69768b;
+  background: var(--jp-surface);
+  color: var(--jp-muted);
   font-size: .72rem;
   font-weight: 700;
   letter-spacing: .07em;
@@ -65,43 +65,43 @@
 
 .toolbar {
   margin: 0 2.5rem;
-  border: 1px solid #e2e7ed;
+  border: 1px solid var(--jp-border);
   border-radius: 1rem;
   padding: .8rem;
-  background: rgba(255,255,255,.9);
+  background: var(--jp-surface);
   box-shadow: 0 10px 25px rgba(37, 55, 81, .04);
 }
 
 .toolbarRow { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
 .search { flex: 1 1 16rem; position: relative; }
-.search input { width: 100%; border: 0; border-radius: .7rem; padding: .72rem .85rem .72rem 2.35rem; background: #f5f7fa; color: #17243a; font-size: .84rem; outline: 0; }
+.search input { width: 100%; border: 0; border-radius: .7rem; padding: .72rem .85rem .72rem 2.35rem; background: var(--jp-soft); color: var(--jp-text); font-size: .84rem; outline: 0; }
 .search input:focus { box-shadow: 0 0 0 3px rgba(183,241,215,.6); }
 .searchIcon { position: absolute; left: .8rem; top: .72rem; color: #8290a2; }
-.chip { border: 1px solid #e0e6eb; border-radius: 999px; padding: .63rem .8rem; background: #fff; color: #607087; font-size: .74rem; font-weight: 700; cursor: pointer; }
+.chip { border: 1px solid var(--jp-border); border-radius: 999px; padding: .63rem .8rem; background: var(--jp-surface); color: var(--jp-muted); font-size: .74rem; font-weight: 700; cursor: pointer; }
 .chip:hover { border-color: #b7dcca; color: #206653; }
-.chipActive { border-color: #b7f1d7; background: #e4f9ed; color: #206653; }
-.select { border: 1px solid #e0e6eb; border-radius: .65rem; padding: .63rem .7rem; background: #fff; color: #607087; font-size: .74rem; }
-.check { display: inline-flex; align-items: center; gap: .4rem; color: #607087; font-size: .74rem; font-weight: 700; }
+.chipActive { border-color: #b7f1d7; background: var(--jp-accent-soft); color: #206653; }
+.select { display: inline-flex; align-items: center; justify-content: space-between; border: 1px solid var(--jp-border); border-radius: .65rem; padding: .63rem .7rem; background: var(--jp-surface); color: var(--jp-muted); font-size: .74rem; }
+.check { display: inline-flex; align-items: center; gap: .4rem; color: var(--jp-muted); font-size: .74rem; font-weight: 700; }
 .check input { accent-color: #206653; }
-.clear { border: 0; padding: .5rem; background: transparent; color: #8793a4; font-size: .74rem; cursor: pointer; }
+.clear { border: 0; padding: .5rem; background: transparent; color: var(--jp-muted); font-size: .74rem; cursor: pointer; }
 .clear:hover { color: #206653; }
-.count { margin: .7rem .2rem .05rem; color: #8793a4; font-size: .73rem; }
-.count strong { color: #45536a; }
+.count { margin: .7rem .2rem .05rem; color: var(--jp-muted); font-size: .73rem; }
+.count strong { color: var(--jp-text); }
 
 .feed { min-height: 0; flex: 1; overflow-y: auto; padding: 1.2rem 2.5rem 2.5rem; }
 .cards { display: flex; flex-direction: column; gap: .65rem; }
-.empty { display: grid; min-height: 16rem; place-items: center; gap: .7rem; color: #8793a4; text-align: center; }
+.empty { display: grid; min-height: 16rem; place-items: center; gap: .7rem; color: var(--jp-muted); text-align: center; }
 .empty p { margin: 0; font-size: .85rem; }
 .empty button { border: 0; background: transparent; color: #206653; font-size: .8rem; cursor: pointer; }
 .error { color: #b74c4c; font-size: .82rem; text-align: center; }
 .error button { display: block; margin: .45rem auto; border: 0; background: transparent; color: #206653; cursor: pointer; }
-.footerText { padding: 1rem; color: #95a0af; font-size: .73rem; text-align: center; }
+.footerText { padding: 1rem; color: var(--jp-muted); font-size: .73rem; text-align: center; }
 
-.card { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; border: 1px solid #e2e7ed; border-radius: .9rem; padding: 1rem 1.1rem; background: #fff; box-shadow: 0 5px 16px rgba(37, 55, 81, .035); }
+.card { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; border: 1px solid var(--jp-border); border-radius: .9rem; padding: 1rem 1.1rem; background: var(--jp-surface); box-shadow: 0 5px 16px rgba(37, 55, 81, .035); }
 .card:hover { border-color: #c8e2d5; box-shadow: 0 9px 22px rgba(37, 55, 81, .07); }
 .cardMain { min-width: 0; }
-.cardTitle { margin: 0; color: #17243a; font-size: .98rem; font-weight: 750; letter-spacing: -.015em; }
-.meta { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .45rem; color: #788598; font-size: .76rem; }
+.cardTitle { margin: 0; color: var(--jp-text); font-size: .98rem; font-weight: 750; letter-spacing: -.015em; }
+.meta { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .45rem; color: var(--jp-muted); font-size: .76rem; }
 .metaItem { display: inline-flex; align-items: center; gap: .3rem; }
 .metaItem svg { color: #9aa6b5; }
 .time { font-variant-numeric: tabular-nums; }
@@ -115,3 +115,8 @@
   .card { align-items: flex-start; flex-direction: column; }
   .apply { width: 100%; text-align: center; }
 }
+
+.apply { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; white-space: nowrap; }
+.cardTitle { overflow-wrap: anywhere; }
+.card > div:last-child { flex-shrink: 0; }
+@media (max-width: 720px) { .card > div:last-child { width: 100%; } }
