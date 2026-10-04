@@ -7,6 +7,7 @@ import JobCard from './JobCard';
 import FilterBar, { type Category, type DateFilter } from './FilterBar';
 import { useCompanies } from '../hooks/useCompanies';
 import { trackActivity } from '../lib/analytics';
+import styles from '../app/jobs-page.module.css';
 
 export function matchesCategory(job: Job, category: Category) {
   if (category === 'All') return true;
@@ -91,47 +92,36 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
   const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); setDateFilter('All Time'); setCompanyFilter('All'); };
 
   return (
-    <div className="flex-1 bg-zinc-950 flex flex-col h-full font-sans relative overflow-hidden">
-      {/* Header */}
-      <div className="border-b border-zinc-800 p-6 flex items-center justify-between bg-zinc-950/80 backdrop-blur-md sticky top-0 z-10 shrink-0">
+    <div className={styles.content}>
+      <header className={styles.header}>
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-zinc-100 tracking-tight">Live Feed</h2>
-          <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isConnected ? 'bg-cyan-400' : 'bg-red-500'}`}></span>
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? 'bg-cyan-500' : 'bg-red-500'}`}></span>
-            </span>
-            <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">{isConnected ? 'Connected' : 'Disconnected'}</span>
+          <div>
+            <p className={styles.eyebrow}>Live opportunities</p>
+            <h1 className={styles.title}>Be early. Get noticed.</h1>
+            <p className={styles.subtitle}>Fresh internship and new-grad roles from the teams shaping what comes next.</p>
           </div>
         </div>
-        
-      </div>
+        <div className={styles.connection} role="status"><span className={`${styles.dot} ${!isConnected ? styles.dotOffline : ''}`} />{isConnected ? 'Live feed connected' : 'Reconnecting to live feed'}</div>
+      </header>
 
       <FilterBar query={query} category={category} remoteOnly={remoteOnly} dateFilter={dateFilter} companyFilter={companyFilter} companies={companies} resultCount={filteredJobs.length} totalCount={total ?? jobs.length} onQueryChange={(e) => setQuery(e.target.value)} onCategoryChange={setCategory} onRemoteChange={setRemoteOnly} onDateFilterChange={setDateFilter} onCompanyFilterChange={setCompanyFilter} onClear={clearFilters} />
 
       {/* Feed */}
-      <div ref={feedRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+      <div ref={feedRef} className={styles.feed}>
         {jobs.length > 0 && filteredJobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4"><Search className="h-10 w-10 text-zinc-600" /><p className="font-mono text-sm">No jobs match your filters.</p><button onClick={clearFilters} className="text-sm text-cyan-400 hover:text-cyan-300">Clear all filters</button></div>
+          <div className={styles.empty}><Search className="h-9 w-9 text-[#9aa6b5]" /><p>No jobs match your filters.</p><button onClick={clearFilters}>Clear all filters</button></div>
         ) : jobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-zinc-500 space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-full"></div>
-              <Search className="h-10 w-10 text-zinc-600 relative z-10" />
-            </div>
-            <p className="font-mono text-sm">Listening for new opportunities...</p>
+          <div className={styles.empty}>
+            <Search className="h-9 w-9 text-[#9aa6b5]" />
+            <p>Listening for new opportunities...</p>
           </div>
         ) : (
-          <AnimatePresence>
-            {filteredJobs.map((job, idx) => (
-              <JobCard key={job.id || idx} job={job} />
-            ))}
-          </AnimatePresence>
+          <AnimatePresence><div className={styles.cards}>{filteredJobs.map((job, idx) => <JobCard key={job.id || idx} job={job} />)}</div></AnimatePresence>
         )}
-        {error && <div role="alert" className="text-center text-sm text-red-400"><p>{error}</p><button type="button" onClick={() => window.location.reload()} className="mt-2 text-cyan-400 hover:text-cyan-300">Reload jobs</button></div>}
-        {isLoadingMore && <p className="py-3 text-center text-xs font-mono text-zinc-500">Loading more jobs…</p>}
+        {error && <div role="alert" className={styles.error}><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload jobs</button></div>}
+        {isLoadingMore && <p className={styles.footerText}>Loading more jobs…</p>}
         {!isLoading && !isLoadingMore && !error && hasMore && <div ref={sentinelRef} className="h-2 shrink-0" aria-hidden="true" />}
-        {!isLoading && !isLoadingMore && !hasMore && jobs.length > 0 && <p className="py-3 text-center text-xs font-mono text-zinc-600">You’ve reached the end of the feed.</p>}
+        {!isLoading && !isLoadingMore && !hasMore && jobs.length > 0 && <p className={styles.footerText}>You’ve reached the end of the feed.</p>}
       </div>
     </div>
   );
