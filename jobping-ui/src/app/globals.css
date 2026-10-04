@@ -60,3 +60,15 @@ input, select, textarea { accent-color: var(--jp-accent); }
 .analytics-state-error { border-color: #f2c7c7; color: #9e4141; }
 @media (max-width: 700px) { .analytics-shell { padding: 32px 20px 56px; } .analytics-header { align-items: flex-start; flex-direction: column; } .analytics-toolbar { width: 100%; flex-wrap: wrap; } .analytics-toolbar select { flex: 1; } }
 
+.analytics-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.metric-card { min-height: 128px; border: 1px solid var(--jp-border); border-radius: var(--jp-radius); background: var(--jp-surface); padding: 20px; box-shadow: var(--jp-shadow); }
+.metric-card p { margin: 0; color: var(--jp-muted); font-size: 13px; line-height: 1.35; }
+.metric-card strong { display: block; margin-top: 12px; color: var(--jp-text); font-size: 30px; line-height: 1; letter-spacing: -.04em; }
+.metric-card span { display: block; margin-top: 12px; color: #8c96a6; font-size: 11px; }
+.metric-card-featured { border-color: transparent; background: var(--jp-accent); }
+.metric-card-featured p, .metric-card-featured strong, .metric-card-featured span { color: #fff; }
+.metric-card-featured span { color: var(--jp-mint); }
+.analytics-note { margin: 18px 0 44px; color: var(--jp-muted); font-size: 12px; line-height: 1.6; }
+@media (max-width: 900px) { .analytics-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 500px) { .analytics-card-grid { grid-template-columns: 1fr; } }
+
