@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import styles from "./ThemeToggle.module.css";
 
 type Theme = "dark" | "light";
 
@@ -37,7 +38,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="inline-flex items-center justify-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/50 p-2 text-zinc-400 transition-colors hover:border-zinc-700 hover:text-cyan-400 sm:w-full sm:px-3 sm:py-2"
+      className={styles.toggle}
       aria-label={`Switch to ${nextTheme} mode`}
       title={`Switch to ${nextTheme} mode`}
     >
@@ -46,3 +47,4 @@ export default function ThemeToggle() {
     </button>
   );
 }
+
