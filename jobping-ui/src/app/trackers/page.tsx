@@ -1,63 +1,47 @@
-import { Plus, Tag } from "lucide-react";
+import { ArrowUpRight, Bell, Check, CircleHelp, Plus, Tag } from "lucide-react";
+import styles from "./TrackersPage.module.css";
+
+const examples = [
+  { title: "Software engineering internships", description: "Early career roles at product-led companies.", tags: ["Internship", "Remote", "2027"], tone: styles.mint },
+  { title: "Mission-driven startups", description: "Small teams hiring thoughtful builders.", tags: ["Startup", "Engineering", "New grad"], tone: styles.blue },
+  { title: "Design systems roles", description: "Teams shaping the tools people use every day.", tags: ["Design", "Hybrid", "2027"], tone: styles.peach },
+];
 
 export default function TrackersPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 font-sans p-8 md:p-12 text-zinc-100">
-      <div className="max-w-5xl mx-auto space-y-10">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-zinc-800 pb-8">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-100">Trackers</h1>
-            <p className="text-zinc-400 mt-2 text-sm font-mono">Manage your job application trackers.</p>
+    <div className={styles.page}>
+      <div className={styles.wrapper}>
+        <header className={styles.header}>
+          <div className={styles.intro}>
+            <div className={styles.kicker}><span className={styles.kickerIcon}><Bell size={14} aria-hidden="true" /></span>Personal watchlists</div>
+            <h1 className={styles.title}>A little focus.<br /><span>A better next step.</span></h1>
+            <p className={styles.lede}>Keep the roles and companies you care about close. This preview shows how your trackers will live here once connected to your local JobPing workspace.</p>
           </div>
-          
-          <div className="flex items-center gap-8">
-            <div className="flex flex-col gap-2 w-40">
-              <div className="flex justify-between text-xs text-zinc-400 font-medium uppercase tracking-wider font-mono">
-                <span>Usage</span>
-                <span className="text-cyan-400">36/50</span>
-              </div>
-              <div className="w-full bg-zinc-900 rounded-full h-1.5 overflow-hidden border border-zinc-800">
-                <div 
-                  className="bg-cyan-400 h-full rounded-full shadow-[0_0_10px_rgba(34,211,238,0.8)] relative" 
-                  style={{ width: '72%' }}
-                >
-                  <div className="absolute inset-0 bg-white/30 rounded-full blur-[1px]"></div>
-                </div>
-              </div>
-            </div>
-            <button className="group relative flex items-center gap-2 bg-zinc-100 text-zinc-900 px-5 py-2.5 rounded-lg font-semibold transition-all hover:bg-white shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_rgba(34,211,238,0.3)] hover:text-cyan-950 overflow-hidden text-sm">
-              <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <Plus size={18} className="relative z-10" />
-              <span className="relative z-10">New Tracker</span>
-            </button>
+          <div className={styles.notice}>
+            <div className={styles.noticeIcon}><CircleHelp size={18} aria-hidden="true" /></div>
+            <p>Trackers currently run through the local CLI. The cards below are sample content, so no job data is being claimed or stored by this page.</p>
           </div>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="group relative bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-cyan-900/10 hover:border-zinc-700 transition-all flex flex-col h-full overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500/0 via-cyan-500/0 to-cyan-500/0 group-hover:from-cyan-500/20 group-hover:via-cyan-400/50 group-hover:to-cyan-500/20 transition-all duration-500"></div>
-              <h2 className="text-xl font-bold mb-4 tracking-tight text-zinc-100 group-hover:text-cyan-50 transition-colors">Software Engineer Track {i}</h2>
-              <div className="flex flex-wrap gap-2 mb-8 flex-1">
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded-full font-medium">
-                  <Tag size={12} className="text-cyan-500" /> Internship
-                </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded-full font-medium">
-                  <Tag size={12} className="text-indigo-400" /> Remote
-                </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-900 border border-zinc-700 text-zinc-300 text-xs rounded-full font-medium">
-                  <Tag size={12} className="text-emerald-400" /> Startup
-                </span>
-              </div>
-              <div className="pt-4 border-t border-zinc-800 flex justify-between items-center text-xs font-mono text-zinc-500">
-                <span>Updated 2h ago</span>
-                <button className="text-cyan-500 hover:text-cyan-400 font-medium group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                  View <span className="text-lg leading-none">&rarr;</span>
-                </button>
-              </div>
+        <section aria-labelledby="workspace-heading" className={styles.section}>
+          <div className={styles.sectionHead}>
+            <div><p className={styles.eyebrow}>Your workspace</p><h2 id="workspace-heading" className={styles.sectionTitle}>Trackers</h2></div>
+            <div className={styles.actions}>
+              <span className={styles.preview}>Preview · 3 examples</span>
+              <button type="button" aria-disabled="true" title="Tracker creation is available through the local CLI" className={styles.disabledButton}><Plus size={17} aria-hidden="true" />New tracker</button>
             </div>
-          ))}
-        </div>
+          </div>
+          <div className={styles.grid}>
+            {examples.map((tracker) => <article key={tracker.title} className={styles.card}>
+              <div className={styles.cardTop}><div className={`${styles.cardIcon} ${tracker.tone}`}><Tag size={19} aria-hidden="true" /></div><span className={styles.sample}>Sample</span></div>
+              <h3>{tracker.title}</h3><p className={styles.description}>{tracker.description}</p>
+              <div className={styles.tags}>{tracker.tags.map((tag, index) => <span key={tag} className={index === 0 ? styles.primaryTag : styles.tag}>{tag}</span>)}</div>
+              <div className={styles.cardFooter}><span className={styles.updated}><Check size={14} aria-hidden="true" />Example tracker</span><button type="button" aria-disabled="true" title="Tracker details will be available when connected" className={styles.view}>View <ArrowUpRight size={14} aria-hidden="true" /></button></div>
+            </article>)}
+          </div>
+        </section>
+
+        <footer className={styles.footer}><div><p className={styles.footerTitle}>Ready to make a tracker?</p><p className={styles.footerText}>Use <code>python -m app.cli trackers create</code> to create one locally.</p></div><div className={styles.footerAside}>Read-only checks · Your API key stays in your environment</div></footer>
       </div>
     </div>
   );
