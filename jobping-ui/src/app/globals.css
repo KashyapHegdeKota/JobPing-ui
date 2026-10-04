@@ -71,6 +71,21 @@ input, select, textarea { accent-color: var(--jp-accent); }
 .metric-card-featured p, .metric-card-featured strong, .metric-card-featured span { color: #fff; }
 .metric-card-featured span { color: var(--jp-mint); }
 .analytics-note { margin: 18px 0 44px; color: var(--jp-muted); font-size: 12px; line-height: 1.6; }
+.analytics-section { margin-top: 28px; border: 1px solid var(--jp-border); border-radius: var(--jp-radius); background: var(--jp-surface); padding: 28px; box-shadow: var(--jp-shadow); }
+.section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.section-heading h2, .preferences-card h2 { margin: 0; color: var(--jp-text); font-size: 20px; letter-spacing: -.025em; }
+.section-heading > span { color: var(--jp-muted); font-size: 12px; }
+.daily-chart { display: flex; align-items: end; gap: 8px; min-height: 150px; margin-bottom: 24px; padding: 16px 8px 0; border-bottom: 1px solid var(--jp-border); }
+.chart-column { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: 8px; height: 134px; }
+.chart-bar { width: 100%; max-width: 24px; min-height: 8px; border-radius: 7px 7px 2px 2px; background: var(--jp-mint); }
+.chart-column:first-child .chart-bar, .chart-bar:hover { background: var(--jp-accent); }
+.chart-column span { color: var(--jp-muted); font-size: 10px; white-space: nowrap; transform: rotate(-35deg); transform-origin: top right; }
+.table-wrap { max-height: 250px; overflow: auto; border: 1px solid var(--jp-border); border-radius: 12px; }
+.table-wrap table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.table-wrap th { position: sticky; top: 0; background: var(--jp-soft); color: var(--jp-muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.table-wrap th, .table-wrap td { padding: 12px 14px; }
+.table-wrap td { color: var(--jp-text); border-top: 1px solid var(--jp-border); }
+.table-wrap td:not(:first-child) { color: var(--jp-accent); font-weight: 700; }
 @media (max-width: 900px) { .analytics-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 500px) { .analytics-card-grid { grid-template-columns: 1fr; } }
 
