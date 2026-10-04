@@ -1,58 +1,49 @@
 @import "tailwindcss";
 
-:root {
-  --background: #09090b; /* zinc-950 */
-  --foreground: #fafafa;
-}
-
-:root[data-theme="light"] {
-  --background: #f8fafc;
-  --foreground: #18181b;
-}
-
+:root { --background: var(--jp-canvas); --foreground: var(--jp-text); }
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
+body { margin: 0; background: var(--jp-canvas); color: var(--jp-text); }
+.jp-main { background: var(--jp-canvas); }
+button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 2px solid var(--jp-accent); outline-offset: 3px; }
+::selection { background: #b7f1d7; color: #111d34; }
+input, select, textarea { accent-color: var(--jp-accent); }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-}
-
-/* The existing interface uses zinc utilities as a compact design token system.
-   These mappings preserve that hierarchy while swapping its neutral palette. */
-:root[data-theme="light"] .bg-zinc-950 { background-color: #f8fafc; }
-:root[data-theme="light"] .bg-zinc-950\/80 { background-color: rgb(248 250 252 / 0.8); }
-:root[data-theme="light"] .bg-zinc-950\/70 { background-color: rgb(248 250 252 / 0.7); }
-:root[data-theme="light"] .bg-zinc-950\/50 { background-color: rgb(248 250 252 / 0.5); }
-
-:root[data-theme="light"] .bg-zinc-900 { background-color: #fff; }
-:root[data-theme="light"] .bg-zinc-900\/80 { background-color: rgb(255 255 255 / 0.8); }
-:root[data-theme="light"] .bg-zinc-900\/50 { background-color: rgb(255 255 255 / 0.5); }
-:root[data-theme="light"] .bg-zinc-900\/40 { background-color: rgb(255 255 255 / 0.4); }
-:root[data-theme="light"] .bg-zinc-900\/30 { background-color: rgb(255 255 255 / 0.3); }
-
+/* Compatibility for existing recap and authentication controls. */
+:root[data-theme="light"] .bg-zinc-950 { background-color: var(--jp-canvas); }
+:root[data-theme="light"] .bg-zinc-900 { background-color: var(--jp-surface); }
+:root[data-theme="light"] .bg-zinc-900\/50,
+:root[data-theme="light"] .bg-zinc-900\/40,
+:root[data-theme="light"] .bg-zinc-900\/30 { background-color: var(--jp-surface); }
+:root[data-theme="light"] .bg-zinc-950\/80,
+:root[data-theme="light"] .bg-zinc-950\/70,
+:root[data-theme="light"] .bg-zinc-950\/50 { background-color: var(--jp-canvas); }
 :root[data-theme="light"] .bg-zinc-800,
-:root[data-theme="light"] .bg-zinc-800\/50 {
-  background-color: rgb(228 228 231 / var(--tw-bg-opacity, 1));
-}
-
+:root[data-theme="light"] .bg-zinc-800\/50 { background-color: var(--jp-soft); }
 :root[data-theme="light"] .text-zinc-50,
 :root[data-theme="light"] .text-zinc-100,
-:root[data-theme="light"] .text-zinc-200 { color: #18181b; }
-:root[data-theme="light"] .text-zinc-300 { color: #3f3f46; }
-:root[data-theme="light"] .text-zinc-400 { color: #52525b; }
-:root[data-theme="light"] .text-zinc-500 { color: #71717a; }
-:root[data-theme="light"] .text-zinc-600 { color: #a1a1aa; }
-
+:root[data-theme="light"] .text-zinc-200 { color: var(--jp-text); }
+:root[data-theme="light"] .text-zinc-300 { color: #42516a; }
+:root[data-theme="light"] .text-zinc-400,
+:root[data-theme="light"] .text-zinc-500 { color: var(--jp-muted); }
+:root[data-theme="light"] .text-zinc-600 { color: #747f90; }
 :root[data-theme="light"] .border-zinc-800,
-:root[data-theme="light"] .border-zinc-800\/50 { border-color: #e4e4e7; }
+:root[data-theme="light"] .border-zinc-800\/50,
 :root[data-theme="light"] .border-zinc-700,
-:root[data-theme="light"] .border-zinc-700\/50 { border-color: #d4d4d8; }
-
-:root[data-theme="light"] input,
-:root[data-theme="light"] textarea,
-:root[data-theme="light"] select { color-scheme: light; }
+:root[data-theme="light"] .border-zinc-700\/50 { border-color: var(--jp-border); }
+:root[data-theme="light"] .text-cyan-400,
+:root[data-theme="light"] .text-cyan-200 { color: #206653; }
+:root[data-theme="light"] .text-red-200 { color: #a02838; }
+:root[data-theme="light"] .text-amber-200 { color: #87541e; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
