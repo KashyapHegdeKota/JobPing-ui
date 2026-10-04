@@ -1,0 +1,27 @@
+:root {
+  --jp-canvas: #f5f6fa;
+  --jp-surface: #ffffff;
+  --jp-soft: #eef2f6;
+  --jp-text: #17243a;
+  --jp-muted: #667185;
+  --jp-border: #e5e9ef;
+  --jp-accent: #206653;
+  --jp-mint: #b7f1d7;
+  --jp-accent-soft: #edf8f2;
+  --jp-nav: #111d34;
+  --jp-nav-hover: #22314b;
+  --jp-radius: 18px;
+  --jp-shadow: 0 6px 24px rgb(17 29 52 / 3%);
+}
+
+:root[data-theme="dark"] {
+  --jp-canvas: #0d1729;
+  --jp-surface: #15223a;
+  --jp-soft: #1d2c45;
+  --jp-text: #eef4fa;
+  --jp-muted: #a3b1c5;
+  --jp-border: #2b3b54;
+  --jp-accent: #b7f1d7;
+  --jp-accent-soft: #203e3a;
+  --jp-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+}
