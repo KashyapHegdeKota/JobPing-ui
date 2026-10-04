@@ -1,0 +1,28 @@
+.sidebar { position: sticky; top: 0; width: 224px; height: 100dvh; flex-shrink: 0; display: flex; flex-direction: column; padding: 30px 20px 20px; background: var(--jp-nav); color: #eef4fa; }
+.eyebrow { margin: 39px 12px 20px; color: #b9d6d5; font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; }
+.nav { display: flex; flex-direction: column; gap: 6px; }
+.link { display: flex; align-items: center; gap: 12px; min-height: 45px; padding: 11px 13px; border-radius: 11px; color: #c3cddd; font-size: 13px; transition: background .15s, color .15s; }
+.link:hover, .link[aria-current="page"] { background: var(--jp-nav-hover); color: #fff; }
+.link[aria-current="page"] svg { color: #b7f1d7; }
+.link:focus-visible, .account button:focus-visible { outline: 2px solid #b7f1d7; outline-offset: 3px; }
+.bottom { margin-top: auto; padding-top: 24px; }
+.note { margin: 15px 0; padding: 17px; border-radius: 14px; background: #22314b; font-size: 12px; line-height: 1.7; color: #dae3ef; }
+.note small { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; color: #b7f1d7; font-size: 10px; }
+.note small::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #b7f1d7; }
+.account { display: flex; flex-direction: column; gap: 12px; }
+.identity { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.avatar { display: grid; place-items: center; width: 35px; height: 35px; flex-shrink: 0; background: #b7f1d7; color: #111d34; border-radius: 50%; font-size: 12px; font-weight: 650; text-transform: uppercase; }
+.name { display: block; max-width: 142px; overflow: hidden; text-overflow: ellipsis; font-size: 12px; white-space: nowrap; }
+.identity small { display: block; color: #a8b8ce; font-size: 10px; margin-top: 3px; }
+.signIn { min-height: 42px; border-radius: 10px; background: #b7f1d7; color: #111d34; font-weight: 600; font-size: 13px; }
+.signOut { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; color: #c3cddd; font-size: 12px; }
+.mobile { display: none; }
+@media (max-width: 767px) {
+  .sidebar { display: none; }
+  .mobile { display: flex; flex-direction: column; background: var(--jp-nav); color: white; }
+  .mobileTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 20px; }
+  .mobileTop button { font-size: 12px; padding: 8px 12px; border: 1px solid #34435c; border-radius: 8px; }
+  .mobileLinks { display: flex; gap: 4px; overflow-x: auto; padding: 0 12px 12px; }
+  .mobileLinks .link { flex-shrink: 0; padding: 10px; min-height: 42px; font-size: 11px; gap: 6px; }
+}
+@media (max-height: 750px) and (min-width: 768px) { .sidebar { overflow-y: auto; } .note { display: none; } .eyebrow { margin-top: 24px; } }
