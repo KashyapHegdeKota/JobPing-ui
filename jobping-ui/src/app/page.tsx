@@ -4,6 +4,7 @@ import React, { Suspense } from 'react';
 import Filters from '../components/Filters';
 import JobFeed from '../components/JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
+import styles from './jobs-page.module.css';
 
 export default function Home() {
   return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}><LiveFeed /></Suspense>;
@@ -13,17 +14,17 @@ function LiveFeed() {
   const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs();
 
   return (
-    <div className="flex h-screen w-full bg-zinc-950 font-sans">
-      <div className="flex w-full h-full mx-auto overflow-hidden bg-zinc-950">
+    <div className={`${styles.shell} flex h-screen w-full font-sans`}>
+      <div className="flex h-full w-full overflow-hidden">
         <Filters />
         <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} />
       </div>
       
       {!isConnected && (
-        <div className="fixed bottom-6 right-6 bg-red-950/80 border border-red-900/50 text-red-400 px-5 py-3 rounded-lg shadow-xl shadow-black/50 text-sm font-medium backdrop-blur-md flex items-center gap-3">
+        <div className="fixed bottom-6 right-6 z-20 flex items-center gap-3 rounded-lg border border-[#e5caca] bg-[#fff7f7] px-5 py-3 text-sm font-medium text-[#b74c4c] shadow-lg">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d97878] opacity-75"></span>
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#c05a59]"></span>
           </span>
           Reconnecting to live feed...
         </div>
