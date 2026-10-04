@@ -58,6 +58,8 @@ input, select, textarea { accent-color: var(--jp-accent); }
 .analytics-toolbar button:hover { background: var(--jp-accent-soft); }
 .analytics-state { margin: 48px 0; border: 1px solid var(--jp-border); border-radius: var(--jp-radius); background: var(--jp-surface); padding: 32px; color: var(--jp-muted); box-shadow: var(--jp-shadow); }
 .analytics-state-error { border-color: #f2c7c7; color: #9e4141; }
+.state-dot { display: inline-block; width: 9px; height: 9px; margin-right: 10px; border-radius: 50%; background: var(--jp-mint); vertical-align: 1px; }
+.analytics-state-error .state-dot { background: #d96b6b; }
 @media (max-width: 700px) { .analytics-shell { padding: 32px 20px 56px; } .analytics-header { align-items: flex-start; flex-direction: column; } .analytics-toolbar { width: 100%; flex-wrap: wrap; } .analytics-toolbar select { flex: 1; } }
 
 .analytics-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
