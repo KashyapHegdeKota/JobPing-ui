@@ -1,0 +1,19 @@
+.page { max-width: 1040px; margin: 0 auto; padding: clamp(2rem, 5vw, 4.5rem) clamp(1.25rem, 4vw, 3.5rem); color: var(--jp-text, #17243a); }
+.back { color: var(--jp-accent, #206653); font-size: 0.84rem; font-weight: 700; text-decoration: none; }
+.title { margin-top: 1.5rem; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700; letter-spacing: -0.045em; }
+.summary { margin-top: 0.8rem; color: var(--jp-muted, #667185); font-size: 0.9rem; }
+.window { margin-top: 0.35rem; color: var(--jp-muted, #667185); font-size: 0.78rem; }
+.section { margin-top: 2.5rem; }
+.sectionTitle { margin-bottom: 1rem; color: var(--jp-muted, #667185); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.13em; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.card { border: 1px solid var(--jp-border, #e2e7ef); border-radius: 1.1rem; background: var(--jp-surface, #fff); padding: 1.25rem; box-shadow: 0 12px 32px rgba(23, 36, 58, 0.06); }
+.badge { display: inline-flex; border-radius: 99px; background: var(--jp-accent-soft, #e7f8ef); color: var(--jp-accent, #206653); padding: 0.3rem 0.55rem; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.08em; }
+.company { margin-top: 1rem; color: var(--jp-accent, #206653); font-size: 0.8rem; font-weight: 700; }
+.jobTitle { margin-top: 0.35rem; font-size: 1.12rem; font-weight: 700; }
+.meta { margin-top: 0.5rem; color: var(--jp-muted, #667185); font-size: 0.8rem; line-height: 1.5; }
+.closed { margin-top: 1rem; color: var(--jp-muted, #667185); font-size: 0.8rem; }
+.apply { display: inline-block; margin-top: 1rem; border-radius: 0.65rem; background: var(--jp-accent, #206653); color: #fff; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
+.auth { margin-top: 1.5rem; color: var(--jp-muted, #667185); }
+.button { border: 0; border-radius: 0.65rem; background: var(--jp-accent, #206653); color: #fff; padding: 0.7rem 1rem; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.error { margin-top: 1.5rem; color: #9e313b; font-size: 0.9rem; }
+.loading { margin-top: 1.5rem; color: var(--jp-muted, #667185); font-size: 0.9rem; }
