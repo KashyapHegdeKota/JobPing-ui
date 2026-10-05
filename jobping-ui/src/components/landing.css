@@ -122,5 +122,6 @@
 .jp-landing .btn{transition:none}
 .jp-landing .btn:hover{transform:none}
 }
-.jp-landing{min-height:100vh;color-scheme:light;width:100%;font-family:var(--font-geist-sans),Arial,sans-serif}
+.jp-landing{min-height:100vh;color-scheme:light;width:100%;font-family:var(--font-dm-sans),Arial,sans-serif}
 .jp-landing .auth-link{white-space:nowrap}
+
