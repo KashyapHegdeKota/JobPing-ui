@@ -46,6 +46,15 @@ describe("Authentication dialog", () => {
     expect(close).not.toHaveBeenCalled();
     expect(completed).not.toHaveBeenCalled();
   });
+  it("hands off after creating an email account from the landing page", async () => {
+    const completed = vi.fn();
+    render(<AuthModal isOpen initialMode="signup" onClose={vi.fn()} onAuthenticated={completed} />);
+    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "new@example.com" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "test-password" } });
+    fireEvent.submit(screen.getByLabelText("Email").closest("form")!);
+    await waitFor(() => expect(login.signup).toHaveBeenCalledWith({}, "new@example.com", "test-password"));
+    await waitFor(() => expect(completed).toHaveBeenCalledOnce());
+  });
 });
 
 
