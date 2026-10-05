@@ -27,9 +27,9 @@
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .section-heading h2, .preferences-card h2 { margin: 0; color: var(--jp-text); font-size: 20px; letter-spacing: -.025em; }
 .section-heading > span { color: var(--jp-muted); font-size: 12px; }
-.daily-chart { display: flex; align-items: end; gap: 8px; min-height: 150px; margin-bottom: 24px; padding: 16px 8px 0; border-bottom: 1px solid var(--jp-border); }
-.chart-column { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: 8px; height: 134px; }
-.chart-bar { width: 100%; max-width: 24px; min-height: 8px; border-radius: 7px 7px 2px 2px; background: var(--jp-mint); }
+.daily-chart { display: flex; align-items: end; gap: 8px; min-height: 150px; overflow-x: auto; margin-bottom: 24px; padding: 16px 8px 0; border-bottom: 1px solid var(--jp-border); }
+.chart-column { display: flex; min-width: 28px; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: 8px; height: 134px; }
+.chart-bar { flex-shrink: 0; width: 100%; max-width: 24px; min-height: 0; border-radius: 7px 7px 2px 2px; background: var(--jp-mint); }
 .chart-column:first-child .chart-bar, .chart-bar:hover { background: var(--jp-accent); }
 .chart-column span { color: var(--jp-muted); font-size: 10px; white-space: nowrap; transform: rotate(-35deg); transform-origin: top right; }
 .table-wrap { max-height: 250px; overflow: auto; border: 1px solid var(--jp-border); border-radius: 12px; }
