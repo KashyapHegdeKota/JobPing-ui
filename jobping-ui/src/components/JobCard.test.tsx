@@ -5,7 +5,7 @@ import JobCard from './JobCard';
 
 const analytics = vi.hoisted(() => ({ track: vi.fn() }));
 vi.mock('../lib/analytics', () => ({ trackActivity: analytics.track }));
-const example = { id: 12, title: 'Software Engineer, New Grad', company: 'Linear', location: 'San Francisco, CA', role_type: 'new_grad', discovered_at: '2026-10-04T12:00:00Z', apply_url: 'https://example.com/apply' };
+const example = { id: 12, title: 'Software Engineer, New Grad', company: 'Linear', location: 'San Francisco, CA', role_type: 'new_grad', discovered_at: '2026-10-04T12:00:00Z', apply_url: 'https://example.com/apply', is_closed: false };
 beforeEach(() => window.localStorage.clear());
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.clearAllMocks(); });
 
@@ -90,7 +90,8 @@ describe('JobCard', () => {
       is_closed: true,
     };
 
-    const { queryByRole } = render(<JobCard job={job} />);
-    expect(queryByRole('link', { name: 'Apply Now' })).toBeNull();
+    render(<JobCard job={job} />);
+    expect(screen.queryByRole('link', { name: /View role/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Applications closed')).toBeInTheDocument();
   });
 });

@@ -35,7 +35,8 @@ export default function JobCard({ job }: { job: Job }) {
     </div>
     <div className={styles.footer}>
       <span className={styles.date}><Clock size={14} aria-hidden="true" /><time title={absoluteDate} dateTime={validDate ? timestamp : undefined}>{dateText}</time></span>
-      {job.apply_url && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
+      {job.is_closed && <span className={styles.closed}>Applications closed</span>}
+      {!job.is_closed && job.apply_url && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
         const jobId = Number(job.id);
         if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity("job_click", "/", { job_id: jobId });
       }}>View role <ExternalLink size={15} aria-hidden="true" /></a>}
