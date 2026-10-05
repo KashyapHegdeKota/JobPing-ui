@@ -104,4 +104,8 @@
 }
 
 .header, .toolbar { flex-shrink: 0; }
-@media (max-width: 767px) { .shell { height: calc(100dvh - 177px); min-height: 600px; } }
+@media (max-width: 767px) {
+  .shell { height: auto; min-height: calc(100dvh - 177px); }
+  .content { height: auto; }
+  .feed { flex: none; height: 60dvh; min-height: 360px; }
+}
