@@ -2,6 +2,13 @@
 
 ## Completed
 
+### UI-CARDS-001 Show reference job card details
+
+- Completed: company initial/name, prominent title, role-type pill, supplied location/work arrangement, semantic relative date, local bookmark and external View role action match the screenshot layout.
+- Salary omitted per user request. No backend/API changes; posted and discovery date provenance retained, with minute/hour precision for recent roles.
+- Bookmarks persist only on this device, synchronize duplicate cards and browser tabs, and report unavailable storage without claiming success.
+- Validation: all 81 frontend tests, lint, type checking and production build pass. Live desktop/390px phone cards and bookmark save/remove verified; compact feed spacing corrected to display full cards.
+
 ### UI-AUTH-001 Enter the feed after landing authentication
 
 - Completed: successful Google sign-in, email sign-in and email sign-up from the landing dialog navigate to `/jobs`; dismissals and failed popups do not redirect.
