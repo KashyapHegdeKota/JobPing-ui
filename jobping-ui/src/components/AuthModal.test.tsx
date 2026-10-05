@@ -27,7 +27,7 @@ describe("Authentication dialog", () => {
   });
   it("preserves Firebase email sign-in and Google actions", async () => {
     const close = vi.fn(); render(<AuthModal isOpen onClose={close} />);
-    fireEvent.click(screen.getByRole("button", { name: "Sign in", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: /^Sign in$/ }));
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "test@example.com" } });
     fireEvent.change(screen.getByLabelText("Password"), { target: { value: "test-password" } });
     fireEvent.submit(screen.getByLabelText("Email").closest("form")!);
@@ -37,4 +37,5 @@ describe("Authentication dialog", () => {
     await waitFor(() => expect(login.google).toHaveBeenCalledOnce());
   });
 });
+
 

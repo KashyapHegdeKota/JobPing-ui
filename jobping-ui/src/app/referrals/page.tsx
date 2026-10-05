@@ -26,7 +26,7 @@ export default function ReferralsPage() {
   };
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <div className={styles.content}>
         <header className={styles.header}>
           <p className={styles.eyebrow}>JobPing community</p>
@@ -82,6 +82,7 @@ export default function ReferralsPage() {
           <p className={styles.note} id="apply-code-note">Applying referral codes is not connected yet.</p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
+
