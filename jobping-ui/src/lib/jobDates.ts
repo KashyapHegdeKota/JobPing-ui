@@ -1,3 +1,16 @@
+export function formatJobCardDate(job: { posted_at?: string; discovered_at?: string }, nowMs: number = Date.now()): string {
+  const timestamp = job.posted_at || job.discovered_at;
+  const age = timestamp ? nowMs - new Date(timestamp).getTime() : NaN;
+  const label = job.posted_at ? "Posted" : "Discovered";
+  if (Number.isFinite(age) && age >= 0 && age < 24 * 60 * 60 * 1000) {
+    if (age < 60_000) return `${label} just now`;
+    if (age < 60 * 60 * 1000) return `${label} ${Math.floor(age / 60_000)} min ago`;
+    const hours = Math.floor(age / (60 * 60 * 1000));
+    return `${label} ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  }
+  return formatJobDate(job, nowMs);
+}
+
 export function formatJobDate(
   job: { posted_at?: string; discovered_at?: string },
   nowMs: number = Date.now()
