@@ -118,7 +118,7 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
             <p>Listening for new opportunities...</p>
           </div>
         ) : (
-          <AnimatePresence><div className={styles.cards}>{filteredJobs.map((job, idx) => <JobCard key={job.id || idx} job={job} />)}</div></AnimatePresence>
+          <div className={styles.cards}><AnimatePresence>{filteredJobs.map((job, idx) => <JobCard key={job.id || idx} job={job} />)}</AnimatePresence></div>
         )}
         {error && <div role="alert" className={styles.error}><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload jobs</button></div>}
         {isLoadingMore && <p className={styles.footerText}>Loading more jobs…</p>}
