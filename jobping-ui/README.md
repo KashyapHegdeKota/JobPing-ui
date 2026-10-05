@@ -1,5 +1,31 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Workspace design
+
+The public homepage implements the supplied landing HTML, including its animated
+briefcase, compact navigation and account entry points. The live feed is now at
+`/jobs`; update saved feed links to this route. Landing account actions reuse the
+Firebase sign-in/sign-up dialog, and Daily recap opens `/profile` preferences.
+Feed analytics retain their existing backend page identity.
+Successful Google or email authentication from the landing page opens `/jobs`.
+Closing the dialog or cancelling a popup leaves the landing page in place.
+
+Job cards show company initials, role types, locations, available work arrangements
+and posted/discovered dates. The bookmark control saves role IDs in this browser's
+local storage; bookmarks are device-local and are not synced to your account.
+Salary is intentionally omitted. View role opens the original employer link.
+
+The feed, trackers, referrals, profile and activity pages share a navy sidebar,
+mint accents and a pale canvas based on the JobPing Figma browser reference.
+Light is the default; the theme switch preserves an explicit dark preference.
+Navigation adapts to compact screens, and the sign-in dialog supports keyboard
+focus and Escape. Trackers and referrals remain clearly marked previews where
+the existing app has no connected persistence.
+
+The notification emails share the same brand. Deploy `public/jobping-email-icon.png`
+at the origin configured as the backend's `NOTIFICATION_APP_URL` when deploying
+the refreshed email template. Existing frozen email payloads keep their old design.
+
 ## Analytics
 
 Signed-in users have a private `/activity` page for their own page views, filter

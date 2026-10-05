@@ -1,66 +1,46 @@
-import React from 'react';
-import { MapPin, Building2, Clock } from 'lucide-react';
-import { Job } from '../hooks/useLiveJobs';
-import { motion } from 'framer-motion';
+"use client";
 
-import { formatJobDate } from '../lib/jobDates';
-import { trackActivity } from '../lib/analytics';
+import { Bookmark, Clock, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import type { Job } from "../hooks/useLiveJobs";
+import { useSavedJob } from "../hooks/useSavedJob";
+import { formatJobCardDate } from "../lib/jobDates";
+import { trackActivity } from "../lib/analytics";
+import styles from "./JobCard.module.css";
 
 export default function JobCard({ job }: { job: Job }) {
-  const dateText = formatJobDate(job);
-  const absoluteDate = job.posted_at 
-    ? new Date(job.posted_at).toLocaleString() 
-    : (job.discovered_at ? new Date(job.discovered_at).toLocaleString() : 'Unknown date');
+  const { saved, toggle, error } = useSavedJob(job.id);
+  const dateText = formatJobCardDate(job);
+  const timestamp = job.posted_at || job.discovered_at;
+  const validDate = timestamp && !Number.isNaN(new Date(timestamp).getTime());
+  const absoluteDate = validDate ? new Date(timestamp).toLocaleString() : "Unknown date";
+  const type = job.role_type?.trim().toLowerCase().replace(/_/g, " ");
+  const internship = type === "internship";
+  const roleLabel = internship ? "Internship" : type === "new grad" ? "New grad" : job.role_type?.replace(/_/g, " ") || "Role type not listed";
+  const location = job.location?.trim() || "Location not listed";
+  const workModel = job.work_model?.trim();
+  const locationText = workModel && !location.toLowerCase().includes(workModel.toLowerCase()) ? `${location} · ${workModel}` : location;
+  const initial = Array.from(job.company.trim())[0]?.toUpperCase() || "?";
+  const avatarTone = [styles.lavender, styles.peach, styles.mint][(initial.codePointAt(0) ?? 0) % 3];
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 15, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative flex flex-col md:flex-row md:items-center justify-between border border-zinc-800 bg-zinc-900/50 rounded-xl p-5 hover:bg-zinc-900 hover:border-zinc-700 transition-all shadow-sm hover:shadow-xl hover:shadow-cyan-900/5 overflow-hidden shrink-0"
-    >
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500/0 group-hover:bg-cyan-500/100 transition-colors duration-300"></div>
-      
-      <div className="flex flex-col gap-3">
-        <div className="font-semibold text-lg text-zinc-100 tracking-tight">
-          {job.title}
-        </div>
-        
-        <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
-          <div className="flex items-center gap-1.5">
-            <Building2 className="h-4 w-4 text-zinc-500" />
-            <span className="font-medium text-zinc-300">{job.company}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 text-zinc-500" />
-            <span>{job.location}</span>
-          </div>
-          <div className="flex items-center gap-1.5 font-mono text-xs">
-            <Clock className="h-3.5 w-3.5 text-zinc-500" />
-            <time title={absoluteDate} dateTime={job.posted_at || job.discovered_at || undefined}>
-              {dateText}
-            </time>
-          </div>
-        </div>
-      </div>
-      
-      <div className="mt-4 md:mt-0 flex items-center justify-end">
-        {job.apply_url && !job.is_closed && (
-          <a
-            href={job.apply_url}
-            onClick={() => {
-              const jobId = Number(job.id);
-              if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity('job_click', '/', { job_id: jobId });
-            }}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative bg-zinc-100 text-zinc-900 text-sm font-semibold px-5 py-2 rounded-lg transition-all hover:bg-white overflow-hidden group/btn shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:text-cyan-950 inline-block text-center"
-          >
-            <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
-            <span className="relative z-10">Apply Now</span>
-          </a>
-        )}
-      </div>
-    </motion.div>
-  );
+  return <motion.article initial={{ opacity: 0, y: 15, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }} className={styles.card} aria-label={job.title}>
+    <div className={styles.header}>
+      <span className={`${styles.avatar} ${avatarTone}`} aria-hidden="true">{initial}</span>
+      <div className={styles.identity}><p className={styles.company}>{job.company}</p><h2 className={styles.title}>{job.title}</h2></div>
+      <button type="button" className={styles.bookmark} aria-label={`${saved ? "Unsave" : "Save"} ${job.title} on this device`} aria-pressed={saved} title={saved ? "Saved on this device" : "Save on this device"} onClick={toggle}><Bookmark size={18} fill={saved ? "currentColor" : "none"} aria-hidden="true" /></button>
+    </div>
+    <div className={styles.details}>
+      <span className={`${styles.role} ${internship ? styles.internship : ""}`}>{roleLabel}</span>
+      <span className={styles.location}>{locationText}</span>
+    </div>
+    <div className={styles.footer}>
+      <span className={styles.date}><Clock size={14} aria-hidden="true" /><time title={absoluteDate} dateTime={validDate ? timestamp : undefined}>{dateText}</time></span>
+      {job.is_closed && <span className={styles.closed}>Applications closed</span>}
+      {!job.is_closed && job.apply_url && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
+        const jobId = Number(job.id);
+        if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity("job_click", "/", { job_id: jobId });
+      }}>View role <ExternalLink size={15} aria-hidden="true" /></a>}
+    </div>
+    {error && <p role="status" className={styles.error}>{error}</p>}
+  </motion.article>;
 }

@@ -1,0 +1,3 @@
+.toggle { display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 9px 12px; border: 1px solid #34435c; color: #c3cddd; border-radius: 9px; font-size: 12px; width: 100%; }
+.toggle:hover { color: #b7f1d7; background: #22314b; }
+.toggle:focus-visible { outline-color: #b7f1d7; }

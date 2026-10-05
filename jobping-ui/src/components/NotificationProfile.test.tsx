@@ -177,4 +177,17 @@ describe("Notification profile", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("presents the preference preview without adding unsupported settings", async () => {
+    render(<NotificationProfile />);
+    expect(
+      await screen.findByRole("heading", {
+        name: "The right role. Right away.",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Preference preview" }),
+    ).toHaveTextContent("Preview · Matching role alerts and a thoughtful daily recap.");
+    expect(screen.queryByLabelText("Company size")).not.toBeInTheDocument();
+  });
 });

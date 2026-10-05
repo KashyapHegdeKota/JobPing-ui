@@ -36,8 +36,11 @@ describe("Analytics dashboard", () => {
   it("loads the self endpoint and renders only personal metrics", async () => {
     render(<AnalyticsDashboard />);
     expect(await screen.findByText("Your page views")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "A clearer picture of your next chapter." })).toBeInTheDocument();
     expect(screen.queryByText("Unique jobs discovered")).not.toBeInTheDocument();
     expect(screen.getByText("Your filter usage")).toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Daily activity by UTC date" })).toBeInTheDocument();
+    expect(screen.getByText("Your email preferences")).toBeInTheDocument();
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining("/analytics/me?days=30"), expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer token" }) }));
     fireEvent.change(screen.getByLabelText("Analytics period"), { target: { value: "7" } });
     await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining("days=7"), expect.anything()));
@@ -54,5 +57,26 @@ describe("Analytics dashboard", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("requires an admin account");
     expect(screen.queryByText("Unique jobs discovered")).not.toBeInTheDocument();
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the private preferences card off site analytics", async () => {
+    render(<AnalyticsDashboard site />);
+    expect(await screen.findByText("Unique jobs discovered")).toBeInTheDocument();
+    expect(screen.queryByText("Your email preferences")).not.toBeInTheDocument();
+    expect(screen.getByRole("table", { name: "Daily activity by UTC date" })).toBeInTheDocument();
+  });
+  it("shows zero activity without a bar and scales larger daily counts fairly", async () => {
+    const data = summary();
+    data.activity.trend = [
+      { date: "2026-10-01", active_users: 0, page_views: 0 },
+      { date: "2026-10-02", active_users: 1, page_views: 12 },
+      { date: "2026-10-03", active_users: 2, page_views: 24 },
+    ];
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => data }));
+    render(<AnalyticsDashboard />);
+    expect(await screen.findByTitle("2026-10-01: 0 page views")).toHaveStyle({ height: "0%" });
+    expect(screen.getByTitle("2026-10-02: 12 page views")).toHaveStyle({ height: "50%" });
+    expect(screen.getByTitle("2026-10-03: 24 page views")).toHaveStyle({ height: "100%" });
+    expect(screen.getByRole("table", { name: "Daily activity by UTC date" })).toBeInTheDocument();
   });
 });

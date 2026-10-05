@@ -1,0 +1,4 @@
+.brand { display: inline-flex; align-items: center; gap: 11px; color: #fff; font-size: 24px; font-weight: 650; letter-spacing: -.8px; text-decoration: none; }
+.mark { width: 34px; height: 34px; display: grid; place-items: center; background: #b7f1d7; color: #111d34; border-radius: 12px; }
+.dot { color: #b7f1d7; }
+.brand:focus-visible { outline: 2px solid #b7f1d7; outline-offset: 6px; border-radius: 5px; }

@@ -270,17 +270,22 @@ describe('useLiveJobs live feed', () => {
   });
 
   it('maps dates from WebSocket live event correctly', async () => {
-    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})));
-    let socket!: FakeWebSocket;
-    vi.stubGlobal('WebSocket', function() {
-      socket = new FakeWebSocket();
-      return socket;
+    vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})));
+    const { result } = renderHook(() => useLiveJobs());
+    const socket = FakeWebSocket.instances[0];
+    act(() => {
+      socket.open();
+      socket.sendMessage(JSON.stringify(jobEvent(42, {
+        company: 'Datadog',
+        posted_at: '2027-01-01T10:05:00Z',
+      }, 'JOB_CREATED', '2027-01-01T12:05:00Z')));
     });
 
     expect(result.current.jobs).toHaveLength(1);
     expect(result.current.jobs[0].id).toBe(42);
     expect(result.current.jobs[0].company).toBe('Datadog');
-    expect(result.current.jobs[0].apply_url).toBe('https://example.com/reposted-role');
+    expect(result.current.jobs[0].posted_at).toBe('2027-01-01T10:05:00Z');
+    expect(result.current.jobs[0].discovered_at).toBe('2027-01-01T12:05:00Z');
   });
 
   it('adds duplicate create events only once', async () => {

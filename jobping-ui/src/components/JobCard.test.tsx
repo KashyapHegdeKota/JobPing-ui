@@ -1,9 +1,54 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import JobCard from './JobCard';
 
+const analytics = vi.hoisted(() => ({ track: vi.fn() }));
+vi.mock('../lib/analytics', () => ({ trackActivity: analytics.track }));
+const example = { id: 12, title: 'Software Engineer, New Grad', company: 'Linear', location: 'San Francisco, CA', role_type: 'new_grad', discovered_at: '2026-10-04T12:00:00Z', apply_url: 'https://example.com/apply', is_closed: false };
+beforeEach(() => window.localStorage.clear());
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.clearAllMocks(); });
+
 describe('JobCard', () => {
+  it('shows the reference details and preserves the external job-click contract', () => {
+    render(<JobCard job={{ ...example, work_model: 'Hybrid' }} />);
+    expect(screen.getByRole('heading')).toHaveTextContent(example.title);
+    expect(screen.getByText('Linear')).toBeInTheDocument();
+    expect(screen.getByText('New grad')).toBeInTheDocument();
+    expect(screen.getByText('San Francisco, CA · Hybrid')).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: `View role: ${example.title} at Linear` });
+    expect(link).toHaveAttribute('href', example.apply_url);
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    fireEvent.click(link);
+    expect(analytics.track).toHaveBeenCalledWith('job_click', '/', { job_id: 12 });
+    expect(screen.queryByText(/salary/i)).not.toBeInTheDocument();
+  });
+  it('shows internship type and does not repeat an existing work arrangement', () => {
+    render(<JobCard job={{ ...example, role_type: 'internship', location: 'Austin, TX · Hybrid', work_model: 'Hybrid', apply_url: undefined }} />);
+    expect(screen.getByText('Internship')).toBeInTheDocument();
+    expect(screen.getByText('Austin, TX · Hybrid')).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+  it('persists bookmarks locally and synchronizes duplicate cards', () => {
+    const view = render(<><JobCard job={example} /><JobCard job={example} /></>);
+    fireEvent.click(screen.getAllByRole('button', { name: /Save Software Engineer/ })[0]);
+    expect(screen.getAllByRole('button', { name: /Unsave Software Engineer/ })).toHaveLength(2);
+    expect(window.localStorage.getItem('jobping:saved-job:12')).toBe('1');
+    view.unmount();
+    render(<JobCard job={example} />);
+    const button = screen.getByRole('button', { name: /Unsave Software Engineer/ });
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(button);
+    expect(window.localStorage.getItem('jobping:saved-job:12')).toBeNull();
+    expect(screen.getByRole('button', { name: /Save Software Engineer/ })).toHaveAttribute('aria-pressed', 'false');
+  });
+  it('reports storage failure without claiming a saved bookmark', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('Storage denied'); });
+    render(<JobCard job={example} />);
+    fireEvent.click(screen.getByRole('button', { name: /Save Software Engineer/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Saving is unavailable');
+    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+  });
   it('renders a semantic <time> element with the relative date text and absolute date title', () => {
     const job = {
       id: 1,
@@ -45,7 +90,8 @@ describe('JobCard', () => {
       is_closed: true,
     };
 
-    const { queryByRole } = render(<JobCard job={job} />);
-    expect(queryByRole('link', { name: 'Apply Now' })).toBeNull();
+    render(<JobCard job={job} />);
+    expect(screen.queryByRole('link', { name: /View role/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Applications closed')).toBeInTheDocument();
   });
 });

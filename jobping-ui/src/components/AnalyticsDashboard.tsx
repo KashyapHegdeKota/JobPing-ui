@@ -5,12 +5,17 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { notificationRequest } from "../lib/notifications";
 import type { AnalyticsSummary } from "../lib/analytics";
+import styles from "./AnalyticsDashboard.module.css";
+
+const filterLabels: Record<string, string> = { category: "Category", remote_only: "Remote only", date_filter: "Date filter", company: "Company", search_used: "Search used" };
+type Result = { key: string; data?: AnalyticsSummary; error?: string };
+function displayFilterValue(value: string) { if (["true", "1"].includes(value)) return "Yes"; if (["false", "0"].includes(value)) return "No"; return value; }
 
 export default function AnalyticsDashboard({ site = false }: { site?: boolean }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
   const [days, setDays] = useState(30);
-  const [result, setResult] = useState<{ key: string; data?: AnalyticsSummary; error?: string } | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
   const [refresh, setRefresh] = useState(0);
   const requestKey = JSON.stringify([user?.uid, site, days, refresh]);
   const data = result?.key === requestKey ? result.data ?? null : null;
@@ -18,38 +23,20 @@ export default function AnalyticsDashboard({ site = false }: { site?: boolean })
   useEffect(() => onAuthStateChanged(auth, (next) => { setUser(next); setReady(true); }), []);
   useEffect(() => {
     let current = true;
-    if (user) {
-      notificationRequest<AnalyticsSummary>(user, `/analytics/${site ? "site" : "me"}?days=${days}`)
-        .then((data) => { if (current) setResult({ key: requestKey, data }); })
-        .catch((e) => { if (current) setResult({ key: requestKey, error: e instanceof Error ? e.message : "Could not load analytics" }); });
-    }
+    if (user) notificationRequest<AnalyticsSummary>(user, `/analytics/${site ? "site" : "me"}?days=${days}`).then((next) => { if (current) setResult({ key: requestKey, data: next }); }).catch((e) => { if (current) setResult({ key: requestKey, error: e instanceof Error ? e.message : "Could not load analytics" }); });
     return () => { current = false; };
   }, [user, site, days, refresh, requestKey]);
-  const cards: [string, number][] = data ? (site ? [
-    ["Active users · 24 hours", data.active_users?.["1"] ?? 0],
-    ["Active users · 7 days", data.active_users?.["7"] ?? 0],
-    ["Active users · 30 days", data.active_users?.["30"] ?? 0],
-    ["Users tracked", data.tracked_users ?? 0], ["Unique jobs discovered", data.jobs_discovered ?? 0],
-    ["Open jobs", data.jobs_open ?? 0], ["Repost occurrences", data.reposted_occurrences ?? 0],
-    ["Email subscribers", data.email_subscribers ?? 0],
-  ] : [["Your page views", data.activity.page_views], ["Your filter changes", data.activity.filter_changes],
-       ["Your job-link clicks", data.activity.job_clicks], ["Matching occurrences · all time", data.matched_occurrences ?? 0]]) : [];
-  if (data) cards.push(["Emails sent · all time", data.emails.sent], ["Confirmed delivered", data.emails.delivered],
-                       ["Emails pending", data.emails.pending], ["Failed emails", data.emails.failed]);
-  return <section className="mx-auto max-w-6xl space-y-8 p-6 sm:p-10">
-    <header className="flex flex-wrap items-center justify-between gap-4">
-      <div><h1 className="text-2xl font-semibold">{site ? "Site analytics" : "Your activity"}</h1>
-        <p className="mt-2 text-sm text-zinc-400">{site ? "Aggregate site totals. Individual activity stays private." : "Only your account’s activity, filters and email totals."}</p></div>
-      <div className="flex gap-3"><select aria-label="Analytics period" value={days} onChange={(e) => setDays(Number(e.target.value))} className="rounded border border-zinc-700 bg-zinc-900 p-2">
-        {[7, 30, 90].map((value) => <option key={value} value={value}>Past {value} days</option>)}</select>
-        <button onClick={() => setRefresh((v) => v + 1)} className="rounded border border-zinc-700 px-3 py-2">Refresh</button></div>
-    </header>
-    {!ready ? <p>Checking your account…</p> : !user ? <p>Sign in from the navigation to see your activity.</p> : error ? <p role="alert">{error}</p> : !data ? <p role="status">Loading analytics…</p> : <>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{cards.map(([label, value]) => <article key={label} className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5"><p className="text-sm text-zinc-400">{label}</p><p className="mt-3 text-3xl font-semibold tabular-nums">{value.toLocaleString()}</p></article>)}</div>
-      <p className="text-sm text-zinc-400">Activity covers signed-in visits recorded since {data.activity.tracking_started_at ? new Date(data.activity.tracking_started_at).toLocaleDateString() : "tracking begins"}. Daily buckets use UTC. Sent means accepted by the email provider; confirmed delivery requires webhooks. Job-link clicks do not mean an application was submitted.</p>
-      <section><h2 className="mb-3 text-lg font-semibold">Daily activity</h2><div className="max-h-72 overflow-auto rounded border border-zinc-800"><table className="w-full text-left text-sm"><thead><tr className="bg-zinc-900"><th className="p-3">Date · UTC</th>{site && <th className="p-3">Active users</th>}<th className="p-3">Page views</th></tr></thead><tbody>{data.activity.trend.slice().reverse().map((day) => <tr key={day.date} className="border-t border-zinc-800"><td className="p-3">{day.date}</td>{site && <td className="p-3">{day.active_users}</td>}<td className="p-3">{day.page_views}</td></tr>)}</tbody></table></div></section>
-      <section><h2 className="mb-3 text-lg font-semibold">{site ? "Filter usage across the site" : "Your filter usage"}</h2><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{Object.entries(data.activity.filters).map(([field, values]) => <article key={field} className="rounded border border-zinc-800 p-4"><h3 className="mb-3 font-medium">{{category: "Category", remote_only: "Remote only", date_filter: "Date filter", company: "Company", search_used: "Search used"}[field] ?? field}</h3>{values.length ? values.map((row) => <div key={row.value} className="flex justify-between gap-4 py-1 text-sm text-zinc-400"><span>{["true", "1"].includes(row.value) ? "Yes" : ["false", "0"].includes(row.value) ? "No" : row.value}</span><span>{row.count}</span></div>) : <p className="text-sm text-zinc-500">No filter changes yet.</p>}</article>)}</div></section>
-      {!site && data.preferences && <section><h2 className="mb-3 text-lg font-semibold">Your email preferences</h2><p className="text-sm text-zinc-400">Alerts {data.preferences.alerts ? "on" : "off"} · Recap {data.preferences.recap ? "on" : "off"} · {data.preferences.job_types.join(", ")} · {data.preferences.seasons.join(", ")} · {data.preferences.timezone}</p></section>}
-    </>}
-  </section>;
+  const cards: [string, number][] = data ? (site ? [["Active users · 24 hours", data.active_users?.["1"] ?? 0], ["Active users · 7 days", data.active_users?.["7"] ?? 0], ["Active users · 30 days", data.active_users?.["30"] ?? 0], ["Users tracked", data.tracked_users ?? 0], ["Unique jobs discovered", data.jobs_discovered ?? 0], ["Open jobs", data.jobs_open ?? 0], ["Repost occurrences", data.reposted_occurrences ?? 0], ["Email subscribers", data.email_subscribers ?? 0]] : [["Your page views", data.activity.page_views], ["Your filter changes", data.activity.filter_changes], ["Your job-link clicks", data.activity.job_clicks], ["Matching occurrences · all time", data.matched_occurrences ?? 0]]) : [];
+  if (data) cards.push(["Emails sent · all time", data.emails.sent], ["Confirmed delivered", data.emails.delivered], ["Emails pending", data.emails.pending], ["Failed emails", data.emails.failed]);
+  const trend = data?.activity.trend.slice().sort((a, b) => a.date.localeCompare(b.date)) ?? [];
+  const maxViews = Math.max(1, ...trend.map((day) => day.page_views));
+  return <section className={styles["analytics-page"]}><div className={styles["analytics-shell"]}>
+    <header className={styles["analytics-header"]}><div><p className={styles["analytics-kicker"]}>{site ? "OPERATIONS OVERVIEW" : "PERSONAL ACTIVITY"}</p><h1>A clearer picture of your next chapter.</h1><p className={styles["analytics-subtitle"]}>{site ? "Keep a pulse on the community and the roles moving through JobPing." : "See how your search is taking shape, one small signal at a time."}</p></div><div className={styles["analytics-toolbar"]}><label htmlFor="analytics-period">Period</label><select id="analytics-period" aria-label="Analytics period" value={days} onChange={(e) => setDays(Number(e.target.value))}>{[7, 30, 90].map((value) => <option key={value} value={value}>Past {value} days</option>)}</select><button type="button" onClick={() => setRefresh((v) => v + 1)}>Refresh</button></div></header>
+    {!ready ? <p role="status" aria-live="polite" className={styles["analytics-state"]}><span className={styles["state-dot"]} aria-hidden="true" />Checking your account…</p> : !user ? <p className={styles["analytics-state"]}><span className={styles["state-dot"]} aria-hidden="true" />Sign in from the navigation to see your activity.</p> : error ? <p role="alert" aria-live="assertive" className={styles["analytics-state"] + " " + styles["analytics-state-error"]}><span className={styles["state-dot"]} aria-hidden="true" />{error}</p> : !data ? <p role="status" aria-live="polite" className={styles["analytics-state"]}><span className={styles["state-dot"]} aria-hidden="true" />Loading analytics…</p> : <>
+      <section aria-label="Summary metrics" className={styles["analytics-card-grid"]}>{cards.map(([label, value], index) => <article key={label} className={`${styles["metric-card"]} ${index === 0 ? styles["metric-card-featured"] : ""}`}><p>{label}</p><strong>{value.toLocaleString()}</strong></article>)}</section>
+      <p className={styles["analytics-note"]}>Activity covers signed-in visits recorded since {data.activity.tracking_started_at ? new Date(data.activity.tracking_started_at).toLocaleDateString() : "tracking begins"}. Daily buckets use UTC. Sent means accepted by the email provider; confirmed delivery requires webhooks. Job-link clicks do not mean an application was submitted.</p>
+      <section className={styles["analytics-section"] + " " + styles["daily-section"]}><div className={styles["section-heading"]}><div><p className={styles["analytics-kicker"]}>MOMENTUM</p><h2>Daily activity</h2></div><span>{days} day view · UTC</span></div><div className={styles["daily-chart"]} aria-hidden="true">{trend.map((day) => <div className={styles["chart-column"]} key={`chart-${day.date}`}><div className={styles["chart-bar"]} style={{ height: `${day.page_views / maxViews * 100}%` }} title={`${day.date}: ${day.page_views} page views`} /><span>{day.date.slice(5)}</span></div>)}</div><div className={styles["table-wrap"]}><table><caption className="sr-only">Daily activity by UTC date</caption><thead><tr><th scope="col">Date · UTC</th>{site && <th scope="col">Active users</th>}<th scope="col">Page views</th></tr></thead><tbody>{data.activity.trend.slice().reverse().map((day) => <tr key={day.date}><td>{day.date}</td>{site && <td>{day.active_users}</td>}<td>{day.page_views}</td></tr>)}</tbody></table></div></section>
+      <section className={styles["analytics-section"]}><div className={styles["section-heading"]}><div><p className={styles["analytics-kicker"]}>SEARCH SIGNALS</p><h2>{site ? "Filter usage across the site" : "Your filter usage"}</h2></div></div><div className={styles["filter-grid"]}>{Object.entries(data.activity.filters).map(([field, values]) => <article key={field} className={styles["filter-card"]}><h3>{filterLabels[field] ?? field}</h3>{values.length ? values.map((row) => <div key={row.value} className={styles["filter-row"]}><span>{displayFilterValue(row.value)}</span><strong>{row.count}</strong></div>) : <p className={styles["empty-copy"]}>No filter changes yet.</p>}</article>)}</div></section>
+      {!site && data.preferences && <section className={styles["preferences-card"]}><div><p className={styles["analytics-kicker"]}>STAY IN THE LOOP</p><h2>Your email preferences</h2><p>Alerts {data.preferences.alerts ? "on" : "off"} · Recap {data.preferences.recap ? "on" : "off"}</p></div><div className={styles["preference-pills"]}><span>{data.preferences.job_types.join(", ")}</span><span>{data.preferences.seasons.join(", ")}</span><span>{data.preferences.timezone}</span></div></section>}
+    </>}</div></section>;
 }
