@@ -36,4 +36,9 @@ describe("Visible signed-in activity", () => {
     render(<ActivityTracker />);
     expect(mock.track).toHaveBeenCalledWith("page_view", "/profile/recaps");
   });
+  it("preserves the feed analytics contract at its new UI route", () => {
+    mock.page = "/jobs";
+    render(<ActivityTracker />);
+    expect(mock.track).toHaveBeenCalledWith("page_view", "/");
+  });
 });

@@ -35,8 +35,8 @@ export default function LandingPage() {
   <main id="main">
     <section className="hero" aria-labelledby="hero-title"><div className="container hero-grid">
       <div><span className="eyebrow"><span className="dot" aria-hidden="true"></span>Built for tech’s next generation</span>
-        <h1 id="hero-title">Get pinged.<br>Get ahead.</h1>
-        <p className="hero-copy">Your first tech role shouldn’t be a race against refresh.<br>Discover new grad jobs and internships as they drop,<br>with instant email alerts and a daily recap.</p>
+        <h1 id="hero-title">Get pinged.<br />Get ahead.</h1>
+        <p className="hero-copy">Your first tech role shouldn’t be a race against refresh.<br />Discover new grad jobs and internships as they drop,<br />with instant email alerts and a daily recap.</p>
         <div className="hero-actions"><button className="btn" type="button" onClick={() => openAuth("signup")}> Find my next opportunity <span aria-hidden="true">→</span></button><Link className="btn secondary" href="/jobs" onClick={closeMenu}>Explore the live feed</Link></div>
         <div className="benefits"><span className="benefit"><svg className="icon" aria-hidden="true"><use href="#check"/></svg>Instant email alerts</span><span className="benefit"><svg className="icon" aria-hidden="true"><use href="#check"/></svg>New grad + internships</span></div>
       </div>
@@ -62,3 +62,4 @@ export default function LandingPage() {
 <AuthModal key={authMode} isOpen={authOpen} onClose={closeAuth} initialMode={authMode} />
   </div>;
 }
+
