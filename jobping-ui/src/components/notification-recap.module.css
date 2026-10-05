@@ -12,8 +12,8 @@
 .jobTitle { margin-top: 0.35rem; font-size: 1.12rem; font-weight: 700; }
 .meta { margin-top: 0.5rem; color: var(--jp-muted, #667185); font-size: 0.8rem; line-height: 1.5; }
 .closed { margin-top: 1rem; color: var(--jp-muted, #667185); font-size: 0.8rem; }
-.apply { display: inline-block; margin-top: 1rem; border-radius: 0.65rem; background: var(--jp-accent, #206653); color: #fff; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
+.apply { display: inline-block; margin-top: 1rem; border-radius: 0.65rem; background: #206653; color: #fff; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 700; text-decoration: none; }
 .auth { margin-top: 1.5rem; color: var(--jp-muted, #667185); }
-.button { border: 0; border-radius: 0.65rem; background: var(--jp-accent, #206653); color: #fff; padding: 0.7rem 1rem; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+.button { border: 0; border-radius: 0.65rem; background: #206653; color: #fff; padding: 0.7rem 1rem; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; }
 .error { margin-top: 1.5rem; color: #9e313b; font-size: 0.9rem; }
 .loading { margin-top: 1.5rem; color: var(--jp-muted, #667185); font-size: 0.9rem; }

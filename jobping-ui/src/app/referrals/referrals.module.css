@@ -13,7 +13,7 @@
 .card { margin-top: 20px; padding: 30px; border: 1px solid var(--jp-border, #e5e9ed); border-radius: var(--jp-radius, 18px); background: var(--jp-surface, #fff); box-shadow: var(--jp-shadow, 0 8px 26px rgb(23 36 58 / .04)); }
 .cardHeading { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 26px; }
 .iconTile { display: grid; flex: 0 0 auto; width: 46px; height: 46px; place-items: center; border-radius: 13px; }
-.mintTile { color: var(--jp-accent, #206653); background: var(--jp-mint, #b7f1d7); }
+.mintTile { color: #206653; background: var(--jp-mint, #b7f1d7); }
 .blueTile { color: #2b527c; background: #e5f0fb; }
 .card h2 { margin: 2px 0 5px; color: var(--jp-text, #17243a); font-size: 1.15rem; font-weight: 700; letter-spacing: -.02em; }
 .cardHeading p { margin: 0; color: var(--jp-muted, #697589); font-size: .9rem; line-height: 1.5; }

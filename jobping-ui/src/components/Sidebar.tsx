@@ -34,7 +34,7 @@ export default function Sidebar() {
 
   return <>
     <div className={styles.mobile}>
-      <div className={styles.mobileTop}><Brand /><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div>
+      <div className={styles.mobileTop}><Brand /><div className={styles.mobileActions}><ThemeToggle /><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div></div>
       <nav aria-label="Mobile navigation" className={styles.mobileLinks}>{navigation}</nav>
       <AnalyticsNav user={user} />
     </div>

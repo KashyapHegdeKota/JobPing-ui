@@ -43,7 +43,7 @@ export default function ThemeToggle() {
       title={`Switch to ${nextTheme} mode`}
     >
       {theme === "dark" ? <Sun aria-hidden="true" className="h-4 w-4" /> : <Moon aria-hidden="true" className="h-4 w-4" />}
-      <span className="hidden text-sm font-medium sm:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+      <span className="hidden text-sm font-medium md:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
     </button>
   );
 }
