@@ -187,7 +187,7 @@ describe("Notification profile", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("complementary", { name: "Preference preview" }),
-    ).toHaveTextContent("This preview is decorative");
+    ).toHaveTextContent("Preview · Matching role alerts and a thoughtful daily recap.");
     expect(screen.queryByLabelText("Company size")).not.toBeInTheDocument();
   });
 });
