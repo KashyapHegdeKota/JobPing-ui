@@ -1,6 +1,17 @@
 # JobPing UI backlog
 
+## In progress
+
+No implementation items in progress.
+
 ## Completed
+
+### UI-DEPLOY-001 Repair merged Vercel build and favicon
+
+- Completed: repaired the live-event test setup and added required closed-state fixture data after merge `9ed6f3c`; production type checking remains enabled.
+- Closed cards show Applications closed and suppress the View role link, with a regression assertion against the current label. No backend or live-feed logic changed.
+- Replaced the Next.js favicon with the existing mint briefcase artwork, packaged as an ICO with its original 128px PNG intact.
+- Validation: all 95 tests across 17 files, lint, standalone type checking and production build pass. Repair and favicon changes are committed separately for publication on the existing deployment branch.
 
 ### UI-CARDS-001 Show reference job card details
 
