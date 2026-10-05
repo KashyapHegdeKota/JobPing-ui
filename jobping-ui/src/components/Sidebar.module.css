@@ -22,8 +22,9 @@
   .mobile { display: flex; flex-direction: column; background: var(--jp-nav); color: white; }
   .mobileTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 20px; }
   .mobileTop button { font-size: 12px; padding: 8px 12px; border: 1px solid #34435c; border-radius: 8px; }
-  .mobileLinks { display: flex; gap: 4px; overflow-x: auto; padding: 0 12px 12px; }
-  .mobileLinks .link { flex-shrink: 0; padding: 10px; min-height: 42px; font-size: 11px; gap: 6px; }
+  .mobileLinks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 0 12px 12px; }
+  .mobileLinks .link { flex-direction: column; justify-content: center; padding: 8px 3px; min-height: 50px; font-size: 10px; gap: 5px; }
+  .mobileLinks .link span { max-width: 100%; white-space: nowrap; }
 }
 @media (max-height: 750px) and (min-width: 768px) { .sidebar { overflow-y: auto; } .note { display: none; } .eyebrow { margin-top: 24px; } }
 
