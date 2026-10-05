@@ -25,7 +25,7 @@ export default function LandingPage() {
   </svg>
   <header>
     <div className="container header">
-      <a className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</a>
+      <Link className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</Link>
       <nav className="nav" aria-label="Main navigation"><a href="#how-it-works" onClick={closeMenu}>How it works</a><Link href="/jobs" onClick={closeMenu}>Live opportunities</Link><Link href="/profile" onClick={closeMenu}>Daily recap</Link></nav>
       <div className="actions"><button className="btn quiet" type="button" onClick={() => openAuth("signin")}> Log in</button><button className="btn" type="button" onClick={() => openAuth("signup")}> Get started <span aria-hidden="true">→</span></button></div>
       <button className="mobile-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-nav"><svg className="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
@@ -58,7 +58,7 @@ export default function LandingPage() {
       <div className="steps"><article className="step"><div className="step-top"><span>01</span><svg className="icon" aria-hidden="true"><use href="#settings"/></svg></div><h3>Pick your path.</h3><p>Choose internships or new grad roles and the hiring seasons you want to hear about.</p></article><article className="step"><div className="step-top"><span>02</span><svg className="icon" aria-hidden="true"><use href="#bell"/></svg></div><h3>Let the pings come to you.</h3><p>Opt in to alerts for newly discovered or reposted matching opportunities.</p></article><article className="step"><div className="step-top"><span>03</span><svg className="icon" aria-hidden="true"><use href="#mail"/></svg></div><h3>Catch up, once a day.</h3><p>Your 8 PM recap brings matching opportunities together in your timezone.</p></article></div>
     </section>
   </main>
-  <footer className="footer"><div className="container footer-inner"><a className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</a><p>Your next chapter starts with a ping.</p><div className="footer-links"><Link href="/jobs">Browse jobs</Link><Link href="/profile">Email preferences</Link></div></div></footer>
+  <footer className="footer"><div className="container footer-inner"><Link className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</Link><p>Your next chapter starts with a ping.</p><div className="footer-links"><Link href="/jobs">Browse jobs</Link><Link href="/profile">Email preferences</Link></div></div></footer>
 <AuthModal key={authMode} isOpen={authOpen} onClose={closeAuth} initialMode={authMode} />
   </div>;
 }
