@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import Sidebar from "@/components/Sidebar";
-import ActivityTracker from "@/components/ActivityTracker";
-import WorkspaceHeader from "@/components/WorkspaceHeader";
+import WorkspaceShell from "../components/WorkspaceShell";
 import "./design-tokens.css";
 import "./globals.css";
 
@@ -43,13 +41,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="jp-app min-h-full flex flex-col md:flex-row font-sans antialiased">
-        <Sidebar />
-        <ActivityTracker />
-        <main className="jp-main min-w-0 flex-1">
-          <WorkspaceHeader />
-          {children}
-        </main>
+      <body className="jp-app min-h-full font-sans antialiased">
+        <WorkspaceShell>{children}</WorkspaceShell>
       </body>
     </html>
   );

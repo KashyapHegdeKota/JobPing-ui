@@ -10,7 +10,8 @@ export default function ActivityTracker() {
   const pathname = usePathname();
   const lastView = useRef<string | null>(null);
   useEffect(() => {
-    const page = pathname.startsWith("/profile/recaps/") ? "/profile/recaps" : pathname;
+    // The feed keeps its established analytics identity after its UI route moves.
+    const page = pathname === "/jobs" ? "/" : pathname.startsWith("/profile/recaps/") ? "/profile/recaps" : pathname;
     if (!["/", "/profile", "/profile/recaps", "/trackers", "/referrals", "/activity"].includes(page)) return;
     const record = () => {
       const uid = auth.currentUser?.uid;

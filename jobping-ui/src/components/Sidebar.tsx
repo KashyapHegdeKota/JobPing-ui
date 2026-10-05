@@ -13,7 +13,7 @@ import Brand from "./Brand";
 import styles from "./Sidebar.module.css";
 
 const navItems = [
-  { name: "Live feed", href: "/", icon: Home },
+  { name: "Live feed", href: "/jobs", icon: Home },
   { name: "Trackers", href: "/trackers", icon: List },
   { name: "Referrals", href: "/referrals", icon: UserPlus },
   { name: "Profile & alerts", href: "/profile", icon: User },
