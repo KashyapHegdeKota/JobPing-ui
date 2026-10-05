@@ -2,6 +2,13 @@
 
 ## Completed
 
+### UI-LANDING-001 Implement supplied landing HTML
+
+- Completed: supplied animated SVG, DM Sans typography, responsive landing layout and navigation implemented at `/`; live feed moved to `/jobs` as requested.
+- Account actions reuse existing Firebase handlers, recap opens preferences, and feed analytics preserve the backend's established page identity.
+- Sample feature copy reflects supported job-type/season preferences and 8 PM recaps. Illustrative alert explicitly labeled; unavailable legal/contact preview buttons replaced with real feed/preferences links.
+- Validation: 66 frontend tests, lint, type checking and production build pass; desktop and 390px phone review plus login and mobile feed navigation pass. Follow-up seven landing/feed tests pass after navigation lint repair.
+
 ### UI-FIGMA-001 Refresh the five existing pages from Figma
 
 - Source: `rftcPEPuoVLi0z61387bRE`, selected node `9:50`.

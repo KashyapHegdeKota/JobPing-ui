@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Workspace design
 
+The public homepage implements the supplied landing HTML, including its animated
+briefcase, compact navigation and account entry points. The live feed is now at
+`/jobs`; update saved feed links to this route. Landing account actions reuse the
+Firebase sign-in/sign-up dialog, and Daily recap opens `/profile` preferences.
+Feed analytics retain their existing backend page identity.
+
 The feed, trackers, referrals, profile and activity pages share a navy sidebar,
 mint accents and a pale canvas based on the JobPing Figma browser reference.
 Light is the default; the theme switch preserves an explicit dark preference.
