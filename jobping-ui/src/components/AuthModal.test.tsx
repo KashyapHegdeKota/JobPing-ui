@@ -26,7 +26,7 @@ describe("Authentication dialog", () => {
     expect(screen.getByRole("button", { name: "Create account" })).toHaveFocus();
   });
   it("preserves Firebase email sign-in and Google actions", async () => {
-    const close = vi.fn(); render(<AuthModal isOpen onClose={close} />);
+    const close = vi.fn(); const completed = vi.fn(); render(<AuthModal isOpen onClose={close} onAuthenticated={completed} />);
     fireEvent.click(screen.getByRole("button", { name: /^Sign in$/ }));
     fireEvent.change(screen.getByLabelText("Email"), { target: { value: "test@example.com" } });
     fireEvent.change(screen.getByLabelText("Password"), { target: { value: "test-password" } });
@@ -35,6 +35,16 @@ describe("Authentication dialog", () => {
     await waitFor(() => expect(close).toHaveBeenCalledOnce());
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
     await waitFor(() => expect(login.google).toHaveBeenCalledOnce());
+    await waitFor(() => expect(completed).toHaveBeenCalledTimes(2));
+  });
+  it("does not hand off after a failed Google popup", async () => {
+    login.google.mockRejectedValueOnce(new Error("Popup cancelled"));
+    const close = vi.fn(); const completed = vi.fn();
+    render(<AuthModal isOpen onClose={close} onAuthenticated={completed} />);
+    fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Popup cancelled");
+    expect(close).not.toHaveBeenCalled();
+    expect(completed).not.toHaveBeenCalled();
   });
 });
 

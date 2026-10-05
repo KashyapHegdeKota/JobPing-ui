@@ -2,10 +2,22 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import LandingPage from "./LandingPage";
 
-vi.mock("./AuthModal", () => ({ default: ({ isOpen, initialMode, onClose }: { isOpen: boolean; initialMode: string; onClose: () => void }) => isOpen ? <div role="dialog" aria-label={initialMode}><button onClick={onClose}>Close account dialog</button></div> : null }));
-afterEach(cleanup);
+const navigation = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
+vi.mock("./AuthModal", () => ({ default: ({ isOpen, initialMode, onClose, onAuthenticated }: { isOpen: boolean; initialMode: string; onClose: () => void; onAuthenticated: () => void }) => isOpen ? <div role="dialog" aria-label={initialMode}><button onClick={onClose}>Close account dialog</button><button onClick={onAuthenticated}>Complete sign-in</button></div> : null }));
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 describe("Landing page", () => {
+  it("enters the feed after successful authentication, not dismissal", () => {
+    render(<LandingPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Log in" }));
+    expect(navigation.push).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Close account dialog" }));
+    expect(navigation.push).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Log in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Complete sign-in" }));
+    expect(navigation.push).toHaveBeenCalledWith("/jobs");
+  });
   it("connects the reference calls to action to the real feed and preferences", () => {
     render(<LandingPage />);
     expect(screen.getByRole("link", { name: "Explore the live feed" })).toHaveAttribute("href", "/jobs");
