@@ -6,7 +6,7 @@ import JobFeed from './JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
 import styles from '../app/jobs-page.module.css';
 
-export default function Home() {
+export default function LiveFeedPage() {
   return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}><LiveFeed /></Suspense>;
 }
 
