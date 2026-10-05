@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { auth } from "@/lib/firebase";
+import { auth } from "../lib/firebase";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -33,7 +33,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
       if (event.key !== "Tab") return;
-      const controls = dialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), a[href]');
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button, input, a[href]') ?? []).filter((element) => !element.hasAttribute('disabled')); 
       if (!controls?.length) return;
       const first = controls[0];
       const last = controls[controls.length - 1];
@@ -112,3 +112,5 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     </div>
   );
 }
+
+
