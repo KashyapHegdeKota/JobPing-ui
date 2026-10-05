@@ -340,7 +340,7 @@ export default function NotificationProfile() {
               <p className={styles.previewKicker}>A calmer inbox</p>
               <h2 className={styles.previewTitle}>Your next great role, at the right time.</h2>
               <p className={styles.previewCopy}>
-                This preview is decorative. Your saved preferences control which
+                Your saved preferences control which
                 matching roles appear in alerts and your 8 PM recap.
               </p>
               <p className={styles.previewNote}>Preview · Matching role alerts and a thoughtful daily recap.</p>
@@ -601,3 +601,4 @@ export default function NotificationProfile() {
     </div>
   );
 }
+
