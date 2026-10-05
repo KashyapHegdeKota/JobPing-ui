@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatJobDate } from './jobDates';
+import { formatJobCardDate, formatJobDate } from './jobDates';
 
 describe('formatJobDate', () => {
   const MAY_15_NOON = new Date(2026, 4, 15, 12, 0, 0).getTime(); // May 15, 2026 12:00:00
@@ -45,5 +45,20 @@ describe('formatJobDate', () => {
   it('handles "Date unavailable"', () => {
     expect(formatJobDate({}, MAY_15_NOON)).toBe('Date unavailable');
     expect(formatJobDate({ posted_at: 'invalid date' }, MAY_15_NOON)).toBe('Date unavailable');
+  });
+});
+
+describe('recent card dates', () => {
+  const now = new Date('2026-10-04T12:00:00Z').getTime();
+  it('shows real posted minutes without replacing them with discovery time', () => {
+    expect(formatJobCardDate({ posted_at: '2026-10-04T11:58:00Z', discovered_at: '2026-10-04T11:59:00Z' }, now)).toBe('Posted 2 min ago');
+  });
+  it('keeps discovery provenance when no posted date exists', () => {
+    expect(formatJobCardDate({ discovered_at: '2026-10-04T11:54:00Z' }, now)).toBe('Discovered 6 min ago');
+  });
+  it('keeps unknown and older timestamps truthful', () => {
+    expect(formatJobCardDate({ posted_at: 'invalid' }, now)).toBe('Date unavailable');
+    const old = { posted_at: '2026-10-01T12:00:00Z' };
+    expect(formatJobCardDate(old, now)).toBe(formatJobDate(old, now));
   });
 });
