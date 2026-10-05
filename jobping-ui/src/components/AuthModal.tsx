@@ -15,9 +15,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialMode?: "signin" | "signup";
+  onAuthenticated?: () => void;
 }
 
-export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: AuthModalProps) {
+export default function AuthModal({ isOpen, onClose, initialMode = "signup", onAuthenticated }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(initialMode === "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,6 +64,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
         await signInWithEmailAndPassword(auth, email, password);
       }
       onClose();
+      onAuthenticated?.();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Authentication failed");
     } finally {
@@ -78,6 +80,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup" }: A
     try {
       await signInWithPopup(auth, provider);
       onClose();
+      onAuthenticated?.();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Google authentication failed");
     } finally {

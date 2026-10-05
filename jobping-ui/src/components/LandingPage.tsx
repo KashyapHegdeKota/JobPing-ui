@@ -2,10 +2,12 @@
 
 import { useCallback, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AuthModal from "./AuthModal";
 import "./landing.css";
 
 export default function LandingPage() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
@@ -59,7 +61,7 @@ export default function LandingPage() {
     </section>
   </main>
   <footer className="footer"><div className="container footer-inner"><Link className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</Link><p>Your next chapter starts with a ping.</p><div className="footer-links"><Link href="/jobs">Browse jobs</Link><Link href="/profile">Email preferences</Link></div></div></footer>
-<AuthModal key={authMode} isOpen={authOpen} onClose={closeAuth} initialMode={authMode} />
+<AuthModal key={authMode} isOpen={authOpen} onClose={closeAuth} initialMode={authMode} onAuthenticated={() => router.push("/jobs")} />
   </div>;
 }
 
