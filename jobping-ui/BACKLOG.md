@@ -2,6 +2,13 @@
 
 ## Completed
 
+### UI-AUTH-001 Enter the feed after landing authentication
+
+- Completed: successful Google sign-in, email sign-in and email sign-up from the landing dialog navigate to `/jobs`; dismissals and failed popups do not redirect.
+- Firebase authentication calls and errors are preserved. Workspace sign-in retains its existing behavior.
+- Final validation: all 74 tests across 17 files, lint, type checking and production build pass. Auth success/failure and public/workspace route coverage added; no live Google credentials used during automated checks.
+- Delivered 70 focused frontend commits on `codex/figma-ui-revamp`; sibling email presentation changes are committed separately.
+
 ### UI-LANDING-001 Implement supplied landing HTML
 
 - Completed: supplied animated SVG, DM Sans typography, responsive landing layout and navigation implemented at `/`; live feed moved to `/jobs` as requested.

@@ -7,6 +7,8 @@ briefcase, compact navigation and account entry points. The live feed is now at
 `/jobs`; update saved feed links to this route. Landing account actions reuse the
 Firebase sign-in/sign-up dialog, and Daily recap opens `/profile` preferences.
 Feed analytics retain their existing backend page identity.
+Successful Google or email authentication from the landing page opens `/jobs`.
+Closing the dialog or cancelling a popup leaves the landing page in place.
 
 The feed, trackers, referrals, profile and activity pages share a navy sidebar,
 mint accents and a pale canvas based on the JobPing Figma browser reference.
