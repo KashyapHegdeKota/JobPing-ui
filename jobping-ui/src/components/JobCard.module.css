@@ -1,0 +1,28 @@
+.card { border: 1px solid var(--jp-border); border-radius: 16px; padding: 22px 20px; background: var(--jp-surface); color: var(--jp-text); min-width: 0; transition: border-color .2s, box-shadow .2s; }
+.card:hover { border-color: #bedbcf; box-shadow: var(--jp-shadow); }
+.header { display: grid; grid-template-columns: 44px minmax(0, 1fr) 28px; align-items: center; gap: 16px; }
+.avatar { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; font-size: 18px; font-weight: 600; }
+.lavender { color: #6950c9; background: #f0edff; }
+.peach { color: #a66308; background: #fff3dc; }
+.mint { color: #206653; background: #e6f8ef; }
+.identity { min-width: 0; }
+.company { margin: 0 0 5px; color: var(--jp-muted); font-size: 12px; line-height: 1.4; }
+.title { margin: 0; font-size: 18px; line-height: 1.4; font-weight: 700; overflow-wrap: anywhere; }
+.bookmark { display: grid; place-items: center; width: 28px; height: 32px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--jp-muted); }
+.bookmark:hover, .bookmark[aria-pressed="true"] { color: var(--jp-accent); background: var(--jp-accent-soft); }
+.details { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.role { display: inline-flex; align-items: center; min-height: 33px; border-radius: 999px; padding: 6px 9px; background: var(--jp-accent-soft); color: var(--jp-accent); font-size: 12px; }
+.internship { background: #f0edff; color: #6950c9; }
+.location { color: var(--jp-muted); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+.date { display: inline-flex; align-items: center; gap: 8px; color: var(--jp-accent); font-size: 12px; line-height: 1.6; }
+.view { display: inline-flex; align-items: center; gap: 10px; min-height: 28px; color: var(--jp-text); font-size: 14px; font-weight: 600; text-decoration: none; }
+.view:hover { color: var(--jp-accent); text-decoration: underline; }
+.error { margin: 10px 0 0; font-size: 12px; color: var(--jp-muted); }
+@media (max-width: 480px) {
+  .card { padding: 18px 16px; }
+  .header { grid-template-columns: 40px minmax(0, 1fr) 28px; gap: 10px; }
+  .avatar { width: 40px; height: 40px; }
+  .title { font-size: 16px; }
+  .location { flex: 1 1 150px; }
+}
