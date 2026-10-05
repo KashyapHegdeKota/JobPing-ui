@@ -1,6 +1,6 @@
 # JobPing UI backlog
 
-## In progress
+## Completed
 
 ### UI-FIGMA-001 Refresh the five existing pages from Figma
 
@@ -11,6 +11,9 @@
 - Match the navy/mint/pale canvas design across existing routes, retaining authenticated recaps and admin analytics.
 - Deliver focused modular commits, then run frontend tests, lint, type checking, production build and desktop/mobile visual review.
 - Existing trackers and referrals contain placeholders; do not imply new persistent functionality.
+- Completed: all five page contributions reviewed and integrated, shared shell/auth dialog rebuilt, responsive and dark themes reviewed.
+- Validation: 62 tests, lint, type checking and production build pass. Authenticated preference/admin states are covered with mocked tests; live signed-in verification remains an operator check.
+- Email brand icon added for the sibling backend's supplied HTML design refresh.
 
 ## Follow-up
 
