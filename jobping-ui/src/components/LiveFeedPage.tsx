@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import Filters from './Filters';
 import JobFeed from './JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
@@ -11,12 +11,13 @@ export default function LiveFeedPage() {
 }
 
 function LiveFeed() {
-  const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs();
+  const [discoveryQuery, setDiscoveryQuery] = useState('');
+  const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs(discoveryQuery);
 
   return (
     <div className={`${styles.shell} flex w-full font-sans`}>
       <div className="flex h-full w-full overflow-hidden">
-        <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} />
+        <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} onDiscoveryQueryChange={setDiscoveryQuery} />
         <Filters />
       </div>
       
