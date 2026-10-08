@@ -13,7 +13,11 @@ Closing the dialog or cancelling a popup leaves the landing page in place.
 Job cards show company initials, role types, locations, available work arrangements
 and posted/discovered dates. The bookmark control saves role IDs in this browser's
 local storage; bookmarks are device-local and are not synced to your account.
-Salary is intentionally omitted. View role opens the original employer link.
+Cards also show employer-posted pay and source-backed CPT/OPT/STEM OPT and
+sponsorship statements. Dated official company history is separate from role
+eligibility; unknown information stays explicit. View role opens the employer link.
+See [evidence and full-feed filters](docs/discovery-evidence.md) for units,
+shareable URLs, migration requirements and history imports.
 
 The feed, trackers, referrals, profile and activity pages share a navy sidebar,
 mint accents and a pale canvas based on the JobPing Figma browser reference.

@@ -2,9 +2,16 @@
 
 ## In progress
 
-No implementation items in progress.
+No implementation items currently in progress.
 
 ## Completed
+
+### UI-DETAILS-001 International-student evidence and advertised pay
+
+- Completed: role CPT/OPT/STEM OPT and sponsorship badges, separately dated employer history, employer-posted compensation and accessible source disclosures. Explicit unknown/negative/conflicting states are preserved. The user's salary request supersedes the earlier card omission.
+- Shareable student/history/pay filters query the full backend feed across pages. Filter changes reset pagination and ignore stale responses; HTTP/live metadata is validated before display. Original currencies and periods remain separate; no estimates or annualized internship pay.
+- Validation: 105 tests, lint, type checking and production build pass. Controlled desktop/390px phone review confirms evidence disclosure, server filter requests, zero horizontal overflow and no page errors.
+- Delivered in 11 frontend commits, alongside 15 backend commits. Deploy after the backend migration/API; existing rows remain unknown until sources repoll and official company history is imported. Employer-only history imports require a feed reload. See `docs/discovery-evidence.md`.
 
 ### UI-DEPLOY-001 Repair merged Vercel build and favicon
 

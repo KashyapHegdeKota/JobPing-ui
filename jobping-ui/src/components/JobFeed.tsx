@@ -9,6 +9,8 @@ import { useCompanies } from '../hooks/useCompanies';
 import { trackActivity } from '../lib/analytics';
 import styles from '../app/jobs-page.module.css';
 import FeedOverview from './FeedOverview';
+import DiscoveryControls from './DiscoveryControls';
+import { discoveryQuery, readDiscoveryFilters, matchesDiscovery, emptyDiscoveryFilters } from '../lib/jobDetails';
 
 export function matchesCategory(job: Job, category: Category) {
   if (category === 'All') return true;
@@ -37,7 +39,7 @@ export function filterJobs(jobs: Job[], query: string, category: Category, remot
     && (companyFilter === 'All' || job.company === companyFilter));
 }
 
-export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void }) {
+export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore, onDiscoveryQueryChange }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void, onDiscoveryQueryChange?: (value: string) => void }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const companies = useCompanies();
@@ -66,6 +68,9 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
   const validDateFilters = ['All Time', 'Past 24 hours', 'Past Week', 'Past Month'];
   const [dateFilter, setDateFilter] = useState<DateFilter>(validDateFilters.includes(initialDateFilter) ? initialDateFilter : 'All Time');
   const [companyFilter, setCompanyFilter] = useState<string>(initialCompanyFilter);
+  const [discoveryFilters, setDiscoveryFilters] = useState(() => readDiscoveryFilters(new URLSearchParams(initialParams.toString())));
+  const metadataQuery = discoveryQuery(discoveryFilters);
+  useEffect(() => { onDiscoveryQueryChange?.(metadataQuery); }, [metadataQuery, onDiscoveryQueryChange]);
   const previousFilters = useRef<string | null>(null);
   useEffect(() => {
     const filters = { category, remote_only: remoteOnly, date_filter: dateFilter,
@@ -79,19 +84,19 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
 
   useEffect(() => { const timer = window.setTimeout(() => setDebouncedQuery(query), 250); return () => window.clearTimeout(timer); }, [query]);
   useEffect(() => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(metadataQuery);
     if (debouncedQuery) params.set('q', debouncedQuery);
     if (category !== 'All') params.set('category', category);
     if (remoteOnly) params.set('remote', 'true');
     if (dateFilter !== 'All Time') params.set('dateFilter', dateFilter);
     if (companyFilter !== 'All') params.set('companyFilter', companyFilter);
     window.history.replaceState({}, '', `${window.location.pathname}${params.toString() ? `?${params}` : ''}`);
-  }, [debouncedQuery, category, remoteOnly, dateFilter, companyFilter]);
+  }, [debouncedQuery, category, remoteOnly, dateFilter, companyFilter, metadataQuery]);
 
   const filteredJobs = useMemo(() => {
-    return filterJobs(jobs, debouncedQuery, category, remoteOnly, dateFilter, companyFilter);
-  }, [jobs, debouncedQuery, category, remoteOnly, dateFilter, companyFilter]);
-  const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); setDateFilter('All Time'); setCompanyFilter('All'); };
+    return filterJobs(jobs, debouncedQuery, category, remoteOnly, dateFilter, companyFilter).filter(job => matchesDiscovery(job, discoveryFilters));
+  }, [jobs, debouncedQuery, category, remoteOnly, dateFilter, companyFilter, discoveryFilters]);
+  const clearFilters = () => { setQuery(''); setDebouncedQuery(''); setCategory('All'); setRemoteOnly(false); setDateFilter('All Time'); setCompanyFilter('All'); setDiscoveryFilters(emptyDiscoveryFilters); };
 
   return (
     <div className={styles.content}>
@@ -111,12 +116,13 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
 
       {/* Feed */}
       <div ref={feedRef} className={styles.feed}>
-        {jobs.length > 0 && filteredJobs.length === 0 ? (
+        <DiscoveryControls value={discoveryFilters} onChange={setDiscoveryFilters} />
+        {!isLoading && !error && filteredJobs.length === 0 && (jobs.length > 0 || !!metadataQuery) ? (
           <div className={styles.empty}><Search className="h-9 w-9 text-[#9aa6b5]" /><p>No jobs match your filters.</p><button onClick={clearFilters}>Clear all filters</button></div>
         ) : jobs.length === 0 ? (
           <div className={styles.empty}>
             <Search className="h-9 w-9 text-[#9aa6b5]" />
-            <p>Listening for new opportunities...</p>
+            <p>{isLoading ? 'Loading opportunities…' : 'Listening for new opportunities...'}</p>
           </div>
         ) : (
           <div className={styles.cards}><AnimatePresence>{filteredJobs.map((job, idx) => <JobCard key={job.id || idx} job={job} />)}</AnimatePresence></div>

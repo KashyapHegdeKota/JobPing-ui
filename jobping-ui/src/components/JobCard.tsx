@@ -7,6 +7,7 @@ import { useSavedJob } from "../hooks/useSavedJob";
 import { formatJobCardDate } from "../lib/jobDates";
 import { trackActivity } from "../lib/analytics";
 import styles from "./JobCard.module.css";
+import JobEvidence from './JobEvidence';
 
 export default function JobCard({ job }: { job: Job }) {
   const { saved, toggle, error } = useSavedJob(job.id);
@@ -41,6 +42,7 @@ export default function JobCard({ job }: { job: Job }) {
         if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity("job_click", "/", { job_id: jobId });
       }}>View role <ExternalLink size={15} aria-hidden="true" /></a>}
     </div>
+    <JobEvidence job={job} />
     {error && <p role="status" className={styles.error}>{error}</p>}
   </motion.article>;
 }

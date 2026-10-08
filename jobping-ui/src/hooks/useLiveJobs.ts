@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import type { JobDetails, EmployerRecord } from '../lib/jobDetails';
+import { parseJobDetails, parseEmployerRecords } from '../lib/parseJobDetails';
 
 export interface Job {
+  details?: JobDetails | null;
+  immigration_records?: EmployerRecord[];
   id: string | number;
   title: string;
   company: string;
@@ -19,10 +23,11 @@ export interface Job {
 }
 
 interface ApiJob {
+  details?: JobDetails | null;
   id: number;
   company_id: number;
   title: string;
-  company: { name: string };
+  company: { name: string; immigration_records?: EmployerRecord[] };
   location: string;
   season: number;
   job_type: string;
@@ -41,6 +46,8 @@ interface PaginatedJobsResponse {
 }
 
 interface LiveJobPayload {
+  immigration_records?: EmployerRecord[];
+  details?: JobDetails | null;
   id: number;
   title: string;
   location: string;
@@ -105,6 +112,8 @@ function mergeJob(existing: Job | undefined, incoming: Job, preserveMutableField
 
   return {
     id: incoming.id,
+    details: mergeValue(existing.details, incoming.details),
+    immigration_records: mergeValue(existing.immigration_records, incoming.immigration_records),
     title: mergeValue(existing.title, incoming.title) ?? existing.title,
     company,
     company_id: mergeValue(existing.company_id, incoming.company_id),
@@ -126,6 +135,8 @@ function mergeJob(existing: Job | undefined, incoming: Job, preserveMutableField
 
 function fromApiJob(job: ApiJob): Job {
   return {
+    details: parseJobDetails(job.details),
+    immigration_records: parseEmployerRecords(job.company?.immigration_records),
     id: job.id,
     title: job.title,
     company: job.company?.name || (job.company_id ? `Company #${job.company_id}` : 'Unknown company'),
@@ -180,7 +191,9 @@ function fromLiveEvent(value: unknown): Job | null {
 
   return {
     id: job.id,
+    details: parseJobDetails(job.details),
     title: job.title,
+    immigration_records: parseEmployerRecords(job.immigration_records),
     company: eventCompany || (job.company_id ? `Company #${job.company_id}` : 'Unknown company'),
     company_id: job.company_id,
     location: job.location,
@@ -199,7 +212,9 @@ function isAbortError(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError';
 }
 
-export function useLiveJobs() {
+export function useLiveJobs(discoveryQuery: string = '') {
+  const [queryKey, setQueryKey] = useState(discoveryQuery);
+  const queryRef = useRef(discoveryQuery);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -215,6 +230,18 @@ export function useLiveJobs() {
   const jobUpdateSequenceRef = useRef(0);
   const jobRecordsRef = useRef(new Map<string, JobRecord>());
   const jobOrderRef = useRef<string[]>([]);
+  // Reset the displayed result set when the request inputs change, before
+  // rendering the new query. Network cleanup remains in the effect below.
+  if (queryKey !== discoveryQuery) {
+    setQueryKey(discoveryQuery);
+    setJobs([]);
+    setPage(1);
+    setTotal(null);
+    setIsLoading(true);
+    setIsLoadingMore(false);
+    setHasMore(true);
+    setError(null);
+  }
 
   const applyJobs = useCallback((incomingJobs: Job[], source: JobSource) => {
     if (!mountedRef.current) return;
@@ -257,15 +284,16 @@ export function useLiveJobs() {
   ) => {
     const requestUpdateSequence = jobUpdateSequenceRef.current;
     const visibleIdsAtRequest = options.reconcileActivePage ? [...jobOrderRef.current] : [];
-    const query = new URLSearchParams({
+    const query = new URLSearchParams(discoveryQuery);
+    for (const [key, value] of Object.entries({
       page: String(nextPage),
       page_size: String(PAGE_SIZE),
       active: 'true',
-    });
+    })) query.set(key, value);
     const response = await fetch(`${API_URL}/api/v1/jobs?${query.toString()}`, { signal: options.signal });
     if (!response.ok) throw new Error(`Job API returned HTTP ${response.status}`);
     const payload = (await response.json()) as PaginatedJobsResponse;
-    if (!mountedRef.current || options.signal?.aborted) return;
+    if (!mountedRef.current || options.signal?.aborted || queryRef.current !== discoveryQuery) return;
 
     const nextJobs = Array.isArray(payload.items) ? payload.items.map(fromApiJob) : [];
     const reportedSize = payload.page_size || PAGE_SIZE;
@@ -309,9 +337,15 @@ export function useLiveJobs() {
       pageRef.current = nextPage;
       setPage(nextPage);
     }
-  }, [applyJobs]);
+  }, [applyJobs, discoveryQuery]);
 
   useEffect(() => {
+    queryRef.current = discoveryQuery;
+    jobRecordsRef.current.clear();
+    jobOrderRef.current = [];
+    pageRef.current = 1;
+    hasMoreRef.current = true;
+    loadMoreInFlightRef.current = false;
     let disposed = false;
     let socket: WebSocket | null = null;
     let reconnectTimer: number | null = null;
@@ -416,7 +450,7 @@ export function useLiveJobs() {
       socket = null;
       currentSocket?.close();
     };
-  }, [applyJobs, loadPage]);
+  }, [applyJobs, loadPage, discoveryQuery]);
 
   const loadMore = useCallback(async () => {
     if (error || isLoading || isLoadingMore || loadMoreInFlightRef.current || !hasMoreRef.current) return;
@@ -424,16 +458,18 @@ export function useLiveJobs() {
     setIsLoadingMore(true);
     try {
       await loadPage(pageRef.current + 1, { updatePagination: true });
-      if (mountedRef.current) setError(null);
+      if (mountedRef.current && queryRef.current === discoveryQuery) setError(null);
     } catch (loadError: unknown) {
-      if (!mountedRef.current || isAbortError(loadError)) return;
+      if (!mountedRef.current || queryRef.current !== discoveryQuery || isAbortError(loadError)) return;
       console.error('Failed to fetch more jobs', loadError);
       setError(loadError instanceof Error ? loadError.message : 'Failed to load more jobs');
     } finally {
-      loadMoreInFlightRef.current = false;
-      if (mountedRef.current) setIsLoadingMore(false);
+      if (queryRef.current === discoveryQuery) {
+        loadMoreInFlightRef.current = false;
+        if (mountedRef.current) setIsLoadingMore(false);
+      }
     }
-  }, [error, isLoading, isLoadingMore, loadPage]);
+  }, [error, isLoading, isLoadingMore, loadPage, discoveryQuery]);
 
   return { jobs, isConnected, isLoading, isLoadingMore, error, total, page, hasMore, loadMore };
 }
