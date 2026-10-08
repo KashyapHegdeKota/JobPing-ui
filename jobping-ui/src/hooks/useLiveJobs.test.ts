@@ -97,6 +97,21 @@ async function flushPromises() {
 }
 
 describe('useLiveJobs live feed', () => {
+  it('uses discovery filters for every server page and resets results when they change', async () => {
+    FakeWebSocket.instances = [];
+    vi.stubGlobal('WebSocket', FakeWebSocket);
+    const details = { policies: { opt: { value: 'allowed', evidence: [] } }, compensation: [] };
+    const fetchMock = vi.fn(async (url: string) => new URL(url).searchParams.get('policy') === 'opt' ? response([apiJob(10, { details })], 100) : response([apiJob(20)], 1));
+    vi.stubGlobal('fetch', fetchMock);
+    const { result, rerender } = renderHook(({ query }) => useLiveJobs(query), { initialProps: { query: 'policy=opt' } });
+    await waitFor(() => expect(result.current.jobs[0]?.id).toBe(10));
+    expect(result.current.jobs[0].details).toEqual(details);
+    await act(async () => { await result.current.loadMore(); });
+    expect(new URL(fetchMock.mock.calls.at(-1)![0]).searchParams.get('policy')).toBe('opt');
+    expect(new URL(fetchMock.mock.calls.at(-1)![0]).searchParams.get('page')).toBe('2');
+    rerender({ query: '' });
+    await waitFor(() => expect(result.current.jobs.map(job => job.id)).toEqual([20]));
+  });
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.useRealTimers();
