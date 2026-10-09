@@ -61,4 +61,13 @@ describe('recent card dates', () => {
     const old = { posted_at: '2026-10-01T12:00:00Z' };
     expect(formatJobCardDate(old, now)).toBe(formatJobDate(old, now));
   });
+  it('does not invent hours for RTX source calendar dates', () => {
+    const now = Date.parse('2026-10-09T22:32:00Z');
+    for (const posted of ['2026-10-09', '2026-10-09T00:00:00Z', '2026-10-09T00:00:00+00:00']) {
+      expect(formatJobCardDate({ posted_at: posted }, now)).toBe('Posted today');
+    }
+    expect(formatJobCardDate({ posted_at: '2026-10-08T00:00:00Z' }, now)).toBe('Posted yesterday');
+    expect(formatJobCardDate({ posted_at: '2026-10-09T22:30:00Z' }, now)).toBe('Posted 2 min ago');
+    expect(formatJobCardDate({ discovered_at: '2026-10-09T00:00:00Z' }, now)).toBe('Discovered 22 hours ago');
+  });
 });

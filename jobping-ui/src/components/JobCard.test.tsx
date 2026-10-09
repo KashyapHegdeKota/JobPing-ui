@@ -79,6 +79,16 @@ describe('JobCard', () => {
     vi.restoreAllMocks();
   });
 
+  it('renders a source calendar date without a fabricated posting time', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-09T22:32:00Z'));
+    const { container } = render(<JobCard job={{ ...example, posted_at: '2026-10-09T00:00:00+00:00' }} />);
+    const time = container.querySelector('time');
+    expect(time).toHaveTextContent('Posted today');
+    expect(time).toHaveAttribute('datetime', '2026-10-09');
+    expect(time?.title).toContain('posting time unavailable');
+    vi.restoreAllMocks();
+  });
+
   it('does not show an apply action for a closed role', () => {
     const job = {
       id: 2,

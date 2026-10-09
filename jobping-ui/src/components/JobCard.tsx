@@ -4,7 +4,7 @@ import { Bookmark, Clock, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Job } from "../hooks/useLiveJobs";
 import { useSavedJob } from "../hooks/useSavedJob";
-import { formatJobCardDate } from "../lib/jobDates";
+import { formatJobCardDate, isDayOnlyPostingDate } from "../lib/jobDates";
 import { trackActivity } from "../lib/analytics";
 import styles from "./JobCard.module.css";
 import JobEvidence from './JobEvidence';
@@ -14,7 +14,11 @@ export default function JobCard({ job }: { job: Job }) {
   const dateText = formatJobCardDate(job);
   const timestamp = job.posted_at || job.discovered_at;
   const validDate = timestamp && !Number.isNaN(new Date(timestamp).getTime());
-  const absoluteDate = validDate ? new Date(timestamp).toLocaleString() : "Unknown date";
+  const dayOnly = isDayOnlyPostingDate(job.posted_at);
+  const absoluteDate = validDate ? dayOnly
+    ? `${new Date(timestamp).toLocaleDateString(undefined, { timeZone: "UTC" })} (posting time unavailable)`
+    : new Date(timestamp).toLocaleString() : "Unknown date";
+  const semanticDate = dayOnly ? timestamp?.slice(0, 10) : timestamp;
   const type = job.role_type?.trim().toLowerCase().replace(/_/g, " ");
   const internship = type === "internship";
   const roleLabel = internship ? "Internship" : type === "new grad" ? "New grad" : job.role_type?.replace(/_/g, " ") || "Role type not listed";
@@ -35,7 +39,7 @@ export default function JobCard({ job }: { job: Job }) {
       <span className={styles.location}>{locationText}</span>
     </div>
     <div className={styles.footer}>
-      <span className={styles.date}><Clock size={14} aria-hidden="true" /><time title={absoluteDate} dateTime={validDate ? timestamp : undefined}>{dateText}</time></span>
+      <span className={styles.date}><Clock size={14} aria-hidden="true" /><time title={absoluteDate} dateTime={validDate ? semanticDate : undefined}>{dateText}</time></span>
       {job.is_closed && <span className={styles.closed}>Applications closed</span>}
       {!job.is_closed && job.apply_url && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
         const jobId = Number(job.id);

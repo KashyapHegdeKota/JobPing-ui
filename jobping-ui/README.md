@@ -13,6 +13,9 @@ Closing the dialog or cancelling a popup leaves the landing page in place.
 Job cards show company initials, role types, locations, available work arrangements
 and posted/discovered dates. The bookmark control saves role IDs in this browser's
 local storage; bookmarks are device-local and are not synced to your account.
+Source calendar dates show day precision (for example, “Posted today”) without
+assuming a posting hour or shifting the supplied date into a different local day.
+Precise source timestamps and discovery timestamps retain minute/hour labels.
 Cards also show employer-posted pay and source-backed CPT/OPT/STEM OPT and
 sponsorship statements. Dated official company history is separate from role
 eligibility; unknown information stays explicit. View role opens the employer link.

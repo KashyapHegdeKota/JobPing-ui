@@ -1,8 +1,17 @@
+// The API historically stores date-only source values at UTC midnight. Treat
+// these conservatively as calendar dates, including older persisted records.
+// Even a true midnight post loses only display precision; no time is invented.
+export function isDayOnlyPostingDate(timestamp?: string): boolean {
+  return Boolean(timestamp
+    && /^\d{4}-\d{2}-\d{2}(?:T00:00:00(?:\.0+)?(?:Z|\+00:00))?$/.test(timestamp)
+    && Number.isFinite(Date.parse(timestamp)));
+}
+
 export function formatJobCardDate(job: { posted_at?: string; discovered_at?: string }, nowMs: number = Date.now()): string {
   const timestamp = job.posted_at || job.discovered_at;
   const age = timestamp ? nowMs - new Date(timestamp).getTime() : NaN;
   const label = job.posted_at ? "Posted" : "Discovered";
-  if (Number.isFinite(age) && age >= 0 && age < 24 * 60 * 60 * 1000) {
+  if (!isDayOnlyPostingDate(job.posted_at) && Number.isFinite(age) && age >= 0 && age < 24 * 60 * 60 * 1000) {
     if (age < 60_000) return `${label} just now`;
     if (age < 60 * 60 * 1000) return `${label} ${Math.floor(age / 60_000)} min ago`;
     const hours = Math.floor(age / (60 * 60 * 1000));
@@ -22,8 +31,13 @@ export function formatJobDate(
     const nowDate = new Date(nowMs);
     const postedDate = new Date(postedMs);
     
-    const startOfNow = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate()).getTime();
-    const startOfPosted = new Date(postedDate.getFullYear(), postedDate.getMonth(), postedDate.getDate()).getTime();
+    const dayOnly = isDayOnlyPostingDate(job.posted_at);
+    const startOfNow = dayOnly
+      ? Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate())
+      : Date.UTC(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+    const startOfPosted = dayOnly
+      ? Date.UTC(postedDate.getUTCFullYear(), postedDate.getUTCMonth(), postedDate.getUTCDate())
+      : Date.UTC(postedDate.getFullYear(), postedDate.getMonth(), postedDate.getDate());
     
     const calDiffDays = Math.floor((startOfNow - startOfPosted) / (1000 * 60 * 60 * 24));
     const days = Math.max(0, calDiffDays);
