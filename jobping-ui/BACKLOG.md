@@ -10,7 +10,7 @@ No in-progress items.
 
 - Published the outstanding launch/date validation records for GitHub review. Frontend functional revision `25e545e` is already deployed on jobping.website; this follow-up changes documentation only.
 - Production email delivery is enabled and the user confirmed the connection test arrived in Gmail. Conversation threading belongs to the sibling backend and requires a later backend rollout; no frontend behavior or email preference changes are needed.
-- Validation: frontend PR #23 passes UI CI and Vercel preview deployment. Production revision `25e545e` remains assigned to jobping.website, which returns HTTP 200. Both PRs stay open for review; the documentation preview does not replace production.
+- Validation: frontend PR #23 passed UI CI/Vercel preview and was merged. Vercel's first production attempt failed while retrieving Git metadata; a retry successfully deployed main `4aedeec` to jobping.website (Ready, deployment `BH7fDqoverRTnrKMhmjYA6zAtGyY`). Backend threading remains a separate GitHub-only release.
 
 ### UI-DATES-001 Preserve day-only posting labels
 
