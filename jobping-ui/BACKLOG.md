@@ -2,9 +2,26 @@
 
 ## In progress
 
-No implementation items currently in progress.
+No in-progress items.
 
 ## Completed
+
+### UI-PUBLISH-001 Publish production rollout records
+
+- Published the outstanding launch/date validation records for GitHub review. Frontend functional revision `25e545e` is already deployed on jobping.website; this follow-up changes documentation only.
+- Production email delivery is enabled and the user confirmed the connection test arrived in Gmail. Conversation threading belongs to the sibling backend and requires a later backend rollout; no frontend behavior or email preference changes are needed.
+
+### UI-DATES-001 Preserve day-only posting labels
+
+- Calendar dates and historical UTC-midnight posting markers show Posted today/yesterday/day counts without fabricated hour precision or local-time day shifts. Semantic dates and tooltips disclose unavailable posting times; precise posted/discovered timestamps retain minute/hour labels.
+- Published revision `25e545e` to main; Vercel production deployment `BojGQ12vsw4RboSA8EeR6H45gjPJ` is Ready and assigned to jobping.website. Live RTX Software Engineering Co-op (Spring/Summer 2027) shows Posted today. The sibling backend filled 33 missing Waymo publication dates, correcting feed ordering while preserving discovery history.
+- Validation: 107 tests, lint, standalone types and production build pass; 17 date/card cases also pass under America/Phoenix. Live feed connected with 4,089 roles and no warning/error console logs; screenshots in sibling backend's ignored `private/deployment`.
+
+### UI-LIVE-001 Connect production frontend to Oracle backend
+
+- Set Vercel Production/Preview `NEXT_PUBLIC_API_URL=https://api.jobping.website` and rebuilt the existing production main revision `278e2ae` without changing frontend code.
+- Deployment `BcG8zHFL89RLmNmL7pnwXbnH447i` is Ready and assigned to jobping.website. Live browser verification shows 4,084 roles and LIVE FEED CONNECTED, with no browser warnings/errors.
+- Backend HTTPS, CORS, public API, WebSocket/SSE, Firebase Admin access, polling and database backups verified in the sibling deployment task. Production email delivery subsequently passed the controlled provider/inbox check and is enabled.
 
 ### UI-DETAILS-001 International-student evidence and advertised pay
 
