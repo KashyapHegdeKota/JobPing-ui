@@ -42,7 +42,7 @@ describe("Authentication dialog", () => {
     const close = vi.fn(); const completed = vi.fn();
     render(<AuthModal isOpen onClose={close} onAuthenticated={completed} />);
     fireEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Popup cancelled");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Could not complete sign-in");
     expect(close).not.toHaveBeenCalled();
     expect(completed).not.toHaveBeenCalled();
   });
