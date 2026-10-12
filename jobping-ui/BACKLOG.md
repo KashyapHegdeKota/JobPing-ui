@@ -6,10 +6,17 @@ No in-progress items.
 
 ## Completed
 
+### UI-ABUSE-001 Handle authentication and refresh throttling
+
+- Completed: generic provider-safe login errors, in-flight guards, Firebase throttle cooldowns, reload-persistent HTTP cooldowns before token requests, data-preserving retry controls and shared reference caching. Filter changes retain the live socket; reconnects use jitter and reset after stability.
+- Validation: all 130 frontend tests, lint, standalone type checking and production build pass. Regressions cover private account changes, duplicate actions, no automatic credential retries, preserved jobs/preferences/analytics, request coalescing and owned timer/socket cleanup.
+- Published 20 focused implementation/documentation commits to `codex/request-abuse-protection` and draft PR #25; coordinated backend is draft PR #41. Hosting/provider settings and production deployment were not changed. See `docs/request-protection.md` and sibling activation docs; UI CI and security checks passed on implementation revision `af0928c`.
+
 ### UI-PUBLISH-001 Publish production rollout records
 
 - Published the outstanding launch/date validation records for GitHub review. Frontend functional revision `25e545e` is already deployed on jobping.website; this follow-up changes documentation only.
 - Production email delivery is enabled and the user confirmed the connection test arrived in Gmail. Conversation threading belongs to the sibling backend and requires a later backend rollout; no frontend behavior or email preference changes are needed.
+- Validation: frontend PR #23 passed UI CI/Vercel preview and was merged. Vercel's first production attempt failed while retrieving Git metadata; a retry successfully deployed main `4aedeec` to jobping.website (Ready, deployment `BH7fDqoverRTnrKMhmjYA6zAtGyY`). Backend threading remains a separate GitHub-only release.
 
 ### UI-DATES-001 Preserve day-only posting labels
 

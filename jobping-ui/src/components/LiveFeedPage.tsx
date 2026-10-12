@@ -12,12 +12,12 @@ export default function LiveFeedPage() {
 
 function LiveFeed() {
   const [discoveryQuery, setDiscoveryQuery] = useState('');
-  const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore } = useLiveJobs(discoveryQuery);
+  const { jobs, isConnected, isLoading, isLoadingMore, error, total, hasMore, loadMore, retry } = useLiveJobs(discoveryQuery);
 
   return (
     <div className={`${styles.shell} flex w-full font-sans`}>
       <div className="flex h-full w-full overflow-hidden">
-        <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} onDiscoveryQueryChange={setDiscoveryQuery} />
+        <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} retry={retry} onDiscoveryQueryChange={setDiscoveryQuery} />
         <Filters />
       </div>
       

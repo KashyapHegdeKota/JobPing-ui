@@ -10,6 +10,9 @@ import {
 } from "firebase/auth";
 import { X, BriefcaseBusiness } from "lucide-react";
 import styles from "./AuthModal.module.css";
+import { authenticationMessage, authCooldownScope } from "../lib/authProtection";
+import { assertRequestReady } from "../lib/requestCooldown";
+import { useRequestCooldown } from "../hooks/useRequestCooldown";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,6 +27,8 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const inFlight = useRef(false);
+  const cooldown = useRequestCooldown(authCooldownScope);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,10 +59,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (inFlight.current || cooldown) return;
+    inFlight.current = true;
     setError(null);
     setLoading(true);
 
     try {
+      assertRequestReady(authCooldownScope);
       if (isSignUp) {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
@@ -66,24 +74,29 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
       onClose();
       onAuthenticated?.();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Authentication failed");
+      setError(authenticationMessage(err));
     } finally {
+      inFlight.current = false;
       setLoading(false);
     }
   };
 
   const handleGoogleAuth = async () => {
+    if (inFlight.current || cooldown) return;
+    inFlight.current = true;
     setError(null);
     setLoading(true);
     const provider = new GoogleAuthProvider();
     
     try {
+      assertRequestReady(authCooldownScope);
       await signInWithPopup(auth, provider);
       onClose();
       onAuthenticated?.();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Google authentication failed");
+      setError(authenticationMessage(err));
     } finally {
+      inFlight.current = false;
       setLoading(false);
     }
   };
@@ -103,13 +116,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
             <button type="button" aria-pressed={!isSignUp} onClick={() => setIsSignUp(false)}>Sign in</button>
             <button type="button" aria-pressed={isSignUp} onClick={() => setIsSignUp(true)}>Sign up</button>
           </div>
-          <button type="button" onClick={handleGoogleAuth} disabled={loading} className={styles.google}>Continue with Google</button>
+          <button type="button" onClick={handleGoogleAuth} disabled={loading || cooldown > 0} className={styles.google}>Continue with Google</button>
           <div className={styles.divider}>or continue with email</div>
           <form onSubmit={handleEmailAuth} className={styles.form}>
             {error && <div role="alert" className={styles.error}>{error}</div>}
+            {cooldown > 0 && <p role="status" aria-live="polite">Please wait {cooldown} seconds before trying again.</p>}
             <div><label htmlFor="auth-email">Email</label><input id="auth-email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></div>
             <div><label htmlFor="auth-password">Password</label><input id="auth-password" type="password" autoComplete={isSignUp ? "new-password" : "current-password"} required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" /></div>
-            <button type="submit" disabled={loading} className={styles.submit}>{loading ? "Please wait..." : isSignUp ? "Create account" : "Sign in"}</button>
+            <button type="submit" disabled={loading || cooldown > 0} className={styles.submit}>{loading ? "Please wait..." : isSignUp ? "Create account" : "Sign in"}</button>
           </form>
         </div>
       </div>

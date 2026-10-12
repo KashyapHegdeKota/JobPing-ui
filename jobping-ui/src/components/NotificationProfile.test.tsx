@@ -55,6 +55,18 @@ const defaults = () => ({
 });
 
 describe("Notification profile", () => {
+  it("keeps preferences visible when a refresh is throttled", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce({ ok: true, json: async () => defaults() })
+      .mockResolvedValueOnce(new Response("{}", { status: 429, headers: { "Retry-After": "1" } })));
+    render(<NotificationProfile />);
+    await screen.findByText("alice@example.com");
+    fireEvent.click(screen.getByRole("button", { name: "Refresh email status" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Too many requests");
+    expect(screen.getByText("alice@example.com")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh email status" })).toBeDisabled();
+    await new Promise((resolve) => window.setTimeout(resolve, 1100));
+    sessionStorage.clear();
+  });
   beforeEach(() => {
     mock.signedIn = true;
     vi.stubGlobal(

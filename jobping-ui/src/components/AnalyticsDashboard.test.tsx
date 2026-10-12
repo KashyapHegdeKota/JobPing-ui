@@ -21,6 +21,18 @@ const summary = () => ({
 });
 
 describe("Analytics dashboard", () => {
+  it("keeps existing metrics visible and disables refresh during throttling", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce({ ok: true, json: async () => summary() })
+      .mockResolvedValueOnce(new Response("{}", { status: 429, headers: { "Retry-After": "1" } })));
+    render(<AnalyticsDashboard />);
+    await screen.findByText("Your page views");
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Too many requests");
+    expect(screen.getByText("Your page views")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Try again in/ })).toBeDisabled();
+    await new Promise((resolve) => window.setTimeout(resolve, 1100));
+    sessionStorage.clear();
+  });
   beforeEach(() => {
     mock.signedIn = true;
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => summary() }));

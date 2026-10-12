@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { limitedFetch } from '../lib/requestCooldown';
+import { useJobSocket } from './useJobSocket';
 import type { JobDetails, EmployerRecord } from '../lib/jobDetails';
 import { parseJobDetails, parseEmployerRecords } from '../lib/parseJobDetails';
 
@@ -78,8 +80,6 @@ type JobSource =
   | { type: 'live' | 'reconcile'; sequence: number };
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000').replace(/\/$/, '');
-const WEBSOCKET_URL = API_URL.replace(/^http/, 'ws');
-const RECONNECT_DELAYS_MS = [1_000, 2_000, 4_000, 8_000, 15_000, 30_000];
 const PAGE_SIZE = 50;
 
 function isOlderTimestamp(incoming?: string, existing?: string): boolean {
@@ -215,8 +215,9 @@ function isAbortError(error: unknown): boolean {
 export function useLiveJobs(discoveryQuery: string = '') {
   const [queryKey, setQueryKey] = useState(discoveryQuery);
   const queryRef = useRef(discoveryQuery);
+  const loadedQueryRef = useRef(discoveryQuery);
+  const refreshRef = useRef<() => void>(() => {});
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -234,7 +235,6 @@ export function useLiveJobs(discoveryQuery: string = '') {
   // rendering the new query. Network cleanup remains in the effect below.
   if (queryKey !== discoveryQuery) {
     setQueryKey(discoveryQuery);
-    setJobs([]);
     setPage(1);
     setTotal(null);
     setIsLoading(true);
@@ -290,11 +290,18 @@ export function useLiveJobs(discoveryQuery: string = '') {
       page_size: String(PAGE_SIZE),
       active: 'true',
     })) query.set(key, value);
-    const response = await fetch(`${API_URL}/api/v1/jobs?${query.toString()}`, { signal: options.signal });
+    const response = await limitedFetch(`${API_URL}/api/v1/jobs?${query.toString()}`, { signal: options.signal });
     if (!response.ok) throw new Error(`Job API returned HTTP ${response.status}`);
     const payload = (await response.json()) as PaginatedJobsResponse;
     if (!mountedRef.current || options.signal?.aborted || queryRef.current !== discoveryQuery) return;
 
+    if (loadedQueryRef.current !== discoveryQuery) {
+      const newerRecords = [...jobRecordsRef.current.entries()].filter(([, record]) => record.lastUpdateSequence > requestUpdateSequence);
+      jobRecordsRef.current.clear();
+      for (const [key, record] of newerRecords) jobRecordsRef.current.set(key, record);
+      jobOrderRef.current = newerRecords.filter(([, record]) => !record.job.is_closed).map(([key]) => key);
+      loadedQueryRef.current = discoveryQuery;
+    }
     const nextJobs = Array.isArray(payload.items) ? payload.items.map(fromApiJob) : [];
     const reportedSize = payload.page_size || PAGE_SIZE;
     const nextHasMore = typeof payload.total === 'number'
@@ -339,118 +346,52 @@ export function useLiveJobs(discoveryQuery: string = '') {
     }
   }, [applyJobs, discoveryQuery]);
 
+  const onMessage = useCallback((data: string) => {
+    let value: unknown;
+    try { value = JSON.parse(data); } catch { return; }
+    const liveJob = fromLiveEvent(value);
+    if (!liveJob) return;
+    const sequence = jobUpdateSequenceRef.current + 1;
+    jobUpdateSequenceRef.current = sequence;
+    applyJobs([liveJob], { type: 'live', sequence });
+  }, [applyJobs]);
+  const retry = useCallback(() => refreshRef.current(), []);
+  const isConnected = useJobSocket(onMessage, retry);
+
   useEffect(() => {
     queryRef.current = discoveryQuery;
-    jobRecordsRef.current.clear();
-    jobOrderRef.current = [];
     pageRef.current = 1;
     hasMoreRef.current = true;
     loadMoreInFlightRef.current = false;
     let disposed = false;
-    let socket: WebSocket | null = null;
-    let reconnectTimer: number | null = null;
-    let retryAttempt = 0;
-    let shouldRefreshAfterConnect = false;
-    const requestControllers = new Set<AbortController>();
+    const requestControllers = new Map<number, AbortController>();
     mountedRef.current = true;
-
     const requestPage = (nextPage: number, updatePagination = false, isInitialLoad = false, reconcileActivePage = false) => {
+      if (requestControllers.has(nextPage)) return;
       const controller = new AbortController();
-      requestControllers.add(controller);
+      requestControllers.set(nextPage, controller);
       void loadPage(nextPage, { signal: controller.signal, updatePagination, reconcileActivePage })
-        .then(() => {
-          if (!disposed) setError(null);
-        })
+        .then(() => { if (!disposed) setError(null); })
         .catch((loadError: unknown) => {
           if (disposed || isAbortError(loadError)) return;
-          console.error('Failed to fetch existing jobs', loadError);
           setError(loadError instanceof Error ? loadError.message : 'Failed to load jobs');
         })
         .finally(() => {
-          requestControllers.delete(controller);
+          requestControllers.delete(nextPage);
           if (!disposed && isInitialLoad) setIsLoading(false);
         });
     };
-
-    function scheduleReconnect() {
-      if (disposed || reconnectTimer !== null) return;
-      const delay = RECONNECT_DELAYS_MS[Math.min(retryAttempt, RECONNECT_DELAYS_MS.length - 1)];
-      retryAttempt += 1;
-      reconnectTimer = window.setTimeout(() => {
-        reconnectTimer = null;
-        connect();
-      }, delay);
-    }
-
-    function connect() {
-      if (disposed || socket !== null) return;
-
-      let nextSocket: WebSocket;
-      try {
-        nextSocket = new WebSocket(`${WEBSOCKET_URL}/api/v1/ws/live`);
-      } catch {
-        shouldRefreshAfterConnect = true;
-        scheduleReconnect();
-        return;
-      }
-
-      socket = nextSocket;
-      nextSocket.onopen = () => {
-        if (disposed || socket !== nextSocket) return;
-        setIsConnected(true);
-        retryAttempt = 0;
-        if (shouldRefreshAfterConnect) {
-          shouldRefreshAfterConnect = false;
-          requestPage(1, false, false, true);
-        }
-      };
-
-      nextSocket.onmessage = (message) => {
-        if (disposed || socket !== nextSocket || typeof message.data !== 'string') return;
-        let value: unknown;
-        try {
-          value = JSON.parse(message.data);
-        } catch {
-          return;
-        }
-
-        const liveJob = fromLiveEvent(value);
-        if (!liveJob) return;
-        const sequence = jobUpdateSequenceRef.current + 1;
-        jobUpdateSequenceRef.current = sequence;
-        applyJobs([liveJob], { type: 'live', sequence });
-      };
-
-      nextSocket.onerror = () => {
-        if (disposed || socket !== nextSocket) return;
-        shouldRefreshAfterConnect = true;
-        nextSocket.close();
-      };
-
-      nextSocket.onclose = () => {
-        if (socket === nextSocket) socket = null;
-        if (disposed) return;
-        shouldRefreshAfterConnect = true;
-        setIsConnected(false);
-        scheduleReconnect();
-      };
-    }
-
+    refreshRef.current = () => requestPage(1, false, true, true);
     const initialLoadTimer = window.setTimeout(() => requestPage(1, true, true), 0);
-    connect();
-
     return () => {
       disposed = true;
       mountedRef.current = false;
+      refreshRef.current = () => {};
       window.clearTimeout(initialLoadTimer);
-      if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
-      for (const controller of requestControllers) controller.abort();
+      for (const controller of requestControllers.values()) controller.abort();
       requestControllers.clear();
-      const currentSocket = socket;
-      socket = null;
-      currentSocket?.close();
     };
-  }, [applyJobs, loadPage, discoveryQuery]);
+  }, [loadPage, discoveryQuery]);
 
   const loadMore = useCallback(async () => {
     if (error || isLoading || isLoadingMore || loadMoreInFlightRef.current || !hasMoreRef.current) return;
@@ -471,5 +412,5 @@ export function useLiveJobs(discoveryQuery: string = '') {
     }
   }, [error, isLoading, isLoadingMore, loadPage, discoveryQuery]);
 
-  return { jobs, isConnected, isLoading, isLoadingMore, error, total, page, hasMore, loadMore };
+  return { jobs, isConnected, isLoading, isLoadingMore, error, total, page, hasMore, loadMore, retry };
 }

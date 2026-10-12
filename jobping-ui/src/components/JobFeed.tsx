@@ -5,6 +5,7 @@ import { Job } from '../hooks/useLiveJobs';
 import { AnimatePresence } from 'framer-motion';
 import JobCard from './JobCard';
 import FilterBar, { type Category, type DateFilter } from './FilterBar';
+import { useRequestCooldown } from '../hooks/useRequestCooldown';
 import { useCompanies } from '../hooks/useCompanies';
 import { trackActivity } from '../lib/analytics';
 import styles from '../app/jobs-page.module.css';
@@ -39,10 +40,11 @@ export function filterJobs(jobs: Job[], query: string, category: Category, remot
     && (companyFilter === 'All' || job.company === companyFilter));
 }
 
-export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore, onDiscoveryQueryChange }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void, onDiscoveryQueryChange?: (value: string) => void }) {
+export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadingMore = false, error, hasMore = false, total, loadMore, retry, onDiscoveryQueryChange }: { jobs: Job[], isConnected: boolean, isLoading?: boolean, isLoadingMore?: boolean, error?: string | null, hasMore?: boolean, total?: number | null, loadMore?: () => void, retry?: () => void, onDiscoveryQueryChange?: (value: string) => void }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const feedRef = useRef<HTMLDivElement>(null);
   const companies = useCompanies();
+  const cooldown = useRequestCooldown('public');
   
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -127,7 +129,8 @@ export default function JobFeed({ jobs, isConnected, isLoading = false, isLoadin
         ) : (
           <div className={styles.cards}><AnimatePresence>{filteredJobs.map((job, idx) => <JobCard key={job.id || idx} job={job} />)}</AnimatePresence></div>
         )}
-        {error && <div role="alert" className={styles.error}><p>{error}</p><button type="button" onClick={() => window.location.reload()}>Reload jobs</button></div>}
+        {isLoading && jobs.length > 0 && <p role="status">Updating filters. Showing previous results until the update completes.</p>}
+        {error && <div role="alert" className={styles.error}><p>{error}</p><button type="button" disabled={cooldown > 0} onClick={retry ?? (() => window.location.reload())}>{cooldown > 0 ? `Try again in ${cooldown}s` : "Retry jobs"}</button></div>}
         {isLoadingMore && <p className={styles.footerText}>Loading more jobs…</p>}
         {!isLoading && !isLoadingMore && !error && hasMore && <div ref={sentinelRef} className="h-2 shrink-0" aria-hidden="true" />}
         {!isLoading && !isLoadingMore && !hasMore && jobs.length > 0 && <p className={styles.footerText}>You’ve reached the end of the feed.</p>}
