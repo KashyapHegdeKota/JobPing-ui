@@ -97,6 +97,14 @@ async function flushPromises() {
 }
 
 describe('useLiveJobs live feed', () => {
+  it('keeps the socket open when server filters change', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response([apiJob(1)])));
+    const { rerender } = renderHook(({ query }) => useLiveJobs(query), { initialProps: { query: '' } });
+    await waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+    rerender({ query: 'policy=opt' });
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    expect(FakeWebSocket.instances).toHaveLength(1);
+  });
   it('uses discovery filters for every server page and resets results when they change', async () => {
     FakeWebSocket.instances = [];
     vi.stubGlobal('WebSocket', FakeWebSocket);
@@ -114,6 +122,7 @@ describe('useLiveJobs live feed', () => {
   });
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(Math, 'random').mockReturnValue(0);
     vi.useRealTimers();
     FakeWebSocket.instances = [];
     vi.stubGlobal('WebSocket', FakeWebSocket);
@@ -356,8 +365,9 @@ describe('useLiveJobs live feed', () => {
     expect(FakeWebSocket.instances).toHaveLength(2);
 
     act(() => FakeWebSocket.instances[1].open());
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const refreshUrl = new URL(fetchMock.mock.calls[1][0] as string);
+    // The initial page is still in flight: reconnect coalesces its refresh.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const refreshUrl = new URL(fetchMock.mock.calls[0][0] as string);
     expect(refreshUrl.searchParams.get('page')).toBe('1');
     expect(refreshUrl.searchParams.get('active')).toBe('true');
   });
@@ -415,7 +425,7 @@ describe('useLiveJobs live feed', () => {
     expect(result.current.jobs.some((job) => job.id === 51)).toBe(true);
   });
 
-  it('uses bounded backoff and resets to the first delay after reconnect succeeds', async () => {
+  it('uses bounded backoff and keeps increasing after brief successful opens', async () => {
     vi.useFakeTimers();
     vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})));
     renderHook(() => useLiveJobs());
@@ -437,7 +447,7 @@ describe('useLiveJobs live feed', () => {
       thirdSocket.open();
       thirdSocket.disconnect();
     });
-    await advanceTimersBy(999);
+    await advanceTimersBy(3_999);
     expect(FakeWebSocket.instances).toHaveLength(3);
     await advanceTimersBy(1);
     expect(FakeWebSocket.instances).toHaveLength(4);
@@ -464,5 +474,23 @@ describe('useLiveJobs live feed', () => {
     unmount();
 
     expect(socket.closeCalls).toBe(1);
+  });
+
+  it('retains displayed jobs when a changed filter request is throttled', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response([apiJob(7)]))
+      .mockResolvedValueOnce(new Response('{}', { status: 429, headers: { 'Retry-After': '1' } })));
+    const { result, rerender } = renderHook(({ query }) => useLiveJobs(query), { initialProps: { query: '' } });
+    await waitFor(() => expect(result.current.jobs[0]?.id).toBe(7));
+    rerender({ query: 'policy=opt' });
+    await waitFor(() => expect(result.current.error).toMatch(/Too many requests/));
+    expect(result.current.jobs[0].id).toBe(7);
+    expect(FakeWebSocket.instances).toHaveLength(1);
+    act(() => result.current.retry());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(fetch).toHaveBeenCalledTimes(2);
+    // Expire the supplementary browser budget for subsequent tests.
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.now() + 2000);
+    sessionStorage.clear();
   });
 });
