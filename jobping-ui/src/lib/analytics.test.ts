@@ -22,4 +22,12 @@ describe("First-party activity recording", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
     await expect(trackActivity("job_click", "/", { job_id: 1 })).resolves.toBeUndefined();
   });
+  it("drops supplementary activity during a server cooldown", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 429, headers: { "Retry-After": "1" } })));
+    const initialTokens = mock.user.getIdToken.mock.calls.length;
+    await trackActivity("heartbeat", "/");
+    await trackActivity("heartbeat", "/");
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(mock.user.getIdToken.mock.calls.length - initialTokens).toBe(1);
+  });
 });

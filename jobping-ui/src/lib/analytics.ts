@@ -1,4 +1,5 @@
 const analyticsApiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+import { assertRequestReady, limitedFetch } from "./requestCooldown";
 
 export interface FeedActivityFilters {
   category: "All" | "Summer 2027" | "New Grad";
@@ -17,14 +18,16 @@ export async function trackActivity(
     const { auth } = await import("./firebase");
     const user = auth.currentUser;
     if (!user) return;
+    const scope = `private:${user.uid}:analytics`;
+    assertRequestReady(scope);
     const token = await user.getIdToken();
     if (auth.currentUser?.uid !== user.uid) return;
-    await fetch(`${analyticsApiUrl}/api/v1/analytics/events`, {
+    await limitedFetch(`${analyticsApiUrl}/api/v1/analytics/events`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ id: crypto.randomUUID(), kind, page, ...extra }),
       keepalive: true,
-    });
+    }, scope);
   } catch {
     // Analytics must never interrupt browsing or opening an employer's page.
   }
