@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   onAuthStateChanged,
   sendEmailVerification,
@@ -11,8 +11,12 @@ import { auth } from "../lib/firebase";
 import {
   notificationApiUrl,
   notificationRequest,
+  privateRequestScope,
   type NotificationSettings,
 } from "../lib/notifications";
+import { assertRequestReady } from "../lib/requestCooldown";
+import { authenticationMessage, authCooldownScope } from "../lib/authProtection";
+import { useRequestCooldown } from "../hooks/useRequestCooldown";
 import AuthModal from "./AuthModal";
 import styles from "./notification-profile.module.css";
 
@@ -42,6 +46,12 @@ export default function NotificationProfile() {
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
+  const readCooldown = useRequestCooldown(user ? privateRequestScope(user) : "anonymous-read");
+  const writeCooldown = useRequestCooldown(user ? privateRequestScope(user, "PUT") : "anonymous-write");
+  const authCooldown = useRequestCooldown(authCooldownScope);
+  const cooldown = Math.max(readCooldown, writeCooldown, authCooldown);
+  const blocked = busy || cooldown > 0;
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [authOpen, setAuthOpen] = useState(false);
@@ -100,15 +110,21 @@ export default function NotificationProfile() {
   }, []);
 
   async function action(run: (current: User) => Promise<void>) {
-    if (!user) return;
+    if (!user || inFlight.current || cooldown) return;
+    inFlight.current = true;
     setBusy(true);
     setError("");
     setMessage("");
     try {
+      assertRequestReady(privateRequestScope(user));
+      assertRequestReady(privateRequestScope(user, "PUT"));
+      assertRequestReady(authCooldownScope);
       await run(user);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Please try again.");
+      const providerThrottled = typeof e === "object" && e !== null && "code" in e && e.code === "auth/too-many-requests";
+      setError(providerThrottled ? authenticationMessage(e) : e instanceof Error ? e.message : "Please try again.");
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
@@ -148,6 +164,7 @@ export default function NotificationProfile() {
           {error}
         </div>
       )}
+      {cooldown > 0 && <p role="status">Please wait {cooldown} seconds before refreshing or changing settings.</p>}
       {message && (
         <div
           role="status"
@@ -189,7 +206,7 @@ export default function NotificationProfile() {
             <button
               aria-label="Refresh email status"
               className={secondary}
-              disabled={busy}
+              disabled={blocked}
               onClick={() => action(refresh)}
             >
               <RefreshCw size={16} />
@@ -202,7 +219,7 @@ export default function NotificationProfile() {
                 </p>
                 <button
                   className={secondary}
-                  disabled={busy}
+                  disabled={blocked}
                   onClick={() =>
                     action(async (current) => {
                       await sendEmailVerification(current);
@@ -260,7 +277,7 @@ export default function NotificationProfile() {
             }}
           >
             <fieldset
-              disabled={busy}
+              disabled={blocked}
               className={`${styles.preferenceCard} space-y-6`}
             >
               <legend className="sr-only">Notification preferences</legend>
@@ -346,7 +363,7 @@ export default function NotificationProfile() {
               <p className={styles.previewNote}>Preview · Matching role alerts and a thoughtful daily recap.</p>
             </aside>
             <fieldset
-              disabled={busy}
+              disabled={blocked}
               className={styles.preferenceCard}
             >
               <legend className={styles.sectionTitle}>
@@ -479,7 +496,7 @@ export default function NotificationProfile() {
                   placeholder="alerts@your-domain.com"
                   value={sender}
                   onChange={(e) => setSender(e.target.value)}
-                  disabled={busy}
+                  disabled={blocked}
                 />
               </label>
               <label className={styles.byokLabel}>
@@ -495,7 +512,7 @@ export default function NotificationProfile() {
                   }
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  disabled={busy}
+                  disabled={blocked}
                 />
               </label>
               <label className={styles.byokLabel}>
@@ -509,10 +526,10 @@ export default function NotificationProfile() {
                   placeholder="whsec_…"
                   value={webhookSecret}
                   onChange={(e) => setWebhookSecret(e.target.value)}
-                  disabled={busy}
+                  disabled={blocked}
                 />
               </label>
-              <button className={secondary} disabled={busy}>
+              <button className={secondary} disabled={blocked}>
                 {settings.key_configured
                   ? "Replace connection"
                   : "Save connection"}
@@ -529,7 +546,7 @@ export default function NotificationProfile() {
                 <div className="flex flex-wrap gap-3">
                   <button
                     className={button}
-                    disabled={busy || !settings.verified}
+                    disabled={blocked || !settings.verified}
                     onClick={() =>
                       action(async (current) => {
                         await notificationRequest(
@@ -547,7 +564,7 @@ export default function NotificationProfile() {
                   </button>
                   <button
                     className={secondary}
-                    disabled={busy}
+                    disabled={blocked}
                     onClick={() =>
                       action(async (current) => {
                         const next =
@@ -591,7 +608,7 @@ export default function NotificationProfile() {
       ) : (
         <button
           className={`${secondary} mt-6`}
-          disabled={busy}
+          disabled={blocked}
           onClick={() => action(refresh)}
         >
           Retry loading preferences
