@@ -1,5 +1,12 @@
 import type { User } from "firebase/auth";
 import { auth } from "./firebase";
+import { assertRequestReady, limitedFetch } from "./requestCooldown";
+
+export function privateRequestScope(user: Pick<User, "uid">, method = "GET", path = ""): string {
+  const family = path.startsWith("/analytics/events") ? "analytics"
+    : ["GET", "HEAD"].includes(method.toUpperCase()) ? "read" : "write";
+  return `private:${user.uid}:${family}`;
+}
 
 export const notificationApiUrl = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
@@ -57,8 +64,11 @@ export async function notificationRequest<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
+  const scope = privateRequestScope(user, init.method, path);
+  assertRequestReady(scope);
   const token = await user.getIdToken();
-  const response = await fetch(`${notificationApiUrl}/api/v1${path}`, {
+  if (auth.currentUser?.uid !== user.uid) throw new Error("Your account changed. Please reload your preferences.");
+  const response = await limitedFetch(`${notificationApiUrl}/api/v1${path}`, {
     ...init,
     cache: "no-store",
     headers: {
@@ -66,7 +76,7 @@ export async function notificationRequest<T>(
       ...init.headers,
       Authorization: `Bearer ${token}`,
     },
-  });
+  }, scope);
   const data = await response.json().catch(() => null);
   if (auth.currentUser?.uid !== user.uid)
     throw new Error("Your account changed. Please reload your preferences.");
