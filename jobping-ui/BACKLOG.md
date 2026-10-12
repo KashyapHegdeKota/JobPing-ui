@@ -2,7 +2,9 @@
 
 ## In progress
 
-No in-progress items.
+### UI-ABUSE-001 Handle authentication and refresh throttling
+
+- Implementing coordinated authentication cooldowns, HTTP throttling and stable live connections on `codex/request-abuse-protection`. Tests and modular GitHub publication follow; provider/hosting activation remains an operational rollout.
 
 ## Completed
 
@@ -73,6 +75,13 @@ No in-progress items.
 - Email brand icon added for the sibling backend's supplied HTML design refresh.
 
 ## Follow-up
+
+### UI-ABUSE-001 Handle authentication and refresh throttling
+
+- Planning complete; implementation/deployment pending. Canonical architecture is in sibling backend `docs/request-abuse-protection.md` (API-ABUSE-001). Scope includes browser reloads, feed/filter requests and live reconnects.
+- Handle Firebase throttling without automatic credential retries; add HTTP 429/Retry-After cooldowns that preserve displayed jobs and preferences, coalesce requests, and keep filter changes from recreating live sockets. Add reconnect jitter and stable-connection backoff reset.
+- Coordinate Vercel navigation firewall rules and Firebase/Identity Platform provider protection with backend policy rollout. Browser timers/preflight cannot enforce direct Firebase quotas; backend/edge enforcement is required.
+- Validate mocked login/429/reconnect behavior, full frontend checks and reload/filter/multiple-tab/shared-network UX. Account/hosting settings were not changed during planning.
 
 - Compare exact Figma measurements and original assets once MCP access is restored. Current fidelity is intentionally approximate.
 
