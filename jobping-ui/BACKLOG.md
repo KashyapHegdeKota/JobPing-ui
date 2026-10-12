@@ -10,7 +10,7 @@ No in-progress items.
 
 - Completed: generic provider-safe login errors, in-flight guards, Firebase throttle cooldowns, reload-persistent HTTP cooldowns before token requests, data-preserving retry controls and shared reference caching. Filter changes retain the live socket; reconnects use jitter and reset after stability.
 - Validation: all 130 frontend tests, lint, standalone type checking and production build pass. Regressions cover private account changes, duplicate actions, no automatic credential retries, preserved jobs/preferences/analytics, request coalescing and owned timer/socket cleanup.
-- Published 19 focused implementation/documentation commits to `codex/request-abuse-protection` and draft PR #25; coordinated backend is draft PR #41. Hosting/provider settings and production deployment were not changed. See `docs/request-protection.md` and sibling activation docs; GitHub CI is running.
+- Published 20 focused implementation/documentation commits to `codex/request-abuse-protection` and draft PR #25; coordinated backend is draft PR #41. Hosting/provider settings and production deployment were not changed. See `docs/request-protection.md` and sibling activation docs; UI CI and security checks passed on implementation revision `af0928c`.
 
 ### UI-PUBLISH-001 Publish production rollout records
 
