@@ -23,6 +23,9 @@ No in-progress items.
   Production frontend rollout remains pending; sibling item AUTH-REMEMBER-001.
 - Coordinated backend default suite passes (954 passed, 30 opt-in skips); full
   Ruff/Black and both repositories' diff checks pass.
+- Published on `codex/remember-login` in [frontend PR #26](https://github.com/KashyapHegdeKota/JobPing-ui/pull/26),
+  with [backend backlog PR #44](https://github.com/KashyapHegdeKota/JobPing/pull/44).
+  Both are draft reviews; GitHub checks are running and production rollout remains pending.
 
 ### UI-ABUSE-001 Handle authentication and refresh throttling
 
