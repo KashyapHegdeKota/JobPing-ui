@@ -6,7 +6,9 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
-  signInWithPopup 
+  signInWithPopup,
+  browserLocalPersistence,
+  setPersistence
 } from "firebase/auth";
 import { X, BriefcaseBusiness } from "lucide-react";
 import styles from "./AuthModal.module.css";
@@ -66,6 +68,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
 
     try {
       assertRequestReady(authCooldownScope);
+      await setPersistence(auth, browserLocalPersistence);
       if (isSignUp) {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
@@ -90,6 +93,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "signup", onA
     
     try {
       assertRequestReady(authCooldownScope);
+      await setPersistence(auth, browserLocalPersistence);
       await signInWithPopup(auth, provider);
       onClose();
       onAuthenticated?.();

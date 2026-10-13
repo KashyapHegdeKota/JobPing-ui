@@ -19,6 +19,7 @@
 .jp-landing .actions{display:flex;align-items:center;gap:12px}
 .jp-landing .btn{display:inline-flex;justify-content:center;align-items:center;gap:12px;min-height:46px;padding:12px 22px;background:var(--navy);border:1px solid var(--navy);border-radius:12px;color:white;font-size:14px;font-weight:600;text-decoration:none;line-height:20px;transition:transform .2s,background .2s}
 .jp-landing .btn:hover{background:#243755;transform:translateY(-2px)}
+.jp-landing .btn:disabled{cursor:wait;opacity:.65;transform:none}
 .jp-landing .btn.secondary{background:white;border-color:var(--border);color:var(--text)}
 .jp-landing .btn.secondary:hover{background:var(--green-soft)}
 .jp-landing .btn.quiet{background:var(--canvas);border-color:var(--canvas);color:var(--text)}

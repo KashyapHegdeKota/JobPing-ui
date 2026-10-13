@@ -1,11 +1,19 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import LandingPage from "./LandingPage";
 
 const navigation = vi.hoisted(() => ({ push: vi.fn() }));
+const account = vi.hoisted(() => ({ user: null as { uid: string } | null, pending: false, callback: null as ((user: { uid: string } | null) => void) | null, unsubscribe: vi.fn() }));
+vi.mock("../lib/firebase", () => ({ auth: {} }));
+vi.mock("firebase/auth", () => ({ onAuthStateChanged: (_auth: unknown, callback: (user: { uid: string } | null) => void) => {
+  account.callback = callback;
+  if (!account.pending) callback(account.user);
+  return account.unsubscribe;
+} }));
 vi.mock("next/navigation", () => ({ useRouter: () => navigation }));
 vi.mock("./AuthModal", () => ({ default: ({ isOpen, initialMode, onClose, onAuthenticated }: { isOpen: boolean; initialMode: string; onClose: () => void; onAuthenticated: () => void }) => isOpen ? <div role="dialog" aria-label={initialMode}><button onClick={onClose}>Close account dialog</button><button onClick={onAuthenticated}>Complete sign-in</button></div> : null }));
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
+beforeEach(() => { account.user = null; account.pending = false; account.callback = null; });
 
 describe("Landing page", () => {
   it("enters the feed after successful authentication, not dismissal", () => {
@@ -39,5 +47,37 @@ describe("Landing page", () => {
     expect(screen.getByRole("button", { name: "Close navigation" })).toHaveAttribute("aria-expanded", "true");
     fireEvent.click(screen.getAllByRole("link", { name: "Live opportunities" })[1]);
     expect(screen.getByRole("button", { name: "Open navigation" })).toHaveAttribute("aria-expanded", "false");
+  });
+  it("recognizes a restored session and links returning users straight to the feed", () => {
+    account.user = { uid: "returning-user" };
+    render(<LandingPage />);
+    expect(screen.queryByRole("button", { name: "Log in" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Get started/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Your account" })).toHaveAttribute("href", "/profile");
+    expect(screen.getByRole("link", { name: "Find my next opportunity" })).toHaveAttribute("href", "/jobs");
+    for (const link of screen.getAllByRole("link", { name: /Open live feed/ })) expect(link).toHaveAttribute("href", "/jobs");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+  it("waits for session restoration before offering account actions and releases the observer", () => {
+    account.pending = true;
+    const view = render(<LandingPage />);
+    expect(screen.queryByRole("button", { name: "Log in" })).not.toBeInTheDocument();
+    for (const button of screen.getAllByRole("button", { name: "Checking account…" })) expect(button).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Find my next opportunity" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    act(() => account.callback!({ uid: "returning-user" }));
+    expect(screen.getByRole("link", { name: "Your account" })).toBeInTheDocument();
+    view.unmount();
+    expect(account.unsubscribe).toHaveBeenCalledOnce();
+  });
+  it("updates for sign-out and closes stale login prompts after sign-in in another tab", () => {
+    account.user = { uid: "returning-user" };
+    render(<LandingPage />);
+    act(() => account.callback!(null));
+    fireEvent.click(screen.getByRole("button", { name: "Log in" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    act(() => account.callback!({ uid: "returning-user" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Your account" })).toBeInTheDocument();
   });
 });

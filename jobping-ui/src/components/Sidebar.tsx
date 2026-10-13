@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, List, UserPlus, User, LogOut } from "lucide-react";
-import { auth } from "@/lib/firebase";
+import { auth } from "../lib/firebase";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import AuthModal from "./AuthModal";
 import ThemeToggle from "./ThemeToggle";
@@ -22,8 +22,13 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
+  useEffect(() => onAuthStateChanged(auth, (current) => {
+    setUser(current);
+    setAuthReady(true);
+    if (current) setIsAuthModalOpen(false);
+  }), []);
   const handleSignOut = async () => {
     try { await signOut(auth); }
     catch (error) { console.error("Error signing out:", error); }
@@ -34,7 +39,7 @@ export default function Sidebar() {
 
   return <>
     <div className={styles.mobile}>
-      <div className={styles.mobileTop}><Brand /><div className={styles.mobileActions}><ThemeToggle /><button onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{user ? "Sign out" : "Sign in"}</button></div></div>
+      <div className={styles.mobileTop}><Brand /><div className={styles.mobileActions}><ThemeToggle /><button disabled={!authReady} onClick={() => user ? handleSignOut() : setIsAuthModalOpen(true)}>{!authReady ? "Checking account…" : user ? "Sign out" : "Sign in"}</button></div></div>
       <nav aria-label="Mobile navigation" className={styles.mobileLinks}>{navigation}</nav>
       <AnalyticsNav user={user} />
     </div>
@@ -52,7 +57,7 @@ export default function Sidebar() {
               <div><span className={styles.name}>{user.displayName || user.email?.split("@")[0] || "User"}</span><small>Your JobPing account</small></div>
             </div>
             <button onClick={handleSignOut} className={styles.signOut}><LogOut size={14} aria-hidden="true" />Sign out</button>
-          </> : <button onClick={() => setIsAuthModalOpen(true)} className={styles.signIn}>Sign in to JobPing</button>}
+          </> : <button disabled={!authReady} onClick={() => setIsAuthModalOpen(true)} className={styles.signIn}>{authReady ? "Sign in to JobPing" : "Checking account…"}</button>}
         </div>
       </div>
     </aside>
