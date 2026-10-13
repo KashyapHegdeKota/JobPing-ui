@@ -4,7 +4,7 @@ import AuthModal from "./AuthModal";
 
 const provider = vi.hoisted(() => ({ email: vi.fn(), google: vi.fn() }));
 vi.mock("../lib/firebase", () => ({ auth: {} }));
-vi.mock("firebase/auth", () => ({ signInWithEmailAndPassword: provider.email, createUserWithEmailAndPassword: provider.email, signInWithPopup: provider.google, GoogleAuthProvider: class {} }));
+vi.mock("firebase/auth", () => ({ signInWithEmailAndPassword: provider.email, createUserWithEmailAndPassword: provider.email, signInWithPopup: provider.google, GoogleAuthProvider: class {}, setPersistence: vi.fn().mockResolvedValue(undefined), browserLocalPersistence: {} }));
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.clearAllMocks(); vi.useRealTimers(); });
 it("guards double submissions before state has rerendered", async () => {
   provider.email.mockImplementationOnce(() => new Promise(() => {}));

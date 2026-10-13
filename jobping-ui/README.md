@@ -10,6 +10,17 @@ Feed analytics retain their existing backend page identity.
 Successful Google or email authentication from the landing page opens `/jobs`.
 Closing the dialog or cancelling a popup leaves the landing page in place.
 
+Google sign-in, email sign-in and email sign-up explicitly use Firebase local
+authentication persistence. Users stay signed in on the same browser and domain
+across reloads and browser restarts, including visits several days later, until
+they sign out, clear site data or Firebase invalidates the session. There is no
+automatic two-day logout. Private browsing or blocked browser storage can prevent
+the session from being remembered. Firebase manages token refresh; the backend
+continues to verify tokens and reject revoked or disabled accounts.
+The homepage recognizes returning users with **Your account** and **Open live feed**
+links. Account controls wait for Firebase to restore the session before offering
+sign-in; no passwords or tokens are copied into custom application storage.
+
 Job cards show company initials, role types, locations, available work arrangements
 and posted/discovered dates. The bookmark control saves role IDs in this browser's
 local storage; bookmarks are device-local and are not synced to your account.

@@ -6,6 +6,27 @@ No in-progress items.
 
 ## Completed
 
+### UI-AUTH-002 Remember returning signed-in users
+
+- Completed: Google sign-in, email sign-in and sign-up explicitly persist
+  sessions before authentication. Sessions survive browser restarts and multi-day
+  returns; Firebase owns token refresh with no automatic two-day logout.
+- Homepage recognizes restored users with account/feed links. Homepage and
+  workspace wait for restoration before offering login and close stale dialogs
+  after cross-tab sign-in. Explicit sign-out and auth throttling remain intact.
+- Working-tree validation: 146 tests pass, including a real Firebase SDK session restored three
+  days later with mocked HTTP, token refresh and sign-out/restart verification.
+  Persistence ordering/failure, returning-user/guest and observer-cleanup
+  regressions pass; full lint, standalone types, production build and diff checks pass.
+- Windows fork-worker startup timed out; the successful full run used one thread
+  worker. No provider/backend settings, account preferences or deployments changed.
+  Production frontend rollout remains pending; sibling item AUTH-REMEMBER-001.
+- Coordinated backend default suite passes (954 passed, 30 opt-in skips); full
+  Ruff/Black and both repositories' diff checks pass.
+- Published on `codex/remember-login` in [frontend PR #26](https://github.com/KashyapHegdeKota/JobPing-ui/pull/26),
+  with [backend backlog PR #44](https://github.com/KashyapHegdeKota/JobPing/pull/44).
+  Both are draft reviews; GitHub checks are running and production rollout remains pending.
+
 ### UI-ABUSE-001 Handle authentication and refresh throttling
 
 - Completed: generic provider-safe login errors, in-flight guards, Firebase throttle cooldowns, reload-persistent HTTP cooldowns before token requests, data-preserving retry controls and shared reference caching. Filter changes retain the live socket; reconnects use jitter and reset after stability.
