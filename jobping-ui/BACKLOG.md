@@ -4,16 +4,14 @@
 
 ### UI-CHECK-001 Sponsorship and pay checks before applying
 
-- Resumed at the user's request on October 13, 2026. Implemented private requirements,
+- Resumed at the user's request. Implemented private requirements,
   server-counted match/review/excluded feed and read-only pre-application dialog behind
-  NEXT_PUBLIC_SCREENING_ENABLED. No deployment or account settings changed.
+  NEXT_PUBLIC_SCREENING_ENABLED. Publication and production rollout are authorized.
 - Coordinated with sibling DISCOVERY-CHECK-001; notification settings remain independent.
-- Validation: 135 tests and enabled production build passed; fixture desktop/390px
+- Validation: 150 tests, lint/types and enabled production build passed; fixture desktop/390px
   phone feed/dialog screenshots show no horizontal overflow. Final coordinated checks
   and rollout remain. Resume from sibling `docs/evidence-implementation-handoff.md`.
 
-
-No in-progress items.
 
 ## Completed
 
