@@ -5,6 +5,7 @@ import type { JobDetails, EmployerRecord } from '../lib/jobDetails';
 import { parseJobDetails, parseEmployerRecords } from '../lib/parseJobDetails';
 
 export interface Job {
+  screening?: { bucket: 'matches' | 'review' | 'excluded'; reasons: string[] };
   details?: JobDetails | null;
   immigration_records?: EmployerRecord[];
   id: string | number;
