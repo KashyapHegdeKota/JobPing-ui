@@ -2,18 +2,29 @@
 
 ## In progress
 
-### UI-CHECK-001 Sponsorship and pay checks before applying
-
-- Resumed at the user's request. Implemented private requirements,
-  server-counted match/review/excluded feed and read-only pre-application dialog behind
-  NEXT_PUBLIC_SCREENING_ENABLED. Publication and production rollout are authorized.
-- Coordinated with sibling DISCOVERY-CHECK-001; notification settings remain independent.
-- Validation: 150 tests, lint/types and enabled production build passed; fixture desktop/390px
-  phone feed/dialog screenshots show no horizontal overflow. Final coordinated checks
-  and rollout remain. Resume from sibling `docs/evidence-implementation-handoff.md`.
-
+No in-progress items.
 
 ## Completed
+
+### UI-CHECK-001 Sponsorship and pay checks before applying
+
+- Completed and live October 14, 2026. [UI PR #27](https://github.com/KashyapHegdeKota/JobPing-ui/pull/27)
+  merged as `cb4966a`; backend [PR #45](https://github.com/KashyapHegdeKota/JobPing/pull/45)
+  migrated/deployed first and the independent renderer/evidence worker are healthy.
+- Saved Production `NEXT_PUBLIC_SCREENING_ENABLED=true` after backend acceptance.
+  Uncached Vercel deployment `ETxS2SKEY996emR41YH57oL1Vbwo` is Ready on jobping.website.
+  Private requirements, server-counted Matches/Needs review/Does not meet requirements,
+  cached/source-backed pre-application checks and manual employer continuation are live.
+- All 150 tests, lint, standalone types and enabled production build pass. GitHub
+  CI/security and Vercel checks pass. Live signed-in profile/feed/buckets/dialog and
+  desktop/390px mobile review pass with no horizontal overflow or browser warnings/errors.
+  Existing remember-me restored the account; no requirements or notification settings
+  were changed for verification. Backend live API/auth/CORS/WebSocket/SSE pass.
+- Evidence backfill runs in the background. Unsupported/unknown/conditional/conflicting
+  employer terms require review. Advertised maximum pay reaching a target does not
+  guarantee the offer. Set your own requirements in Profile; they remain private and
+  independent of email preferences. See the sibling `docs/pre-application-evidence.md`
+  for production pins, coverage, worker lifecycle and rollback.
 
 ### UI-AUTH-002 Remember returning signed-in users
 
