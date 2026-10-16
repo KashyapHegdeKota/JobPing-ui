@@ -2,7 +2,18 @@
 
 ## In progress
 
-No in-progress items.
+### UI-CHECK-001 Sponsorship and pay checks before applying
+
+- Resumed and updated on October 16, 2026. Implemented private requirements,
+  server-counted match/review/excluded feed and read-only pre-application dialog behind
+  NEXT_PUBLIC_SCREENING_ENABLED, and preserved `company.immigration_records` in
+  `parseScreenedPage` so screened job cards display official DOL/USCIS employer history.
+  No deployment or account settings changed.
+- Coordinated with sibling DISCOVERY-CHECK-001; notification settings remain independent.
+- Validation: 150 tests across 33 test files, ESLint, standalone TypeScript check and
+  enabled production build passed; fixture desktop/390px phone feed/dialog screenshots
+  show no horizontal overflow. Staged rollout behind `NEXT_PUBLIC_SCREENING_ENABLED`
+  remains an operator step. See sibling `docs/evidence-implementation-handoff.md`.
 
 ## Completed
 

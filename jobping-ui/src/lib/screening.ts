@@ -1,5 +1,5 @@
 import type { Job } from "../hooks/useLiveJobs";
-import { isEvidence, parseJobDetails } from "./parseJobDetails";
+import { isEvidence, parseEmployerRecords, parseJobDetails } from "./parseJobDetails";
 import type { Evidence } from "./jobDetails";
 
 export const screeningEnabled = () => process.env.NEXT_PUBLIC_SCREENING_ENABLED === "true";
@@ -56,7 +56,8 @@ export function parseScreenedPage(value: unknown): ScreenedPage {
     return { id: item.id, title: item.title, company: item.company.name, location: item.location,
       apply_url: item.apply_url, discovered_at: item.created_at, posted_at: typeof item.posted_at === "string" ? item.posted_at : undefined,
       role_type: String(item.job_type), is_closed: item.is_closed === true,
-      details: parseJobDetails(item.details), screening: parseScreening(item.screening) } satisfies Job;
+      details: parseJobDetails(item.details), immigration_records: parseEmployerRecords(item.company.immigration_records),
+      screening: parseScreening(item.screening) } satisfies Job;
   });
   return { items, total: value.total, counts: counts as Record<ScreeningBucket, number>, page: value.page,
     total_pages: value.total_pages, profile_configured: value.profile_configured === true };

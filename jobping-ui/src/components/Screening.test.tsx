@@ -18,10 +18,20 @@ beforeEach(() => { vi.clearAllMocks(); mocks.auth.currentUser = { uid: "alice", 
 afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
 
 describe("Private screening", () => {
-  it("rejects malformed server screening labels", () => {
+  it("rejects malformed server screening labels and preserves official employer history", () => {
     expect(parseScreening({ bucket: "guaranteed", reasons: [] })).toBeUndefined();
     expect(() => parseScreenedPage({ ...page, counts: { matches: -1 } })).toThrow();
     expect(parseRestrictions({ restrictions: { citizenship_required: { value: "required", evidence: [{ source: "employer_page", excerpt: "Must be a citizen", observed_at: "2026-10-13T00:00:00Z", source_url: "javascript:alert(1)" }] } } })).toEqual({});
+    const parsed = parseScreenedPage({
+      ...page,
+      items: [{
+        id: 1, title: "Engineer", location: "Austin, TX, US", apply_url: job.apply_url,
+        created_at: "2026-10-12T00:00:00Z", job_type: "internship", is_closed: false,
+        company: { name: "Acme", immigration_records: [{ kind: "h1b_filings", year: 2025, count: 12, employer_name: "ACME LLC", source_url: "https://www.dol.gov/data", observed_at: "2026-10-12T00:00:00Z" }] },
+        details: null, screening: { bucket: "matches", reasons: ["Matches your target"] },
+      }],
+    });
+    expect(parsed.items[0].immigration_records?.[0]?.count).toBe(12);
   });
   it("shows the employer quote supporting a citizenship restriction", async () => {
     const evidence = { job_id: 1, status: "complete", fresh: true, verified_at: "2026-10-13T00:00:00Z", checked_at: null, documents: [], details: { policies: {}, compensation: [], restrictions: { citizenship_required: { value: "required", evidence: [{ source: "employer_page", excerpt: "Candidates must be US citizens.", observed_at: "2026-10-13T00:00:00Z", source_url: job.apply_url }] } } }, screening: { bucket: "excluded", reasons: ["Employer requires citizenship or permanent authorization"] } };
