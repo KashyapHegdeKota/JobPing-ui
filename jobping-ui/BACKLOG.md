@@ -2,9 +2,44 @@
 
 ## In progress
 
-No in-progress items.
+### UI-CHECK-001 Sponsorship and pay checks before applying
+
+- Resumed and updated on October 16, 2026. Implemented private requirements,
+  server-counted match/review/excluded feed and read-only pre-application dialog behind
+  NEXT_PUBLIC_SCREENING_ENABLED, and preserved `company.immigration_records` in
+  `parseScreenedPage` so screened job cards display official DOL/USCIS employer history.
+  No deployment or account settings changed.
+- Coordinated with sibling DISCOVERY-CHECK-001; notification settings remain independent.
+- Validation: 150 tests across 33 test files, ESLint, standalone TypeScript check and
+  enabled production build passed; fixture desktop/390px phone feed/dialog screenshots
+  show no horizontal overflow. Staged rollout behind `NEXT_PUBLIC_SCREENING_ENABLED`
+  remains an operator step. See sibling `docs/evidence-implementation-handoff.md`.
 
 ## Completed
+
+### UI-AUTH-002 Remember returning signed-in users
+
+- Completed locally: Google sign-in, email sign-in and sign-up explicitly persist
+  sessions before authentication. Sessions survive browser restarts and multi-day
+  returns; Firebase owns token refresh with no automatic two-day logout.
+- Homepage recognizes restored users with account/feed links. Homepage and
+  workspace wait for restoration before offering login and close stale dialogs
+  after cross-tab sign-in. Explicit sign-out and auth throttling remain intact.
+- Validation: 146 tests pass, including a real Firebase SDK session restored three
+  days later with mocked HTTP, token refresh and sign-out/restart verification.
+  Persistence ordering/failure, returning-user/guest and observer-cleanup
+  regressions pass; full lint, standalone types, production build and diff checks pass.
+- Windows fork-worker startup timed out; the successful full run used one thread
+  worker. No provider/backend settings, account preferences or deployments changed.
+  Production frontend rollout verified October 13; sibling item AUTH-REMEMBER-001.
+  UI PR #26 is merged as `49c0296`; Vercel Production deployment `7051619660`
+  succeeded and jobping.website responds HTTP 200. No screening flag was activated.
+- Coordinated backend default suite passes (954 passed, 30 opt-in skips); full
+  Ruff/Black and both repositories' diff checks pass.
+- Published from isolated `codex/remember-login` checkouts in [frontend PR #26](https://github.com/KashyapHegdeKota/JobPing-ui/pull/26)
+  and [backend backlog PR #44](https://github.com/KashyapHegdeKota/JobPing/pull/44).
+  UI PR #26 is merged; CI/security/Vercel checks pass and production rollout succeeded.
+  Original working-tree edits, including paused screening work, are preserved locally.
 
 ### UI-ABUSE-001 Handle authentication and refresh throttling
 
