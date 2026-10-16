@@ -1,4 +1,5 @@
 import NotificationProfile from "../../components/NotificationProfile";
+import ScreeningProfile from "../../components/ScreeningProfile";
 
 export const metadata = {
   title: "The right role. Right away. | JobPing",
@@ -6,5 +7,5 @@ export const metadata = {
 };
 
 export default function ProfilePage() {
-  return <NotificationProfile />;
+  return <>{process.env.NEXT_PUBLIC_SCREENING_ENABLED === "true" && <ScreeningProfile />}<NotificationProfile /></>;
 }

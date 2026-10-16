@@ -4,7 +4,7 @@ function object(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function evidence(value: unknown): value is Evidence {
+export function isEvidence(value: unknown): value is Evidence {
   return object(value) && typeof value.source === 'string' && typeof value.excerpt === 'string'
     && typeof value.source_url === 'string' && !!safeEvidenceUrl(value.source_url)
     && typeof value.observed_at === 'string' && Number.isFinite(Date.parse(value.observed_at));
@@ -22,11 +22,11 @@ export function parseJobDetails(value: unknown): JobDetails | null | undefined {
   for (const [key, fact] of Object.entries(value.policies)) {
     if (!Object.hasOwn(policyNames, key) || !object(fact) || typeof fact.value !== 'string'
       || !['allowed', 'denied', 'conditional', 'conflicting', 'unknown'].includes(fact.value)
-      || !Array.isArray(fact.evidence) || !fact.evidence.every(evidence)) continue;
+      || !Array.isArray(fact.evidence) || !fact.evidence.every(isEvidence)) continue;
     policies[key as PolicyKind] = fact as unknown as PolicyFact;
   }
   const compensation = value.compensation.slice(0, 20).filter((pay): pay is CompensationRange =>
-    evidence(pay) && object(pay) && amount(pay.minimum) && amount(pay.maximum)
+    isEvidence(pay) && object(pay) && amount(pay.minimum) && amount(pay.maximum)
     && (pay.minimum !== null || pay.maximum !== null)
     && (pay.minimum === null || pay.maximum === null || Number(pay.minimum) <= Number(pay.maximum))
     && typeof pay.currency === 'string' && /^[A-Z]{3}$/.test(pay.currency)

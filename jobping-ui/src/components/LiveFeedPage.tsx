@@ -5,9 +5,16 @@ import Filters from './Filters';
 import JobFeed from './JobFeed';
 import { useLiveJobs } from '../hooks/useLiveJobs';
 import styles from '../app/jobs-page.module.css';
+import ScreenedFeed from './ScreenedFeed';
+import { screeningEnabled } from '../lib/screening';
+import screeningStyles from './screening.module.css';
 
 export default function LiveFeedPage() {
-  return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}><LiveFeed /></Suspense>;
+  const [screened, setScreened] = useState(true);
+  return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}>
+    {screeningEnabled() && <nav aria-label="Job feed mode" className={screeningStyles.actions}><button type="button" aria-pressed={screened} onClick={() => setScreened(true)}>My screened roles</button><button type="button" aria-pressed={!screened} onClick={() => setScreened(false)}>All roles</button></nav>}
+    {screeningEnabled() && screened ? <ScreenedFeed /> : <LiveFeed />}
+  </Suspense>;
 }
 
 function LiveFeed() {

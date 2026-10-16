@@ -8,6 +8,8 @@ import { formatJobCardDate, isDayOnlyPostingDate } from "../lib/jobDates";
 import { trackActivity } from "../lib/analytics";
 import styles from "./JobCard.module.css";
 import JobEvidence from './JobEvidence';
+import BeforeApplying from './BeforeApplying';
+import { bucketLabels, screeningEnabled } from '../lib/screening';
 
 export default function JobCard({ job }: { job: Job }) {
   const { saved, toggle, error } = useSavedJob(job.id);
@@ -41,12 +43,14 @@ export default function JobCard({ job }: { job: Job }) {
     <div className={styles.footer}>
       <span className={styles.date}><Clock size={14} aria-hidden="true" /><time title={absoluteDate} dateTime={validDate ? semanticDate : undefined}>{dateText}</time></span>
       {job.is_closed && <span className={styles.closed}>Applications closed</span>}
-      {!job.is_closed && job.apply_url && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
+      {!job.is_closed && job.apply_url && screeningEnabled() && <BeforeApplying job={job} />}
+      {!job.is_closed && job.apply_url && !screeningEnabled() && <a href={job.apply_url} target="_blank" rel="noopener noreferrer" className={styles.view} aria-label={`View role: ${job.title} at ${job.company}`} onClick={() => {
         const jobId = Number(job.id);
         if (Number.isSafeInteger(jobId) && jobId > 0) void trackActivity("job_click", "/", { job_id: jobId });
       }}>View role <ExternalLink size={15} aria-hidden="true" /></a>}
     </div>
     <JobEvidence job={job} />
+    {job.screening && <div role="status"><strong>{bucketLabels[job.screening.bucket]}</strong><ul>{job.screening.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
     {error && <p role="status" className={styles.error}>{error}</p>}
   </motion.article>;
 }
