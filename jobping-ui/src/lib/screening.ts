@@ -1,5 +1,5 @@
 import type { Job } from "../hooks/useLiveJobs";
-import { isEvidence, parseJobDetails } from "./parseJobDetails";
+import { isEvidence, parseEmployerRecords, parseJobDetails } from "./parseJobDetails";
 import type { Evidence } from "./jobDetails";
 
 export const screeningEnabled = () => process.env.NEXT_PUBLIC_SCREENING_ENABLED === "true";
