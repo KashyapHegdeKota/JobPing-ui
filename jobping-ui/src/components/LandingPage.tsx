@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../lib/firebase";
 import AuthModal from "./AuthModal";
 import "./landing.css";
 
@@ -11,6 +13,11 @@ export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  useEffect(() => onAuthStateChanged(auth, (user) => {
+    setSignedIn(Boolean(user));
+    if (user) setAuthOpen(false);
+  }), []);
   const closeMenu = () => setMenuOpen(false);
   const closeAuth = useCallback(() => setAuthOpen(false), []);
   const openAuth = (mode: "signin" | "signup") => { setAuthMode(mode); setAuthOpen(true); closeMenu(); };
@@ -29,17 +36,17 @@ export default function LandingPage() {
     <div className="container header">
       <Link className="brand" href="/" aria-label="JobPing home"><svg aria-hidden="true"><use href="#brand-mark"/></svg>jobping</Link>
       <nav className="nav" aria-label="Main navigation"><a href="#how-it-works" onClick={closeMenu}>How it works</a><Link href="/jobs" onClick={closeMenu}>Live opportunities</Link><Link href="/profile" onClick={closeMenu}>Daily recap</Link></nav>
-      <div className="actions"><button className="btn quiet" type="button" onClick={() => openAuth("signin")}> Log in</button><button className="btn" type="button" onClick={() => openAuth("signup")}> Get started <span aria-hidden="true">→</span></button></div>
+      <div className="actions">{signedIn ? <><Link className="btn quiet" href="/profile">Your account</Link><Link className="btn" href="/jobs">Open live feed <span aria-hidden="true">→</span></Link></> : signedIn === null ? <button className="btn quiet" type="button" disabled>Checking account…</button> : <><button className="btn quiet" type="button" onClick={() => openAuth("signin")}> Log in</button><button className="btn" type="button" onClick={() => openAuth("signup")}> Get started <span aria-hidden="true">→</span></button></>}</div>
       <button className="mobile-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="mobile-nav"><svg className="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
-    <nav className={`mobile-nav ${menuOpen ? "open" : ""}`} id="mobile-nav" aria-label="Mobile navigation"><a href="#how-it-works" onClick={closeMenu}>How it works</a><Link href="/jobs" onClick={closeMenu}>Live opportunities</Link><Link href="/profile" onClick={closeMenu}>Daily recap</Link><button className="btn" type="button" onClick={() => openAuth("signup")}> Get started →</button></nav>
+    <nav className={`mobile-nav ${menuOpen ? "open" : ""}`} id="mobile-nav" aria-label="Mobile navigation"><a href="#how-it-works" onClick={closeMenu}>How it works</a><Link href="/jobs" onClick={closeMenu}>Live opportunities</Link><Link href="/profile" onClick={closeMenu}>Daily recap</Link>{signedIn ? <Link className="btn" href="/jobs" onClick={closeMenu}>Open live feed →</Link> : <button className="btn" type="button" disabled={signedIn === null} onClick={() => openAuth("signup")}>{signedIn === null ? "Checking account…" : "Get started →"}</button>}</nav>
   </header>
   <main id="main">
     <section className="hero" aria-labelledby="hero-title"><div className="container hero-grid">
       <div><span className="eyebrow"><span className="dot" aria-hidden="true"></span>Built for tech’s next generation</span>
         <h1 id="hero-title">Get pinged.<br />Get ahead.</h1>
         <p className="hero-copy">Your first tech role shouldn’t be a race against refresh.<br />Discover new grad jobs and internships as they drop,<br />with instant email alerts and a daily recap.</p>
-        <div className="hero-actions"><button className="btn" type="button" onClick={() => openAuth("signup")}> Find my next opportunity <span aria-hidden="true">→</span></button><Link className="btn secondary" href="/jobs" onClick={closeMenu}>Explore the live feed</Link></div>
+        <div className="hero-actions">{signedIn ? <Link className="btn" href="/jobs">Find my next opportunity <span aria-hidden="true">→</span></Link> : <button className="btn" type="button" disabled={signedIn === null} onClick={() => openAuth("signup")}> Find my next opportunity <span aria-hidden="true">→</span></button>}<Link className="btn secondary" href="/jobs" onClick={closeMenu}>Explore the live feed</Link></div>
         <div className="benefits"><span className="benefit"><svg className="icon" aria-hidden="true"><use href="#check"/></svg>Instant email alerts</span><span className="benefit"><svg className="icon" aria-hidden="true"><use href="#check"/></svg>New grad + internships</span></div>
       </div>
       <div className="hero-art">
