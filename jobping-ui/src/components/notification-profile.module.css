@@ -24,8 +24,8 @@
 
 .title { margin-top: 0.65rem; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 700; letter-spacing: -0.045em; line-height: 1.05; }
 .lede { max-width: 42rem; margin-top: 1rem; color: var(--profile-muted); font-size: 1rem; line-height: 1.65; }
-.alert { margin-top: 1.5rem; border: 1px solid #f3b8bc; border-radius: 0.9rem; background: #fff4f4; color: #9e313b; padding: 1rem 1.1rem; font-size: 0.9rem; }
-.success { margin-top: 1.5rem; display: flex; gap: 0.55rem; align-items: center; border: 1px solid #a8dec3; border-radius: 0.9rem; background: var(--profile-accent-soft); color: var(--profile-accent); padding: 1rem 1.1rem; font-size: 0.9rem; }
+.alert { margin-top: 1.5rem; border: 1px solid var(--jp-danger-border, #f3b8bc); border-radius: 0.9rem; background: var(--jp-danger-soft, #fff4f4); color: var(--jp-danger, #9e313b); padding: 1rem 1.1rem; font-size: 0.9rem; }
+.success { margin-top: 1.5rem; display: flex; gap: 0.55rem; align-items: center; border: 1px solid var(--jp-accent-border, #a8dec3); border-radius: 0.9rem; background: var(--profile-accent-soft); color: var(--profile-accent); padding: 1rem 1.1rem; font-size: 0.9rem; }
 .authCard, .statusCard, .preferenceCard, .byokCard { border: 1px solid var(--profile-border); border-radius: 1.25rem; background: var(--profile-surface); box-shadow: 0 14px 40px rgba(23, 36, 58, 0.06); }
 .authCard { margin-top: 2rem; padding: 2rem; }
 .authCard p { color: var(--profile-muted); }
@@ -34,7 +34,7 @@
 .statusEmail { font-size: 0.95rem; font-weight: 700; }
 .statusText { margin-top: 0.3rem; color: var(--profile-muted); font-size: 0.78rem; }
 .statusVerification { width: 100%; border-top: 1px solid var(--profile-border); padding-top: 1rem; color: var(--profile-muted); font-size: 0.88rem; }
-.warning { margin-top: 1rem; color: #93651f; font-size: 0.88rem; }
+.warning { margin-top: 1rem; color: var(--jp-warn, #93651f); font-size: 0.88rem; }
 .preferenceLayout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr); gap: 1.25rem; margin-top: 1.5rem; }
 .preferenceCard { padding: clamp(1.25rem, 3vw, 2rem); }
 .sectionTitle { font-size: 1.05rem; font-weight: 700; }

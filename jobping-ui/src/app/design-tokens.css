@@ -1,27 +1,51 @@
 :root {
   --jp-canvas: #f5f6fa;
   --jp-surface: #ffffff;
+  --jp-surface-elevated: #ffffff;
   --jp-soft: #eef2f6;
+  --jp-soft-hover: #e3e9f0;
   --jp-text: #17243a;
-  --jp-muted: #667185;
-  --jp-border: #e5e9ef;
+  --jp-muted: #5e6a7d;
+  --jp-border: #e2e7ef;
+  --jp-border-strong: #cbd5e1;
   --jp-accent: #206653;
+  --jp-accent-strong: #164b3d;
   --jp-mint: #b7f1d7;
-  --jp-accent-soft: #edf8f2;
+  --jp-accent-soft: #eaf7f0;
+  --jp-accent-border: #b5e2cc;
   --jp-nav: #111d34;
   --jp-nav-hover: #22314b;
+  --jp-danger: #b43c3c;
+  --jp-danger-soft: #fff5f5;
+  --jp-danger-border: #f1c4c4;
+  --jp-warn: #8a5a14;
+  --jp-warn-soft: #fef9ec;
+  --jp-warn-border: #f3dca6;
   --jp-radius: 18px;
-  --jp-shadow: 0 6px 24px rgb(17 29 52 / 3%);
+  --jp-shadow: 0 6px 24px rgb(17 29 52 / 4%);
+  --jp-shadow-lg: 0 14px 36px rgb(17 29 52 / 9%);
 }
 
 :root[data-theme="dark"] {
   --jp-canvas: #0d1729;
   --jp-surface: #15223a;
+  --jp-surface-elevated: #1b2b48;
   --jp-soft: #1d2c45;
+  --jp-soft-hover: #263856;
   --jp-text: #eef4fa;
   --jp-muted: #a3b1c5;
   --jp-border: #2b3b54;
+  --jp-border-strong: #3b4f6e;
   --jp-accent: #b7f1d7;
-  --jp-accent-soft: #203e3a;
-  --jp-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+  --jp-accent-strong: #206653;
+  --jp-accent-soft: #1c3937;
+  --jp-accent-border: #2f6358;
+  --jp-danger: #f59393;
+  --jp-danger-soft: #2e1c26;
+  --jp-danger-border: #5c2c38;
+  --jp-warn: #f6c977;
+  --jp-warn-soft: #2d261a;
+  --jp-warn-border: #594726;
+  --jp-shadow: 0 6px 24px rgb(0 0 0 / 20%);
+  --jp-shadow-lg: 0 16px 40px rgb(0 0 0 / 36%);
 }
