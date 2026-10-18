@@ -18,8 +18,28 @@ it('keeps negative role policy alongside separately dated employer history and p
   render(<JobEvidence job={{ ...job, details: { policies: { sponsorship: { value: 'denied', evidence: [evidence] } }, compensation: [{ ...evidence, minimum: '35', maximum: '50', currency: 'USD', interval: 'hour', component: 'base', location: 'New York' }] }, immigration_records: [{ kind: 'h1b_filings', year: 2025, count: 10, employer_name: 'Acme LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at }] }} />);
   expect(screen.getAllByText('Sponsorship: Not accepted')).toHaveLength(2);
   expect(screen.getByText('H-1B history · employer')).toBeInTheDocument();
+  expect(screen.getByText('Filed 10 H-1B petitions, last filed 2025')).toBeInTheDocument();
   expect(screen.getByText('H-1B certified filings · 2025')).toBeInTheDocument();
   expect(screen.getAllByText(evidence.excerpt)).toHaveLength(2);
   expect(screen.getByRole('link', { name: 'Official source' })).toHaveAttribute('href', 'https://www.dol.gov/data');
   expect(screen.getAllByText(/USD.*hour base pay/)).toHaveLength(2);
 });
+
+it('aggregates multi-year DOL H-1B filings into a deterministic headline and range', () => {
+  render(
+    <JobEvidence
+      job={{
+        ...job,
+        immigration_records: [
+          { kind: 'h1b_filings', year: 2016, count: 40, employer_name: 'ACME INC.', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
+          { kind: 'h1b_filings', year: 2025, count: 110, employer_name: 'ACME LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
+        ],
+      }}
+    />,
+  );
+  expect(screen.getAllByText('Filed 150 H-1B petitions, last filed 2025')).toHaveLength(2);
+  expect(screen.getByText('FY2016–FY2025 across 2 fiscal years')).toBeInTheDocument();
+  expect(screen.getByText('H-1B certified filings · 2025')).toBeInTheDocument();
+  expect(screen.getByText('H-1B certified filings · 2016')).toBeInTheDocument();
+});
+
