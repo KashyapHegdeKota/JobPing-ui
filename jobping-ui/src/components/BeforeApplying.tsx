@@ -8,7 +8,7 @@ import { notificationApiUrl, notificationRequest } from "../lib/notifications";
 import { limitedFetch } from "../lib/requestCooldown";
 import { bucketLabels, parseRestrictions, parseScreening, restrictionNames, type EvidenceResponse } from "../lib/screening";
 import { parseJobDetails } from "../lib/parseJobDetails";
-import { formatPay, policyNames, safeEvidenceUrl } from "../lib/jobDetails";
+import { formatPay, policyNames, safeEvidenceUrl, summarizeH1bHistory } from "../lib/jobDetails";
 import type { PolicyKind } from "../lib/jobDetails";
 import { trackActivity } from "../lib/analytics";
 import styles from "./screening.module.css";
@@ -22,6 +22,7 @@ export default function BeforeApplying({ job }: { job: Job }) {
   const dialog = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const href = safeEvidenceUrl(job.apply_url ?? "");
+  const h1bSummary = summarizeH1bHistory(job.immigration_records);
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -88,6 +89,7 @@ export default function BeforeApplying({ job }: { job: Job }) {
       </div>
       {loading && <p role="status" className={styles.statusLine}>Reading cached employer evidence…</p>}
       {result && <div className={`${styles.summary} ${result.bucket === "excluded" ? styles.summaryExcluded : result.bucket === "review" ? styles.summaryReview : ""}`}><strong>{bucketLabels[result.bucket]}</strong><ul>{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
+      {h1bSummary && <section className={styles.evidenceBlock}><strong>{h1bSummary.headline}</strong><p className={styles.metaLine}>Official employer history ({h1bSummary.yearsCount > 1 ? `FY${h1bSummary.earliestYear}–FY${h1bSummary.latestYear}` : `FY${h1bSummary.latestYear}`}) · Employer history does not guarantee sponsorship for this role.</p><ul>{h1bSummary.records.map((record, index) => <li key={`${record.kind}-${record.year}-${record.employer_name}-${index}`}>FY{record.year} · {record.employer_name}: {record.count.toLocaleString("en-US")} {record.kind === "h1b_filings" ? "certified H-1B filings" : "H-1B approvals"}{safeEvidenceUrl(record.source_url) && <> · <a href={safeEvidenceUrl(record.source_url)} target="_blank" rel="noopener noreferrer">Official source</a></>}</li>)}</ul></section>}
       {data && <p role="status" className={styles.statusLine}>{["queued", "running"].includes(data.status) ? "Checking public employer pages. Unresolved terms still need review." : data.fresh ? "Public employer pages checked." : "Couldn’t verify current employer terms."}</p>}
       {data?.verified_at && <p className={styles.metaLine}>Last complete check: {new Date(data.verified_at).toLocaleString()}</p>}
       {!auth.currentUser?.emailVerified && <p className={styles.noticeBanner}>Sign in with a verified account to refresh evidence and compare your private requirements.</p>}

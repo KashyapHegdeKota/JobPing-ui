@@ -33,12 +33,25 @@ describe("Private screening", () => {
     });
     expect(parsed.items[0].immigration_records?.[0]?.count).toBe(12);
   });
-  it("shows the employer quote supporting a citizenship restriction", async () => {
+  it("shows the employer quote supporting a citizenship restriction and deterministic H-1B filing summary", async () => {
     const evidence = { job_id: 1, status: "complete", fresh: true, verified_at: "2026-10-13T00:00:00Z", checked_at: null, documents: [], details: { policies: {}, compensation: [], restrictions: { citizenship_required: { value: "required", evidence: [{ source: "employer_page", excerpt: "Candidates must be US citizens.", observed_at: "2026-10-13T00:00:00Z", source_url: job.apply_url }] } } }, screening: { bucket: "excluded", reasons: ["Employer requires citizenship or permanent authorization"] } };
     mocks.fetch.mockResolvedValue({ ok: true, json: async () => evidence }); mocks.request.mockResolvedValue(evidence);
-    render(<BeforeApplying job={job} />);
+    render(
+      <BeforeApplying
+        job={{
+          ...job,
+          immigration_records: [
+            { kind: "h1b_filings", year: 2016, count: 15, employer_name: "ACME INC.", source_url: "https://www.dol.gov/data", observed_at: "2026-10-12T00:00:00Z" },
+            { kind: "h1b_filings", year: 2025, count: 35, employer_name: "ACME LLC", source_url: "https://www.dol.gov/data", observed_at: "2026-10-12T00:00:00Z" },
+          ],
+        }}
+      />,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Check before applying" }));
     await screen.findByText("Citizenship restriction: required");
+    expect(screen.getByText("Filed 50 H-1B petitions, last filed 2025")).toBeInTheDocument();
+    expect(screen.getByText(/FY2025 · ACME LLC: 35 certified H-1B filings/)).toBeInTheDocument();
+    expect(screen.getByText(/FY2016 · ACME INC\.: 15 certified H-1B filings/)).toBeInTheDocument();
     expect(screen.getByText("Candidates must be US citizens.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Employer source" })).toHaveAttribute("href", job.apply_url);
   });

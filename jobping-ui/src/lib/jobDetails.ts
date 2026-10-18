@@ -45,3 +45,34 @@ export function formatPay(pay: CompensationRange): string {
 export function safeEvidenceUrl(value: string): string | undefined {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : undefined; } catch { return undefined; }
 }
+
+export interface H1bHistorySummary {
+  totalFilings: number;
+  latestYear: number;
+  earliestYear: number;
+  yearsCount: number;
+  headline: string;
+  records: EmployerRecord[];
+}
+
+export function summarizeH1bHistory(records: EmployerRecord[] | undefined): H1bHistorySummary | null {
+  if (!records?.length) return null;
+  const filings = records.filter(record => record.kind === 'h1b_filings' && record.count > 0);
+  const target = filings.length ? filings : records.filter(record => record.kind === 'h1b_approvals' && record.count > 0);
+  if (!target.length) return null;
+  const sorted = [...target].sort((a, b) => b.year - a.year || b.count - a.count || a.employer_name.localeCompare(b.employer_name));
+  const totalFilings = sorted.reduce((sum, record) => sum + record.count, 0);
+  const years = new Set(sorted.map(record => record.year));
+  const latestYear = sorted[0].year;
+  const earliestYear = sorted[sorted.length - 1].year;
+  const noun = totalFilings === 1 ? 'petition' : 'petitions';
+  return {
+    totalFilings,
+    latestYear,
+    earliestYear,
+    yearsCount: years.size,
+    headline: `Filed ${totalFilings.toLocaleString('en-US')} H-1B ${noun}, last filed ${latestYear}`,
+    records: sorted,
+  };
+}
+
