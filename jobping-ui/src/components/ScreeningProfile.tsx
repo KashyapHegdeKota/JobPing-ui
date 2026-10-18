@@ -49,24 +49,61 @@ export default function ScreeningProfile() {
     finally { inFlight.current = false; if (version === generation.current) setBusy(false); }
   }
   function set<K extends keyof Requirements>(key: K, value: Requirements[K]) { setRequirements(old => ({ ...old, [key]: value })); }
-  return <section className={styles.panel} aria-label="Private job screening">
-    <h2>Check the fit before applying</h2>
-    <p>Choose the employer statements and base pay you need for US roles. Your requirements stay private to your account and do not change email matching.</p>
-    {loading ? <p role="status">Loading screening requirements…</p> : !user?.emailVerified ? <p>Sign in with a verified account to save private screening requirements.</p> : <form className={styles.form} onSubmit={event => { event.preventDefault(); void save(); }}>
-      <fieldset disabled={busy || cooldown > 0}>
-        <legend>Work authorization and base-pay targets</legend>
-        <label>Current authorization requirement<select value={requirements.authorization ?? ""} onChange={event => set("authorization", (event.target.value || null) as Requirements["authorization"])}>
-          <option value="">No requirement selected</option><option value="cpt">Explicit CPT acceptance</option><option value="opt">Explicit OPT acceptance</option><option value="stem_opt">Explicit STEM OPT support</option><option value="unrestricted">No temporary-authorization check needed</option>
-        </select></label>
-        <label><span><input type="checkbox" checked={requirements.future_sponsorship} onChange={event => set("future_sponsorship", event.target.checked)} /> Require explicit future sponsorship</span></label>
-        <label>Internship hourly base-pay target (USD)<input type="number" min="0" max="100000000" step="0.01" value={requirements.internship_hourly ?? ""} onChange={event => set("internship_hourly", event.target.value || null)} /></label>
-        <label>New-grad annual base-pay target (USD)<input type="number" min="0" max="100000000" step="0.01" value={requirements.new_grad_annual ?? ""} onChange={event => set("new_grad_annual", event.target.value || null)} /></label>
-        <label>Accepted US work locations, separated by semicolons<input value={requirements.locations.join("; ")} onChange={event => set("locations", event.target.value.split(";").map(value => value.trim()).filter(Boolean))} placeholder="Leave empty for all US locations" /></label>
-        <p className={styles.note}>Use exact employer location labels. A salary range matches when its advertised maximum reaches your target; the actual offer may be lower. Unknown terms go to Needs review.</p>
-      </fieldset>
-      <div className={styles.actions}><button disabled={busy || cooldown > 0} type="submit">Save screening requirements</button><button disabled={busy || cooldown > 0} type="button" onClick={() => void save(true)}>Delete screening requirements</button></div>
-    </form>}
-    {cooldown > 0 && <p role="status">Please wait {cooldown} seconds before changing requirements.</p>}
-    {message && <p role="status">{message}</p>}{error && <p className={styles.error} role="alert">{error}</p>}
-  </section>;
+  return (
+    <div className={styles.profileShell}>
+      <section className={`${styles.panel} ${styles.profilePanel}`} aria-label="Private job screening">
+        <p className={styles.eyebrow}>Private screening</p>
+        <h2>Check the fit before applying</h2>
+        <p className={styles.subtitle}>Choose the employer statements and base pay you need for US roles. Your requirements stay private to your account and do not change email matching.</p>
+        {loading ? (
+          <p role="status" className={styles.statusLine}>Loading screening requirements…</p>
+        ) : !user?.emailVerified ? (
+          <p className={styles.noticeBanner}>Sign in with a verified account to save private screening requirements.</p>
+        ) : (
+          <form className={styles.form} onSubmit={event => { event.preventDefault(); void save(); }}>
+            <fieldset className={styles.fieldset} disabled={busy || cooldown > 0}>
+              <legend className={styles.fieldLegend}>Work authorization and base-pay targets</legend>
+              <div className={styles.formGrid}>
+                <label className={styles.formField}>
+                  <span>Current authorization requirement</span>
+                  <select value={requirements.authorization ?? ""} onChange={event => set("authorization", (event.target.value || null) as Requirements["authorization"])}>
+                    <option value="">No requirement selected</option>
+                    <option value="cpt">Explicit CPT acceptance</option>
+                    <option value="opt">Explicit OPT acceptance</option>
+                    <option value="stem_opt">Explicit STEM OPT support</option>
+                    <option value="unrestricted">No temporary-authorization check needed</option>
+                  </select>
+                </label>
+                <label className={styles.checkboxCard}>
+                  <span>
+                    <input type="checkbox" checked={requirements.future_sponsorship} onChange={event => set("future_sponsorship", event.target.checked)} /> Require explicit future sponsorship
+                  </span>
+                </label>
+                <label className={styles.formField}>
+                  <span>Internship hourly base-pay target (USD)</span>
+                  <input type="number" min="0" max="100000000" step="0.01" placeholder="e.g. 45.00" value={requirements.internship_hourly ?? ""} onChange={event => set("internship_hourly", event.target.value || null)} />
+                </label>
+                <label className={styles.formField}>
+                  <span>New-grad annual base-pay target (USD)</span>
+                  <input type="number" min="0" max="100000000" step="0.01" placeholder="e.g. 125000" value={requirements.new_grad_annual ?? ""} onChange={event => set("new_grad_annual", event.target.value || null)} />
+                </label>
+                <label className={`${styles.formField} ${styles.formFieldFull}`}>
+                  <span>Accepted US work locations, separated by semicolons</span>
+                  <input value={requirements.locations.join("; ")} onChange={event => set("locations", event.target.value.split(";").map(value => value.trim()).filter(Boolean))} placeholder="Leave empty for all US locations" />
+                </label>
+              </div>
+              <p className={styles.note}>Use exact employer location labels. A salary range matches when its advertised maximum reaches your target; the actual offer may be lower. Unknown terms go to Needs review.</p>
+            </fieldset>
+            <div className={styles.actions}>
+              <button className={styles.primaryAction} disabled={busy || cooldown > 0} type="submit">Save screening requirements</button>
+              <button className={styles.secondaryAction} disabled={busy || cooldown > 0} type="button" onClick={() => void save(true)}>Delete screening requirements</button>
+            </div>
+          </form>
+        )}
+        {cooldown > 0 && <p role="status" className={styles.statusLine}>Please wait {cooldown} seconds before changing requirements.</p>}
+        {message && <p role="status" className={styles.successBanner}>{message}</p>}
+        {error && <p className={styles.error} role="alert">{error}</p>}
+      </section>
+    </div>
+  );
 }
