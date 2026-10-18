@@ -2,6 +2,13 @@
 
 ## In progress
 
+### UI-REVAMP-001 Polish search/filter controls, screening buckets, and responsive layouts
+
+- Polished the live and screened feed workspace layout (`LiveFeedPage`, `jobs-page.module.css`, `screening.module.css`), fixing viewport height overflow when the feed mode switcher is enabled and eliminating the nested 60dvh mobile scroll trap.
+- Revamped `FilterBar`, `Combobox`, and `DiscoveryControls` with grouped category pills, tactile checkbox toggle pills, grouped pay inputs, dark-mode-aware popover tokens, and mobile-safe popover bounds.
+- Aligned `ScreenedFeed` header/card widths, inline search toolbar, bucket tabs, pagination bar, `BeforeApplying` dialog sections/CTAs, `ScreeningProfile` 2-column grid alignment on `/profile`, and `JobCard` screening status callouts.
+- Preserved all existing API, analytics, authentication, and test contracts.
+
 ### UI-CHECK-001 Sponsorship and pay checks before applying
 
 - Resumed and updated on October 16, 2026. Implemented private requirements,

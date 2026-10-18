@@ -82,20 +82,23 @@ export default function BeforeApplying({ job }: { job: Job }) {
         }
       }
     }}>
-      <h2>{job.title}</h2><p>{job.company} · {job.location}</p>
-      {loading && <p role="status">Reading cached employer evidence…</p>}
-      {result && <div className={styles.summary}><strong>{bucketLabels[result.bucket]}</strong><ul>{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
-      {data && <p role="status">{["queued", "running"].includes(data.status) ? "Checking public employer pages. Unresolved terms still need review." : data.fresh ? "Public employer pages checked." : "Couldn’t verify current employer terms."}</p>}
-      {data?.verified_at && <p>Last complete check: {new Date(data.verified_at).toLocaleString()}</p>}
-      {!auth.currentUser?.emailVerified && <p>Sign in with a verified account to refresh evidence and compare your private requirements.</p>}
-      {details?.compensation.map((pay, index) => <div key={index}><strong>{formatPay(pay)}</strong><p>{pay.location}</p><blockquote>{pay.excerpt}</blockquote></div>)}
-      {Object.entries(details?.policies ?? {}).map(([name, fact]) => fact && <section key={name}><strong>{policyNames[name as PolicyKind]}: {fact.value}</strong>{fact.evidence.map((item, index) => <blockquote key={index}>{item.excerpt} {safeEvidenceUrl(item.source_url) && <a href={item.source_url} target="_blank" rel="noopener noreferrer">Employer source</a>}</blockquote>)}</section>)}
-      {Object.entries(restrictions).map(([name, fact]) => fact && <section key={name}><strong>{restrictionNames[name as keyof typeof restrictionNames]}: {fact.value}</strong>{fact.evidence.map((item, index) => <blockquote key={index}>{item.excerpt} <a href={item.source_url} target="_blank" rel="noopener noreferrer">Employer source</a></blockquote>)}</section>)}
-      {!details?.compensation.length && <p>Applicable base pay not stated on checked pages.</p>}
+      <div className={styles.dialogHeader}>
+        <h2>{job.title}</h2>
+        <p className={styles.dialogSub}>{job.company} · {job.location}</p>
+      </div>
+      {loading && <p role="status" className={styles.statusLine}>Reading cached employer evidence…</p>}
+      {result && <div className={`${styles.summary} ${result.bucket === "excluded" ? styles.summaryExcluded : result.bucket === "review" ? styles.summaryReview : ""}`}><strong>{bucketLabels[result.bucket]}</strong><ul>{result.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
+      {data && <p role="status" className={styles.statusLine}>{["queued", "running"].includes(data.status) ? "Checking public employer pages. Unresolved terms still need review." : data.fresh ? "Public employer pages checked." : "Couldn’t verify current employer terms."}</p>}
+      {data?.verified_at && <p className={styles.metaLine}>Last complete check: {new Date(data.verified_at).toLocaleString()}</p>}
+      {!auth.currentUser?.emailVerified && <p className={styles.noticeBanner}>Sign in with a verified account to refresh evidence and compare your private requirements.</p>}
+      {details?.compensation.map((pay, index) => <div key={index} className={styles.evidenceBlock}><strong>{formatPay(pay)}</strong>{pay.location && <p className={styles.metaLine}>{pay.location}</p>}<blockquote>{pay.excerpt}</blockquote></div>)}
+      {Object.entries(details?.policies ?? {}).map(([name, fact]) => fact && <section key={name} className={styles.evidenceBlock}><strong>{policyNames[name as PolicyKind]}: {fact.value}</strong>{fact.evidence.map((item, index) => <blockquote key={index}>{item.excerpt} {safeEvidenceUrl(item.source_url) && <a href={item.source_url} target="_blank" rel="noopener noreferrer">Employer source</a>}</blockquote>)}</section>)}
+      {Object.entries(restrictions).map(([name, fact]) => fact && <section key={name} className={styles.evidenceBlock}><strong>{restrictionNames[name as keyof typeof restrictionNames]}: {fact.value}</strong>{fact.evidence.map((item, index) => <blockquote key={index}>{item.excerpt} <a href={item.source_url} target="_blank" rel="noopener noreferrer">Employer source</a></blockquote>)}</section>)}
+      {!details?.compensation.length && <p className={styles.metaLine}>Applicable base pay not stated on checked pages.</p>}
       {error && <p role="alert" className={styles.error}>{error}</p>}
       <p className={styles.note}>An advertised range is not an offer. Terms behind login or answer-dependent steps remain unresolved.</p>
-      <div className={styles.actions}><button type="button" onClick={() => setOpen(false)}>Close</button><button type="button" disabled={loading} onClick={() => { setLoading(true); setError(""); setData(null); setRefresh(value => value + 1); }}>Refresh check</button>
-      {href && <a href={href} target="_blank" rel="noopener noreferrer" onClick={() => { const id = Number(job.id); if (Number.isSafeInteger(id) && id > 0) void trackActivity("job_click", "/", { job_id: id }); }}>Continue to employer manually</a>}</div>
+      <div className={`${styles.actions} ${styles.dialogFooter}`}><button type="button" className={styles.secondaryAction} onClick={() => setOpen(false)}>Close</button><button type="button" className={styles.secondaryAction} disabled={loading} onClick={() => { setLoading(true); setError(""); setData(null); setRefresh(value => value + 1); }}>Refresh check</button>
+      {href && <a href={href} target="_blank" rel="noopener noreferrer" className={styles.primaryLink} onClick={() => { const id = Number(job.id); if (Number.isSafeInteger(id) && id > 0) void trackActivity("job_click", "/", { job_id: id }); }}>Continue to employer manually</a>}</div>
     </div></div>}
   </>;
 }

@@ -41,19 +41,72 @@ export default function ScreenedFeed() {
       .finally(() => { if (version === generation.current && !controller.signal.aborted) setLoading(false); });
     return () => { controller.abort(); };
   }, [user, bucket, page, search, refresh]);
-  return <div className={styles.feed}>
-    <header className={styles.panel}><h1>Know the terms before applying</h1><p>Current employer evidence compared with your private requirements. Unresolved roles stay available for review.</p>
-      {!user?.emailVerified ? <p>Sign in with a verified account to browse your matches. All roles remain available above.</p> : <>
-        <a href="/profile">Edit private screening requirements</a>
-        {data && !data.profile_configured && <p role="status">Set at least one requirement in your profile. Unconfigured roles appear in Needs review.</p>}
-        <div className={styles.actions}>{(Object.keys(bucketLabels) as ScreeningBucket[]).map(name => <button key={name} type="button" aria-pressed={bucket === name} onClick={() => { setBucket(name); setPage(1); }}>{bucketLabels[name]}{data ? ` (${data.counts[name]})` : ""}</button>)}</div>
-        <form className={styles.actions} onSubmit={event => { event.preventDefault(); setSearch(query); setPage(1); }}><input className={styles.search} aria-label="Search screened roles" value={query} maxLength={500} onChange={event => setQuery(event.target.value)} placeholder="Job title or company" /><button type="submit" disabled={loading || cooldown > 0}>Search</button><button type="button" disabled={loading || cooldown > 0} onClick={() => setRefresh(value => value + 1)}>Refresh results</button></form>
-      </>}
-      {loading && <p role="status">Updating screened results…</p>}{error && <p role="alert" className={styles.error}>{error}</p>}
-      {cooldown > 0 && <p role="status">Try again in {cooldown} seconds.</p>}
-    </header>
-    <div className={styles.cards}>{data?.items.map(job => <JobCard key={job.id} job={job} />)}</div>
-    {data && !loading && data.items.length === 0 && <p className={styles.panel}>No roles in this group match your search.</p>}
-    {data && <nav className={`${styles.panel} ${styles.actions}`} aria-label="Screened results pages"><button type="button" disabled={loading || cooldown > 0 || page <= 1} onClick={() => setPage(value => value - 1)}>Previous</button><span>Page {page} of {Math.max(1, data.total_pages)} · {data.total} roles</span><button type="button" disabled={loading || cooldown > 0 || page >= data.total_pages} onClick={() => setPage(value => value + 1)}>Next</button></nav>}
-  </div>;
+  return (
+    <div className={styles.feed}>
+      <header className={styles.panel}>
+        <div className={styles.headerTop}>
+          <div>
+            <p className={styles.eyebrow}>Personalized screening</p>
+            <h1>Know the terms before applying</h1>
+            <p className={styles.subtitle}>Current employer evidence compared with your private requirements. Unresolved roles stay available for review.</p>
+          </div>
+          {user?.emailVerified && (
+            <a href="/profile" className={styles.profileLink}>Edit private screening requirements</a>
+          )}
+        </div>
+        {!user?.emailVerified ? (
+          <p className={styles.noticeBanner}>Sign in with a verified account to browse your matches. All roles remain available above.</p>
+        ) : (
+          <>
+            {data && !data.profile_configured && (
+              <p role="status" className={styles.noticeBanner}>Set at least one requirement in your profile. Unconfigured roles appear in Needs review.</p>
+            )}
+            <div className={`${styles.actions} ${styles.bucketTabs}`} role="group" aria-label="Screening buckets">
+              {(Object.keys(bucketLabels) as ScreeningBucket[]).map(name => (
+                <button
+                  key={name}
+                  type="button"
+                  aria-pressed={bucket === name}
+                  onClick={() => { setBucket(name); setPage(1); }}
+                >
+                  {bucketLabels[name]}{data ? ` (${data.counts[name]})` : ""}
+                </button>
+              ))}
+            </div>
+            <form
+              className={`${styles.actions} ${styles.searchRow}`}
+              onSubmit={event => { event.preventDefault(); setSearch(query); setPage(1); }}
+            >
+              <input
+                className={styles.search}
+                aria-label="Search screened roles"
+                value={query}
+                maxLength={500}
+                onChange={event => setQuery(event.target.value)}
+                placeholder="Job title or company"
+              />
+              <button type="submit" className={styles.primaryAction} disabled={loading || cooldown > 0}>Search</button>
+              <button type="button" className={styles.secondaryAction} disabled={loading || cooldown > 0} onClick={() => setRefresh(value => value + 1)}>Refresh results</button>
+            </form>
+          </>
+        )}
+        {loading && <p role="status" className={styles.statusLine}>Updating screened results…</p>}
+        {error && <p role="alert" className={styles.error}>{error}</p>}
+        {cooldown > 0 && <p role="status" className={styles.statusLine}>Try again in {cooldown} seconds.</p>}
+      </header>
+      <div className={styles.cards}>
+        {data?.items.map(job => <JobCard key={job.id} job={job} />)}
+      </div>
+      {data && !loading && data.items.length === 0 && (
+        <p className={`${styles.panel} ${styles.emptyState}`}>No roles in this group match your search.</p>
+      )}
+      {data && (
+        <nav className={`${styles.panel} ${styles.actions} ${styles.pagination}`} aria-label="Screened results pages">
+          <button type="button" className={styles.secondaryAction} disabled={loading || cooldown > 0 || page <= 1} onClick={() => setPage(value => value - 1)}>Previous</button>
+          <span className={styles.pageMeta}>Page {page} of {Math.max(1, data.total_pages)} · {data.total} roles</span>
+          <button type="button" className={styles.secondaryAction} disabled={loading || cooldown > 0 || page >= data.total_pages} onClick={() => setPage(value => value + 1)}>Next</button>
+        </nav>
+      )}
+    </div>
+  );
 }

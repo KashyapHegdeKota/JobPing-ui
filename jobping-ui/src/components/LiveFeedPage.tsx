@@ -11,10 +11,21 @@ import screeningStyles from './screening.module.css';
 
 export default function LiveFeedPage() {
   const [screened, setScreened] = useState(true);
-  return <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}>
-    {screeningEnabled() && <nav aria-label="Job feed mode" className={screeningStyles.actions}><button type="button" aria-pressed={screened} onClick={() => setScreened(true)}>My screened roles</button><button type="button" aria-pressed={!screened} onClick={() => setScreened(false)}>All roles</button></nav>}
-    {screeningEnabled() && screened ? <ScreenedFeed /> : <LiveFeed />}
-  </Suspense>;
+  return (
+    <Suspense fallback={<p role="status" className="p-6 text-zinc-400">Loading jobs…</p>}>
+      <div className={styles.pageWrapper}>
+        {screeningEnabled() && (
+          <div className={screeningStyles.modeBar}>
+            <nav aria-label="Job feed mode" className={`${screeningStyles.actions} ${screeningStyles.modeSwitch}`}>
+              <button type="button" aria-pressed={screened} onClick={() => setScreened(true)}>My screened roles</button>
+              <button type="button" aria-pressed={!screened} onClick={() => setScreened(false)}>All roles</button>
+            </nav>
+          </div>
+        )}
+        {screeningEnabled() && screened ? <ScreenedFeed /> : <LiveFeed />}
+      </div>
+    </Suspense>
+  );
 }
 
 function LiveFeed() {
@@ -23,13 +34,13 @@ function LiveFeed() {
 
   return (
     <div className={`${styles.shell} flex w-full font-sans`}>
-      <div className="flex h-full w-full overflow-hidden">
+      <div className={styles.workspaceBody}>
         <JobFeed jobs={jobs} isConnected={isConnected} isLoading={isLoading} isLoadingMore={isLoadingMore} error={error} total={total} hasMore={hasMore} loadMore={loadMore} retry={retry} onDiscoveryQueryChange={setDiscoveryQuery} />
         <Filters />
       </div>
-      
+
       {!isConnected && (
-        <div className="fixed bottom-6 right-6 z-20 flex items-center gap-3 rounded-lg border border-[#e5caca] bg-[#fff7f7] px-5 py-3 text-sm font-medium text-[#b74c4c] shadow-lg">
+        <div className={styles.reconnectToast}>
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#d97878] opacity-75"></span>
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#c05a59]"></span>

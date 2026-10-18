@@ -50,7 +50,7 @@ export default function JobCard({ job }: { job: Job }) {
       }}>View role <ExternalLink size={15} aria-hidden="true" /></a>}
     </div>
     <JobEvidence job={job} />
-    {job.screening && <div role="status"><strong>{bucketLabels[job.screening.bucket]}</strong><ul>{job.screening.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
+    {job.screening && <div role="status" className={`${styles.screeningBox} ${job.screening.bucket === "excluded" ? styles.screeningExcluded : job.screening.bucket === "review" ? styles.screeningReview : ""}`}><strong>{bucketLabels[job.screening.bucket]}</strong><ul>{job.screening.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}
     {error && <p role="status" className={styles.error}>{error}</p>}
   </motion.article>;
 }
