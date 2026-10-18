@@ -28,8 +28,32 @@ export function readDiscoveryFilters(params: URLSearchParams): DiscoveryFilters 
   return { policy: Object.hasOwn(policyNames, policy) ? policy as PolicyKind : '', h1bHistory: params.get('h1b_history') === 'true', salaryReported: params.get('salary_reported') === 'true', minimumPay: minimum && Number.isFinite(Number(minimum)) && Number(minimum) >= 0 && Number(minimum) <= 100000000 ? minimum : '', currency: /^[A-Z]{3}$/.test(currency) ? currency : 'USD', interval: ['hour', 'week', 'month', 'year'].includes(interval) ? interval : 'year' };
 }
 
+export const MIN_ACTIVE_H1B_YEAR = 2023;
+
+export function isDeterministicH1bSponsor(
+  job: { details?: JobDetails | null; immigration_records?: EmployerRecord[] },
+  minYear: number = MIN_ACTIVE_H1B_YEAR,
+): boolean {
+  const spons = job.details?.policies.sponsorship?.value;
+  const future = job.details?.policies.future_sponsorship?.value;
+  if (spons && spons !== 'unknown' && spons !== 'allowed') return false;
+  if (future && future !== 'unknown' && future !== 'allowed') return false;
+  return Boolean(
+    job.immigration_records?.some(
+      record =>
+        (record.kind === 'h1b_filings' || record.kind === 'h1b_approvals') &&
+        record.year >= minYear &&
+        record.count >= 1,
+    ),
+  );
+}
+
 export function matchesDiscovery(job: { details?: JobDetails | null; immigration_records?: EmployerRecord[] }, filters: DiscoveryFilters): boolean {
-  if (filters.policy && job.details?.policies[filters.policy]?.value !== 'allowed') return false;
+  if (filters.policy) {
+    const explicit = job.details?.policies[filters.policy]?.value === 'allowed';
+    const dolFallback = (filters.policy === 'sponsorship' || filters.policy === 'future_sponsorship') && isDeterministicH1bSponsor(job);
+    if (!explicit && !dolFallback) return false;
+  }
   if (filters.h1bHistory && !job.immigration_records?.some(record => record.kind === 'h1b_filings' || record.kind === 'h1b_approvals')) return false;
   if (filters.salaryReported && !job.details?.compensation.length) return false;
   if (filters.minimumPay && !job.details?.compensation.some(pay => pay.currency === filters.currency && pay.interval === filters.interval && pay.minimum !== null && Number(pay.minimum) >= Number(filters.minimumPay))) return false;

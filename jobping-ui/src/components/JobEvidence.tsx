@@ -1,5 +1,5 @@
 import type { Job } from '../hooks/useLiveJobs';
-import { formatPay, policyNames, safeEvidenceUrl, summarizeH1bHistory, type PolicyKind } from '../lib/jobDetails';
+import { formatPay, isDeterministicH1bSponsor, policyNames, safeEvidenceUrl, summarizeH1bHistory, type PolicyKind } from '../lib/jobDetails';
 import styles from './JobCard.module.css';
 
 const values = { allowed: 'Accepted', denied: 'Not accepted', conditional: 'Conditional', conflicting: 'Conflicting information', unknown: 'Not stated' };
@@ -10,11 +10,14 @@ export default function JobEvidence({ job }: { job: Job }) {
   const compensation = job.details?.compensation ?? [];
   const records = job.immigration_records ?? [];
   const h1bSummary = summarizeH1bHistory(records);
+  const h1bSponsor = isDeterministicH1bSponsor(job);
+  const hasExplicitSponsorship = Boolean(job.details?.policies.sponsorship && job.details.policies.sponsorship.value !== 'unknown');
   const sortedRecords = [...records].sort((a, b) => b.year - a.year || b.count - a.count || a.employer_name.localeCompare(b.employer_name));
   return <div className={styles.evidence}>
     <div className={styles.badges}>
       {policies.map(([key, fact]) => fact && <span key={key} className={fact.value === 'allowed' ? styles.accepted : styles.caution}>{policyNames[key as PolicyKind]}: {values[fact.value]}</span>)}
-      {policies.length === 0 && <span className={styles.unknown}>Work authorization not stated</span>}
+      {!hasExplicitSponsorship && h1bSponsor && <span className={styles.accepted}>Sponsorship: Accepted (DOL H-1B history)</span>}
+      {policies.length === 0 && !h1bSponsor && <span className={styles.unknown}>Work authorization not stated</span>}
       {h1bSummary && <span className={styles.history}>H-1B history · employer</span>}
       {h1bSummary && <span className={styles.history}>{h1bSummary.headline}</span>}
       {(['cpt_history', 'opt_history', 'stem_opt_history', 'e_verify'] as const).map(kind => records.some(record => record.kind === kind) && <span className={styles.history} key={kind}>{historyLabels[kind]} · employer</span>)}
@@ -26,7 +29,10 @@ export default function JobEvidence({ job }: { job: Job }) {
       <p>These labels describe employer statements and historical records. CPT requires school authorization; OPT requires appropriate work authorization. STEM OPT also requires an eligible E-Verify employer and a training plan. Employer history does not guarantee sponsorship for this role.</p>
       {(Object.entries(policyNames) as [PolicyKind, string][]).map(([key, name]) => {
         const fact = job.details?.policies[key];
-        return <section key={key}><strong>{name}: {values[fact?.value ?? 'unknown']}</strong>{fact?.evidence.map((item, index) => <blockquote key={index}><p>{item.excerpt}</p><EvidenceLink url={item.source_url} label={item.source} /><span> · Checked {new Date(item.observed_at).toLocaleDateString()}</span></blockquote>)}</section>;
+        const statusLabel = (!fact || fact.value === 'unknown') && h1bSponsor && (key === 'sponsorship' || key === 'future_sponsorship')
+          ? 'Accepted (DOL H-1B history)'
+          : values[fact?.value ?? 'unknown'];
+        return <section key={key}><strong>{name}: {statusLabel}</strong>{fact?.evidence.map((item, index) => <blockquote key={index}><p>{item.excerpt}</p><EvidenceLink url={item.source_url} label={item.source} /><span> · Checked {new Date(item.observed_at).toLocaleDateString()}</span></blockquote>)}</section>;
       })}
       {compensation.map((pay, index) => <section key={index}><strong>{formatPay(pay)}</strong><p>{pay.excerpt}</p><EvidenceLink url={pay.source_url} label="Employer posting" /></section>)}
       {h1bSummary && h1bSummary.yearsCount > 1 && <section><strong>{h1bSummary.headline}</strong><p>FY{h1bSummary.earliestYear}–FY{h1bSummary.latestYear} across {h1bSummary.yearsCount} fiscal years</p></section>}
@@ -40,4 +46,5 @@ function EvidenceLink({ url, label }: { url: string; label: string }) {
   const href = safeEvidenceUrl(url);
   return href ? <a href={href} target="_blank" rel="noopener noreferrer">{label}</a> : <span>{label}</span>;
 }
+
 
