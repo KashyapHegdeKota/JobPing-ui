@@ -2,6 +2,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import JobEvidence from './JobEvidence';
 import type { Job } from '../hooks/useLiveJobs';
+import { emptyDiscoveryFilters, matchesDiscovery } from '../lib/jobDetails';
 
 afterEach(cleanup);
 const job: Job = { id: 1, title: 'Intern', company: 'Acme', location: 'US', discovered_at: '2026-10-08T12:00:00Z', is_closed: false };
@@ -15,8 +16,18 @@ it('shows unknown fields explicitly without guessing international eligibility',
 });
 
 it('keeps negative role policy alongside separately dated employer history and pay', () => {
-  render(<JobEvidence job={{ ...job, details: { policies: { sponsorship: { value: 'denied', evidence: [evidence] } }, compensation: [{ ...evidence, minimum: '35', maximum: '50', currency: 'USD', interval: 'hour', component: 'base', location: 'New York' }] }, immigration_records: [{ kind: 'h1b_filings', year: 2025, count: 10, employer_name: 'Acme LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at }] }} />);
+  const deniedJob: Job = {
+    ...job,
+    details: {
+      policies: { sponsorship: { value: 'denied', evidence: [evidence] } },
+      compensation: [{ ...evidence, minimum: '35', maximum: '50', currency: 'USD', interval: 'hour', component: 'base', location: 'New York' }],
+    },
+    immigration_records: [{ kind: 'h1b_filings', year: 2025, count: 10, employer_name: 'Acme LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at }],
+  };
+  render(<JobEvidence job={deniedJob} />);
   expect(screen.getAllByText('Sponsorship: Not accepted')).toHaveLength(2);
+  expect(screen.queryByText('Sponsorship: Accepted (DOL H-1B history)')).not.toBeInTheDocument();
+  expect(matchesDiscovery(deniedJob, { ...emptyDiscoveryFilters, policy: 'sponsorship' })).toBe(false);
   expect(screen.getByText('H-1B history · employer')).toBeInTheDocument();
   expect(screen.getByText('Filed 10 H-1B petitions, last filed 2025')).toBeInTheDocument();
   expect(screen.getByText('H-1B certified filings · 2025')).toBeInTheDocument();
@@ -25,21 +36,24 @@ it('keeps negative role policy alongside separately dated employer history and p
   expect(screen.getAllByText(/USD.*hour base pay/)).toHaveLength(2);
 });
 
-it('aggregates multi-year DOL H-1B filings into a deterministic headline and range', () => {
-  render(
-    <JobEvidence
-      job={{
-        ...job,
-        immigration_records: [
-          { kind: 'h1b_filings', year: 2016, count: 40, employer_name: 'ACME INC.', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
-          { kind: 'h1b_filings', year: 2025, count: 110, employer_name: 'ACME LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
-        ],
-      }}
-    />,
-  );
+it('aggregates multi-year DOL H-1B filings into a deterministic headline and sponsorship badge', () => {
+  const sponsoredJob: Job = {
+    ...job,
+    immigration_records: [
+      { kind: 'h1b_filings', year: 2016, count: 40, employer_name: 'ACME INC.', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
+      { kind: 'h1b_filings', year: 2025, count: 110, employer_name: 'ACME LLC', source_url: 'https://www.dol.gov/data', observed_at: evidence.observed_at },
+    ],
+  };
+  render(<JobEvidence job={sponsoredJob} />);
+  expect(screen.getAllByText('Sponsorship: Accepted (DOL H-1B history)')).toHaveLength(2);
+  expect(screen.getByText('Future sponsorship: Accepted (DOL H-1B history)')).toBeInTheDocument();
+  expect(screen.queryByText('Work authorization not stated')).not.toBeInTheDocument();
+  expect(matchesDiscovery(sponsoredJob, { ...emptyDiscoveryFilters, policy: 'sponsorship' })).toBe(true);
+  expect(matchesDiscovery(sponsoredJob, { ...emptyDiscoveryFilters, policy: 'future_sponsorship' })).toBe(true);
   expect(screen.getAllByText('Filed 150 H-1B petitions, last filed 2025')).toHaveLength(2);
   expect(screen.getByText('FY2016–FY2025 across 2 fiscal years')).toBeInTheDocument();
   expect(screen.getByText('H-1B certified filings · 2025')).toBeInTheDocument();
   expect(screen.getByText('H-1B certified filings · 2016')).toBeInTheDocument();
 });
+
 
