@@ -31,55 +31,56 @@ export default function Combobox({ value, onChange, options, placeholder = "Sele
   }, [options, search]);
 
   return (
-    <div className="relative inline-block text-left" ref={containerRef}>
+    <div className={styles.comboboxWrap} ref={containerRef}>
       <button
         type="button"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         onClick={() => { setIsOpen(!isOpen); setSearch(''); }}
-        className={styles.select}
+        className={`${styles.select} ${styles.comboboxTrigger} ${value !== 'All' ? styles.selectActive : ''}`}
       >
         <span className="truncate">{value === 'All' ? placeholder : value}</span>
-        <ChevronDown className="h-3.5 w-3.5 opacity-50 ml-2 shrink-0" />
+        <ChevronDown className={`h-3.5 w-3.5 opacity-60 ml-2 shrink-0 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -5 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15 }}
-            className="absolute z-50 mt-1 w-full min-w-[16rem] overflow-hidden rounded-lg border border-[#dfe6eb] bg-white shadow-xl"
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.14 }}
+            className={styles.comboboxPopover}
           >
-            <div className="flex items-center border-b border-[#e5e9ed] p-2">
-              <Search className="mr-2 h-3.5 w-3.5 shrink-0 text-[#8793a4]" />
+            <div className={styles.comboboxSearchRow}>
+              <Search className="mr-2 h-3.5 w-3.5 shrink-0 opacity-60" />
               <input
                 autoFocus
-                className="w-full bg-transparent text-sm text-[#17243a] placeholder-[#8793a4] focus:outline-none"
-                placeholder="Search..."
+                className={styles.comboboxInput}
+                placeholder="Search companies..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Escape') setIsOpen(false); }}
               />
             </div>
-            <div className="max-h-60 overflow-y-auto p-1">
+            <div className={styles.comboboxList} role="listbox">
               <button
                 type="button"
                 onClick={() => { onChange('All'); setIsOpen(false); }}
-                className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition-colors ${value === 'All' ? 'bg-[#e4f9ed] text-[#206653]' : 'text-[#42526a] hover:bg-[#f5f7fa]'}`}
+                className={`${styles.comboboxOption} ${value === 'All' ? styles.comboboxOptionActive : ''}`}
               >
                 {placeholder}
-                {value === 'All' && <Check className="h-3.5 w-3.5" />}
+                {value === 'All' && <Check className="h-3.5 w-3.5 shrink-0" />}
               </button>
               {filteredOptions.length === 0 ? (
-                <div className="px-2 py-3 text-center text-xs text-[#8793a4]">No results found</div>
+                <div className={styles.comboboxEmpty}>No results found</div>
               ) : (
                 filteredOptions.map(option => (
                   <button
                     type="button"
                     key={option}
                     onClick={() => { onChange(option); setIsOpen(false); }}
-                    className={`flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition-colors ${value === option ? 'bg-[#e4f9ed] text-[#206653]' : 'text-[#42526a] hover:bg-[#f5f7fa]'}`}
+                    className={`${styles.comboboxOption} ${value === option ? styles.comboboxOptionActive : ''}`}
                   >
                     <span className="truncate">{option}</span>
                     {value === option && <Check className="h-3.5 w-3.5 shrink-0" />}

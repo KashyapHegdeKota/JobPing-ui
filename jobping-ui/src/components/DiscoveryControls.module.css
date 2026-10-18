@@ -1,7 +1,156 @@
-.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--jp-border); border-radius: 12px; margin-bottom: 16px; color: var(--jp-text); background: var(--jp-surface); font-size: 12px; }
-.controls legend { padding: 0 6px; font-weight: 600; }
-.controls label { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-.controls select, .controls input[type="number"] { border: 1px solid var(--jp-border); border-radius: 6px; padding: 7px; color: var(--jp-text); background: var(--jp-surface); max-width: 100%; }
-.controls input[type="number"] { width: 100px; }
-.controls p { margin: 0; flex-basis: 100%; color: var(--jp-muted); line-height: 1.5; }
-@media (max-width: 480px) { .controls { gap: 12px; } .controls label:first-of-type { width: 100%; } .controls select { min-width: 0; } }
+.controls {
+  display: block;
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 1rem 1.15rem 0.9rem;
+  border: 1px solid var(--jp-border);
+  border-radius: 1rem;
+  color: var(--jp-text);
+  background: var(--jp-surface);
+  box-shadow: var(--jp-shadow);
+  font-size: 0.78rem;
+}
+
+.legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  color: var(--jp-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.row {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.fieldLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--jp-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.fieldLabel span {
+  white-space: nowrap;
+}
+
+.controls select,
+.controls input[type="number"] {
+  height: 2.15rem;
+  border: 1px solid var(--jp-border);
+  border-radius: 0.55rem;
+  padding: 0 0.65rem;
+  color: var(--jp-text);
+  background: var(--jp-soft);
+  font-size: 0.76rem;
+  font-weight: 600;
+  max-width: 100%;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.controls select:hover,
+.controls input[type="number"]:hover {
+  border-color: var(--jp-border-strong);
+}
+
+.controls select:focus,
+.controls input[type="number"]:focus {
+  background: var(--jp-surface);
+  border-color: var(--jp-accent-border);
+  outline: none;
+}
+
+.controls input[type="number"] {
+  width: 6.25rem;
+}
+
+.toggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 2.15rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--jp-border);
+  border-radius: 999px;
+  background: var(--jp-surface);
+  color: var(--jp-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.toggleLabel:hover {
+  border-color: var(--jp-border-strong);
+  color: var(--jp-text);
+}
+
+.toggleLabel:has(input:checked) {
+  border-color: var(--jp-accent-border);
+  background: var(--jp-accent-soft);
+  color: var(--jp-accent);
+}
+
+.toggleLabel input {
+  margin: 0;
+  accent-color: var(--jp-accent);
+}
+
+.payGroup {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--jp-border);
+  border-radius: 0.7rem;
+  background: var(--jp-soft);
+}
+
+.payGroup select,
+.payGroup input[type="number"] {
+  background: var(--jp-surface);
+  height: 1.95rem;
+}
+
+.disclaimer {
+  clear: both;
+  margin: 0.75rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--jp-border);
+  color: var(--jp-muted);
+  font-size: 0.73rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .controls {
+    padding: 0.85rem;
+  }
+  .row {
+    gap: 0.55rem;
+  }
+  .fieldLabel {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .fieldLabel select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .payGroup {
+    width: 100%;
+    padding: 0.55rem;
+  }
+}
